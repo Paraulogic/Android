@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.arnyminerz.paraulogic.ui.Game
 import com.arnyminerz.paraulogic.ui.theme.AppTheme
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
+import com.arnyminerz.paraulogic.utils.launchUrl
 import io.sentry.Sentry
 import timber.log.Timber
 
@@ -45,7 +47,9 @@ class MainActivity : ComponentActivity() {
                                     painterResource(R.drawable.ic_logo_vilaweb),
                                     contentDescription = stringResource(R.string.image_desc_vilaweb),
                                     contentScale = ContentScale.Fit,
-                                    modifier = Modifier.size(48.dp)
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clickable { launchUrl("https://vilaweb.cat") }
                                 )
                             },
                             title = {
