@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Paraulògic</string>
+
+    <string name="image_desc_vilaweb">Vilaweb\'s Website</string>
+    <string name="image_desc_paraulogic">Paraulògic</string>
+
+    <string name="action_delete">Delete</string>
+    <string name="action_shuffle">Shuffle</string>
+    <string name="action_enter">Enter</string>
+
+    <string name="toast_short">The word is too short</string>
+    <string name="toast_missing_center">The center letter is missing</string>
+
+    <string name="state_found_n_words">You have found %d words: %s.</string>
+    <string name="state_found_no_words">You have still not found any words today.</string>
+</resources>
