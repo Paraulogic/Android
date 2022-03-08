@@ -15,6 +15,8 @@
 
     <string name="toast_short">The word is too short</string>
     <string name="toast_missing_center">The center letter is missing</string>
+    <string name="toast_already_found">Already added!</string>
+    <string name="toast_correct">Correct!</string>
 
     <string name="state_found_n_words">You have found %1$d of %2$d words: %3$s.</string>
     <string name="state_found_no_words">You have still not found any words today.</string>
