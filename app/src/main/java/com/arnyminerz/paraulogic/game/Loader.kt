@@ -51,8 +51,13 @@ fun decodeSource(source: String): GameInfo {
     val correctWords = hashMapOf<String, String>()
     for (word in splitWords) {
         val splitWord = word.split(':')
-        val key = splitWord[0].replace("\"", "").lowercase()
-        val value = splitWord[1].replace("\"", "")
+        val key = splitWord[0]
+            .replace("\"", "")
+            .lowercase()
+            .trim()
+        val value = splitWord[1]
+            .replace("\"", "")
+            .trim()
         correctWords[key] = value
     }
 
