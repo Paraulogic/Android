@@ -2,6 +2,13 @@ package com.arnyminerz.paraulogic.game
 
 import androidx.compose.runtime.MutableState
 import com.arnyminerz.paraulogic.crypto.md5
+import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_ALREADY_FOUND
+import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_CENTER_MISSING
+import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_CORRECT
+import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_INCORRECT
+import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_SHORT
+import com.arnyminerz.paraulogic.game.annotation.CheckWordResult
+import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 
 data class GameInfo(
     var letters: MutableState<List<Char>>,
@@ -78,6 +85,28 @@ data class GameInfo(
             if (!word.contains(letter, true))
                 containsAll = false
         return containsAll
+    }
+
+    /**
+     * Checks the validity of a word.
+     * @author Arnau Mora
+     * @since 20220308
+     * @param word The word to check.
+     * @param foundWords The words that the user has found until now.
+     */
+    @CheckWordResult
+    fun checkWord(word: String, foundWords: List<IntroducedWord>): Int {
+        val answer = word.trim().lowercase()
+        return if (answer.length < 3)
+            CHECK_WORD_SHORT
+        else if (!answer.contains(centerLetter))
+            CHECK_WORD_CENTER_MISSING
+        else if (!words.contains(answer))
+            CHECK_WORD_INCORRECT
+        else if (foundWords.map { it.word.lowercase() }.contains(answer))
+            CHECK_WORD_ALREADY_FOUND
+        else
+            CHECK_WORD_CORRECT
     }
 }
 
