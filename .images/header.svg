@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" height="500" id="svg11433"
+    version="1.1" viewBox="0 0 270.93333 132.29167" width="1024" xmlns="http://www.w3.org/2000/svg"
+    inkscape:export-filename="C:\Users\Arnym\GitProjects\Paraulogic\.images\header.png"
+    inkscape:export-xdpi="95.999992" inkscape:export-ydpi="95.999992"
+    inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)" sodipodi:docname="header.svg">
+    <title id="title22288">Imatge de Capçalera per al Play Store</title>
+    <sodipodi:namedview bordercolor="#666666" borderopacity="1.0" id="namedview11435"
+        pagecolor="#ffffff" showgrid="false" showguides="true" units="px"
+        inkscape:current-layer="layer1" inkscape:cx="361.22935" inkscape:cy="259.12185"
+        inkscape:document-units="mm" inkscape:guide-bbox="true" inkscape:pagecheckerboard="0"
+        inkscape:pageopacity="0.0" inkscape:pageshadow="2" inkscape:window-height="1009"
+        inkscape:window-maximized="1" inkscape:window-width="1920" inkscape:window-x="1592"
+        inkscape:window-y="-8" inkscape:zoom="0.51906082">
+        <sodipodi:guide id="guide22278" orientation="1,0" position="-2.1626212,-3.9534811" />
+        <sodipodi:guide id="guide22280" orientation="0,-1" position="-2.1626212,134.81473" />
+        <sodipodi:guide id="guide22282" orientation="1,0" position="273.57159,-3.9534811" />
+        <sodipodi:guide id="guide22284" orientation="0,-1" position="-2.1626212,-3.9534812" />
+    </sodipodi:namedview>
+    <defs id="defs11430" />
+    <g id="layer1" inkscape:groupmode="layer" inkscape:label="Capa 1">
+        <rect style="fill:#5abed7;fill-opacity:1;stroke-width:0.264583" height="138.7682"
+            id="rect11516" width="275.73422" x="-2.1626213" y="-2.5230582" />
+        <rect style="fill:#ec4a49;fill-opacity:1;stroke-width:1.30577" height="234.80482"
+            id="rect11672" transform="rotate(31.384619)" width="128.07536" x="-15.802758"
+            y="-71.445602" />
+        <text
+            style="font-style:normal;font-weight:normal;font-size:28.2222px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+            id="text13618" x="15.801769" y="78.440849" xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:28.2222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#ffffff;stroke-width:0.264583"
+         id="tspan13616"
+         x="15.801769"
+         y="78.440849"
+         sodipodi:role="line">Paraulògic App</tspan></text>
+    </g>
+    <metadata id="metadata22286">
+        <rdf:RDF>
+            <cc:Work rdf:about="">
+                <dc:title>Imatge de Capçalera per al Play Store</dc:title>
+            </cc:Work>
+        </rdf:RDF>
+    </metadata>
+</svg>
