@@ -10,6 +10,13 @@ import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_SHORT
 import com.arnyminerz.paraulogic.game.annotation.CheckWordResult
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 
+/**
+ * The amount of levels there are.
+ * @author Arnau Mora
+ * @since 20220308
+ */
+const val AMOUNT_OF_LEVELS = 7
+
 data class GameInfo(
     var letters: MutableState<List<Char>>,
     val centerLetter: Char,
@@ -45,6 +52,13 @@ data class GameInfo(
                 }
             return points
         }
+
+    /**
+     * Returns the amount of points that each level has.
+     * @author Arnau Mora
+     * @since 20220308
+     */
+    val pointsPerLevel: Int = maxPoints / AMOUNT_OF_LEVELS
 
     override fun toString(): String =
         "Letters: $letters. Center: $centerLetter. Words: $words"

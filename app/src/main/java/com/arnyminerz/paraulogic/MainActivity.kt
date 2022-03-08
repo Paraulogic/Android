@@ -144,8 +144,7 @@ class MainActivity : ComponentActivity() {
                         ) {
                             if (gameInfo != null) {
                                 val points = foundWords.calculatePoints(gameInfo!!)
-                                val maxPoints = gameInfo!!.maxPoints
-                                val ppl = maxPoints / 7 // Points per level
+                                val ppl = gameInfo!!.pointsPerLevel // Points per level
                                 AnimatedVisibility(visible = points > 0) {
                                     Text(
                                         text = when {
