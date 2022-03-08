@@ -5,8 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.arnyminerz.paraulogic.game.GameInfo
+import com.arnyminerz.paraulogic.game.calculatePoints
 import com.arnyminerz.paraulogic.game.decodeSource
 import com.arnyminerz.paraulogic.game.fetchSource
+import com.arnyminerz.paraulogic.game.getLevelFromPoints
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +20,8 @@ import java.util.Calendar
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     val correctWords = mutableStateOf<List<IntroducedWord>>(emptyList())
+    val points = mutableStateOf(0)
+    val level = mutableStateOf(0)
 
     fun loadGameInfo() =
         mutableStateOf<GameInfo?>(null).apply {
@@ -45,6 +49,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         }
                     }
                 this@MainViewModel.correctWords.value = newList
+                points.value = newList.calculatePoints(gameInfo)
+                level.value = getLevelFromPoints(points.value, gameInfo.pointsPerLevel)
             }
         }
     }
