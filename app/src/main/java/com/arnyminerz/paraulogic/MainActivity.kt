@@ -144,15 +144,17 @@ class MainActivity : ComponentActivity() {
                         ) {
                             if (gameInfo != null) {
                                 val points = foundWords.calculatePoints(gameInfo!!)
+                                val maxPoints = gameInfo!!.maxPoints
+                                val ppl = maxPoints / 7 // Points per level
                                 AnimatedVisibility(visible = points > 0) {
                                     Text(
                                         text = when {
-                                            points < 5 -> "\uD83D\uDC24" // 🐤
-                                            points < 10 -> "\uD83D\uDD4A️" // 🕊️
-                                            points < 20 -> "\uD83E\uDD86" // 🦆
-                                            points < 40 -> "\uD83E\uDDA2" // 🦢
-                                            points < 70 -> "\uD83E\uDD89" // 🦉
-                                            points < 100 -> "\uD83E\uDD85" // 🦅
+                                            points < ppl -> "\uD83D\uDC24" // 🐤
+                                            points < 2 * ppl -> "\uD83D\uDD4A️" // 🕊️
+                                            points < 3 * ppl -> "\uD83E\uDD86" // 🦆
+                                            points < 4 * ppl -> "\uD83E\uDDA2" // 🦢
+                                            points < 5 * ppl -> "\uD83E\uDD89" // 🦉
+                                            points < 6 * ppl -> "\uD83E\uDD85" // 🦅
                                             else -> "\uD83E\uDD9A" // 🦚
                                         },
                                         fontSize = 22.sp,
