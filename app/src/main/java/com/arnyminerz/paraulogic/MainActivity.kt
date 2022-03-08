@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.arnyminerz.paraulogic.game.calculatePoints
 import com.arnyminerz.paraulogic.play.games.createSignInClient
 import com.arnyminerz.paraulogic.play.games.signInSilently
 import com.arnyminerz.paraulogic.play.games.startSignInIntent
@@ -103,10 +104,14 @@ class MainActivity : ComponentActivity() {
                     bottomBar = {
                         BottomAppBar {
                             Text(
-                                text = if (foundWords.isEmpty())
+                                text = if (gameInfo == null)
                                     stringResource(R.string.status_loading)
                                 else
-                                    stringResource(R.string.points)
+                                    stringResource(
+                                        R.string.points,
+                                        foundWords.calculatePoints(gameInfo!!),
+                                        gameInfo!!.maxPoints
+                                    )
                             )
                         }
                     }
