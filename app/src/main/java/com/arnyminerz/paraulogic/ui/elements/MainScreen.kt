@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Analytics
+import androidx.compose.material.icons.outlined.Gamepad
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialog
@@ -30,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,13 +47,22 @@ import com.arnyminerz.paraulogic.ui.Game
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
 import com.arnyminerz.paraulogic.utils.launch
 import com.arnyminerz.paraulogic.utils.launchUrl
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @Composable
 @ExperimentalMaterial3Api
+@ExperimentalPagerApi
 fun ComponentActivity.MainScreen(viewModel: MainViewModel) {
+    val scope = rememberCoroutineScope()
+
     val gameInfo = viewModel.gameInfo
     var showHelpDialog by remember { mutableStateOf(false) }
+
+    val pagerState = rememberPagerState()
 
     if (showHelpDialog)
         AlertDialog(
@@ -140,6 +152,25 @@ fun ComponentActivity.MainScreen(viewModel: MainViewModel) {
                     modifier = Modifier.weight(1f)
                 ) {
                     IconButton(
+                        onClick = {
+                            scope.launch {
+                                pagerState.animateScrollToPage(if (pagerState.currentPage == 0) 1 else 0)
+                            }
+                        }
+                    ) {
+                        Icon(
+                            if (pagerState.currentPage == 0)
+                                Icons.Outlined.Analytics
+                            else Icons.Outlined.Gamepad,
+                            stringResource(
+                                if (pagerState.currentPage == 0)
+                                    R.string.image_desc_paraulogic
+                                else
+                                    R.string.image_desc_analytics
+                            )
+                        )
+                    }
+                    IconButton(
                         onClick = { showHelpDialog = true }
                     ) {
                         Icon(
@@ -159,16 +190,31 @@ fun ComponentActivity.MainScreen(viewModel: MainViewModel) {
             }
         }
     ) { paddingValues ->
-        if (gameInfo != null) {
-            Timber.i("Game info: $gameInfo")
+        HorizontalPager(
+            count = 2,
+            modifier = Modifier.padding(paddingValues),
+            state = pagerState,
+        ) { page ->
+            when (page) {
+                0 -> if (gameInfo != null) {
+                    Timber.i("Game info: $gameInfo")
 
-            Game(paddingValues, gameInfo, viewModel)
-        } else
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                CircularProgressIndicator()
+                    Game(gameInfo, viewModel)
+                } else
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                1 -> Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    Text("Stats")
+                }
             }
+        }
+
     }
 }
