@@ -26,10 +26,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.game.GameInfo
@@ -129,15 +133,39 @@ fun Game(
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(start = 8.dp, end = 8.dp),
-            text = if (foundWords.isNotEmpty())
-                stringResource(
-                    R.string.state_found_n_words,
-                    foundWords.size,
-                    foundWords.joinToString(", ") {
-                        gameInfo.words[it.word.lowercase()] ?: "<error>"
+            text = buildAnnotatedString {
+                if (foundWords.isNotEmpty()) {
+                    val string = stringResource(R.string.state_found_n_words)
+                    val countPosArg = string.indexOf("%1\$d")
+                    val totalPosArg = string.indexOf("%2\$d")
+                    val listPosArg = string.indexOf("%3\$s")
+
+                    append(string.substring(0, countPosArg))
+
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(foundWords.size.toString())
                     }
-                )
-            else stringResource(R.string.state_found_no_words)
+                    append(string.substring(countPosArg + 4, totalPosArg))
+
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(gameInfo.words.size.toString())
+                    }
+                    append(string.substring(totalPosArg + 4, listPosArg))
+                    for (word in foundWords) {
+                        withStyle(
+                            SpanStyle(
+                                color = if (gameInfo.isTuti(word.word)) Color.Red else Color.Black,
+                                fontWeight = FontWeight.Bold
+                            )
+                        ) {
+                            append(gameInfo.words[word.word.lowercase()] ?: "<error>")
+                        }
+                        if (foundWords.last() != word)
+                            append(", ")
+                    }
+                } else
+                    append(stringResource(R.string.state_found_no_words))
+            }
         )
 
         val tutis = foundWords.getTutis(gameInfo)
