@@ -26,4 +26,21 @@
     <string name="info_points">- Les paraules de 3 lletres donen 1 punt. Les de 4 lletres, 2 punts.\n- A partir de 5 lletres, tants punts com lletres tingui la paraula.\n- Cada joc inclou almenys un ‘tuti’ en què s’usen totes les lletres. Amb cada tuti obteniu 10 punts extra!</string>
     <string name="toast_missing_center">Falta la lletra del mig</string>
     <string name="toast_already_found">Ja hi és!</string>
+    <string name="action_back">Anar enrere</string>
+    <string name="action_send">Enviar</string>
+    <string name="toast_message_sent">Missatge enviat correctament</string>
+    <string name="settings_category_info">Informació</string>
+    <string name="settings_category_advanced">Avançat</string>
+    <string name="settings_info_github_title">Repositori de Github</string>
+    <string name="settings_info_github_summary">Pots veure el codi font de l\'aplicació.</string>
+    <string name="settings_info_feedback_title">Comentaris</string>
+    <string name="settings_info_feedback_summary">Envia comentaris als desenvolupadors de l\'aplicació.</string>
+    <string name="settings_error_reporting_title">Report d\'errors</string>
+    <string name="settings_error_reporting_summary">Si està activat, quan l\'aplicació es tanque de manera sobtada, s\'enviarà un report de l\'error als desenvolupadors. D\'aquesta manera és més senzill veure què ha fallat, i solucionar-ho. Cal reiniciar l\'aplicació per a aplicar.</string>
+    <string name="feedback_title">Enviar Missatge</string>
+    <string name="feedback_field_name">Nom</string>
+    <string name="feedback_field_name_hint">Ho pots deixar en blanc, serà utilitzat per a referir-se a tu en cas que et contactem.</string>
+    <string name="feedback_field_email">Correu electrònic</string>
+    <string name="feedback_field_email_hint">Ho pots deixar en blanc, ho utilitzarem per a contactar-te en cas de ser necessari.</string>
+    <string name="feedback_field_message">Missatge</string>
 </resources>

@@ -10,6 +10,8 @@
     <string name="action_shuffle">Shuffle</string>
     <string name="action_enter">Enter</string>
     <string name="action_close">Close</string>
+    <string name="action_back">Back</string>
+    <string name="action_send">Send</string>
 
     <string name="status_loading">Loading…</string>
 
@@ -17,6 +19,7 @@
     <string name="toast_missing_center">The center letter is missing</string>
     <string name="toast_already_found">Already added!</string>
     <string name="toast_correct">Correct!</string>
+    <string name="toast_message_sent">Message sent successfully</string>
 
     <string name="state_found_n_words">You have found %1$d of %2$d words: %3$s.</string>
     <string name="state_found_no_words">You have still not found any words today.</string>
@@ -32,4 +35,23 @@
     <string name="info_rules">- You have to find words with the letters shown. Letters can be used multiple times.\n- The middle letter (the red one) must be used.\n- Words must have at least 3 letters.\n- Only verbs in "infinitiu" can be used (no conjugated verbs). Substantives and adjectives will only be accepted in male-female, plural is not admitted.\n- Own names are not admitted. Only words that are contained in the Diccionari de la llengua catalana de l’Institut d’Estudis Catalans (DIEC) will be valid.</string>
     <string name="info_points_title">Points</string>
     <string name="info_points">- 3-letter words give 1 point; 4-letter words give 2 points.\n- Words larger than 5 letters will be worth as many points as letters the word has.\n- Each game has at least one "tuti" which is a word that has all the letters. Each tuti gives 10 extra points.</string>
+
+    <string name="settings_category_info">Information</string>
+    <string name="settings_category_advanced">Advanced</string>
+
+    <string name="settings_info_github_title">Github Repository</string>
+    <string name="settings_info_github_summary">View the source code of the app.</string>
+
+    <string name="settings_info_feedback_title">Feedback</string>
+    <string name="settings_info_feedback_summary">Send feedback to the developers of the app.</string>
+
+    <string name="settings_error_reporting_title">Error Reporting</string>
+    <string name="settings_error_reporting_summary">If checked, whenever the app crashes an anonymous error report is sent to the developers, so they can see what went wrong, and fix it. Requires app restart.</string>
+
+    <string name="feedback_title">Send Feedback</string>
+    <string name="feedback_field_name">Name</string>
+    <string name="feedback_field_name_hint">You can leave this empty, will only be used to refer to you in case we need to contact you.</string>
+    <string name="feedback_field_email">Email</string>
+    <string name="feedback_field_email_hint">You can leave this empty, will be used to contact you in case it is necessary.</string>
+    <string name="feedback_field_message">Message</string>
 </resources>
