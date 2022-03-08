@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -59,6 +61,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val viewModel by viewModels<MainViewModel>()
+            val gameInfo by remember { viewModel.loadGameInfo() }
+            val foundWords by remember { viewModel.correctWords }
 
             AppTheme {
                 // A surface container using the 'background' color from the theme
@@ -91,16 +95,24 @@ class MainActivity : ComponentActivity() {
                                 }
                             },
                         )
+                    },
+                    bottomBar = {
+                        BottomAppBar {
+                            Text(
+                                text = if (foundWords.isEmpty())
+                                    stringResource(R.string.status_loading)
+                                else
+                                    stringResource(R.string.points)
+                            )
+                        }
                     }
                 ) { paddingValues ->
-                    val gameInfo by remember { viewModel.loadGameInfo() }
-
                     if (gameInfo != null) {
                         Timber.i("Game info: $gameInfo")
 
-                        val foundWords by remember { viewModel.loadCorrectWords(gameInfo!!) }
-                        if (foundWords != null)
-                            Game(paddingValues, gameInfo!!, foundWords!!, viewModel)
+                        viewModel.loadCorrectWords(gameInfo!!)
+                        if (foundWords.isNotEmpty())
+                            Game(paddingValues, gameInfo!!, foundWords, viewModel)
                     }
                 }
             }
