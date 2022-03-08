@@ -14,7 +14,7 @@ android {
         applicationId "com.arnyminerz.paraulogic"
         minSdk 21
         targetSdk 32
-        versionCode 1
+        versionCode findProperty("android.versionCode") as Integer
         versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -66,6 +66,21 @@ android {
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+}
+
+// This increases version code on release
+android.applicationVariants.all { variant ->
+    if (variant.buildType.name == "release") {
+        variant.assemble.doLast {
+            def versionPropsFile = file("../gradle.properties")
+            Properties versionProps = new Properties()
+            versionProps.load(new FileInputStream(versionPropsFile))
+            def code = versionProps['android.versionCode'].toInteger() + 1
+            versionProps['android.versionCode'] = code.toString()
+            versionProps.store(versionPropsFile.newWriter(), null)
+            logger.lifecycle("Increased version code to $code")
         }
     }
 }
