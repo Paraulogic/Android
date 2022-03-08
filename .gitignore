@@ -14,5 +14,5 @@
 .cxx
 local.properties
 /app/release
-client_secret.json
+/app/google-services.json
 ids.xml
