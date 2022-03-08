@@ -43,6 +43,13 @@ data class GameInfo(
      */
     val pointsPerLevel: Int
 
+    /**
+     * Returns a unique hash of the game info.
+     * @author Arnau Mora
+     * @since 20220307
+     */
+    val hash: String
+
     init {
         var protoMaxPoints = 0
         for (word in words.keys)
@@ -60,6 +67,13 @@ data class GameInfo(
         tutisCount = protoTutisCount
 
         pointsPerLevel = maxPoints / AMOUNT_OF_LEVELS
+
+        val sortedLetters = letters.value.sorted()
+        val sortedWords = words.entries.sortedBy { it.key }.map { it.key + ":" + it.value }
+        val toHash = sortedLetters.joinToString(";") +
+                sortedWords.joinToString(";") +
+                centerLetter
+        hash = md5(toHash)
     }
 
     override fun toString(): String =
@@ -72,20 +86,6 @@ data class GameInfo(
      */
     fun shuffle() {
         letters.value = letters.value.shuffled()
-    }
-
-    /**
-     * Returns a unique hash of the game info.
-     * @author Arnau Mora
-     * @since 20220307
-     */
-    fun hash(): String {
-        val sortedLetters = letters.value.sorted()
-        val sortedWords = words.entries.sortedBy { it.key }.map { it.key + ":" + it.value }
-        val toHash = sortedLetters.joinToString(";") +
-                sortedWords.joinToString(";") +
-                centerLetter
-        return md5(toHash)
     }
 
     /**

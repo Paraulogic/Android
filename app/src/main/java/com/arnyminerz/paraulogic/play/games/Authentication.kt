@@ -9,20 +9,8 @@ import timber.log.Timber
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-fun MainActivity.startSignInIntent(client: GoogleSignInClient) {
-    val intent = client.signInIntent
-    signInResultLauncher.launch(intent)
-}
-
 fun MainActivity.createSignInClient(): GoogleSignInClient =
     GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
-/*GoogleSignIn.getClient(
-    this,
-    GoogleSignInOptions
-        .Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
-        .requestScopes(Games.SCOPE_GAMES)
-        .build()
-)*/
 
 suspend fun MainActivity.signInSilently(client: GoogleSignInClient) =
     suspendCoroutine<GoogleSignInAccount?> { cont ->

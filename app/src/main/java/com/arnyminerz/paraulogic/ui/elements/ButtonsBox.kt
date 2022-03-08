@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.arnyminerz.paraulogic.ui.elements.listeners.HexButtonClickListener
 import com.arnyminerz.paraulogic.ui.shapes.HexagonalShape
 
 private const val BUTTON_SIDE = 100
@@ -66,7 +65,11 @@ private fun LetterButton(
  * @param onClick Will get called when any button is tapped.
  */
 @Composable
-fun ButtonsBox(letters: String, onClick: HexButtonClickListener, modifier: Modifier = Modifier) {
+fun ButtonsBox(
+    letters: String,
+    onClick: (index: Int, letter: Char) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier,
@@ -81,7 +84,7 @@ fun ButtonsBox(letters: String, onClick: HexButtonClickListener, modifier: Modif
                     end = TOP_SIDE_PADDING.dp,
                     bottom = TOP_BOTT_PADDING.dp,
                 )
-        ) { onClick.onClick(0, letters[0]) }
+        ) { onClick(0, letters[0]) }
         LetterButton(
             letters[1],
             false,
@@ -91,7 +94,7 @@ fun ButtonsBox(letters: String, onClick: HexButtonClickListener, modifier: Modif
                     start = TOP_SIDE_PADDING.dp,
                     bottom = TOP_BOTT_PADDING.dp,
                 )
-        ) { onClick.onClick(1, letters[1]) }
+        ) { onClick(1, letters[1]) }
 
         // Middle row
         LetterButton(
@@ -100,20 +103,19 @@ fun ButtonsBox(letters: String, onClick: HexButtonClickListener, modifier: Modif
             Modifier
                 .align(Alignment.Center)
                 .padding(end = MID_SIDE_PADDING.dp)
-        ) { onClick.onClick(2, letters[2]) }
-        LetterButton(letters[3], true, Modifier.align(Alignment.Center)) {
-            onClick.onClick(
-                3,
-                letters[3]
-            )
-        }
+        ) { onClick(2, letters[2]) }
+        LetterButton(
+            letters[3],
+            true,
+            Modifier.align(Alignment.Center)
+        ) { onClick(3, letters[3]) }
         LetterButton(
             letters[4],
             false,
             Modifier
                 .align(Alignment.Center)
                 .padding(start = MID_SIDE_PADDING.dp)
-        ) { onClick.onClick(4, letters[4]) }
+        ) { onClick(4, letters[4]) }
 
         // Bottom row
         LetterButton(
@@ -125,7 +127,7 @@ fun ButtonsBox(letters: String, onClick: HexButtonClickListener, modifier: Modif
                     end = TOP_SIDE_PADDING.dp,
                     top = TOP_BOTT_PADDING.dp,
                 )
-        ) { onClick.onClick(5, letters[5]) }
+        ) { onClick(5, letters[5]) }
         LetterButton(
             letters[6],
             false,
@@ -135,6 +137,6 @@ fun ButtonsBox(letters: String, onClick: HexButtonClickListener, modifier: Modif
                     start = TOP_SIDE_PADDING.dp,
                     top = TOP_BOTT_PADDING.dp,
                 )
-        ) { onClick.onClick(6, letters[6]) }
+        ) { onClick(6, letters[6]) }
     }
 }
