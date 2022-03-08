@@ -1,4 +1,4 @@
-package com.arnyminerz.paraulogic
+package com.arnyminerz.paraulogic.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
