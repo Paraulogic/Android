@@ -1,4 +1,4 @@
-package com.arnyminerz.paraulogic.game.enum
+package com.arnyminerz.paraulogic.game.annotation
 
 import androidx.annotation.IntDef
 
