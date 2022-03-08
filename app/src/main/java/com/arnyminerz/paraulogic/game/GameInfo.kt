@@ -23,42 +23,44 @@ data class GameInfo(
     val words: Map<String, String>,
 ) {
     /**
-     * Returns the amount of tutis there are on the game info.
-     * @author Arnau Mora
-     * @since 20220308
-     */
-    val tutisCount: Int
-        get() {
-            var count = 0
-            for (word in words.keys)
-                if (isTuti(word))
-                    count++
-            return count
-        }
-
-    /**
      * Calculates the maximum amount of points that can be obtained in the game.
      * @author Arnau Mora
      * @since 20220308
      */
     val maxPoints: Int
-        get() {
-            var points = 0
-            for (word in words.keys)
-                points += when (word.length) {
-                    3 -> 1
-                    4 -> 2
-                    else -> word.length + (if (isTuti(word)) 10 else 0)
-                }
-            return points
-        }
+
+    /**
+     * Returns the amount of tutis there are on the game info.
+     * @author Arnau Mora
+     * @since 20220308
+     */
+    val tutisCount: Int
 
     /**
      * Returns the amount of points that each level has.
      * @author Arnau Mora
      * @since 20220308
      */
-    val pointsPerLevel: Int = maxPoints / AMOUNT_OF_LEVELS
+    val pointsPerLevel: Int
+
+    init {
+        var protoMaxPoints = 0
+        for (word in words.keys)
+            protoMaxPoints += when (word.length) {
+                3 -> 1
+                4 -> 2
+                else -> word.length + (if (isTuti(word)) 10 else 0)
+            }
+        maxPoints = protoMaxPoints
+
+        var protoTutisCount = 0
+        for (word in words.keys)
+            if (isTuti(word))
+                protoTutisCount++
+        tutisCount = protoTutisCount
+
+        pointsPerLevel = maxPoints / AMOUNT_OF_LEVELS
+    }
 
     override fun toString(): String =
         "Letters: $letters. Center: $centerLetter. Words: $words"
