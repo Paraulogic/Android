@@ -23,15 +23,12 @@ import com.arnyminerz.paraulogic.ui.Game
 import com.arnyminerz.paraulogic.ui.theme.AppTheme
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
 import com.arnyminerz.paraulogic.utils.launchUrl
-import io.sentry.Sentry
 import timber.log.Timber
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        Sentry.captureMessage("testing SDK setup")
 
         setContent {
             val viewModel by viewModels<MainViewModel>()
