@@ -11,6 +11,11 @@
     <string name="toast_short">The word is too short</string>
     <string name="toast_missing_center">The center letter is missing</string>
 
-    <string name="state_found_n_words">You have found %d words: %s.</string>
+    <string name="state_found_n_words">You have found %1$d of %2$d words: %3$s.</string>
     <string name="state_found_no_words">You have still not found any words today.</string>
+    <string name="state_found_no_tuti">You have still not found today\'s tuti.</string>
+    <string name="state_found_no_tutis">You have still not found today\'s %d tutis.</string>
+    <string name="state_found_tuti">Which contain today\'s tuti.</string>
+    <string name="state_found_tutis">Which contain today\'s %1$d of %2$d tuti.</string>
+    <string name="state_found_tutis_all">Which contain today\'s tutis.</string>
 </resources>
