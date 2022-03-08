@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Paraulògic</string>
+    <string name="image_desc_vilaweb">Lloc web de Vilaweb</string>
+    <string name="image_desc_paraulogic">Paraulògic</string>
+    <string name="image_desc_help">Ajuda</string>
+    <string name="image_desc_settings">Configuració</string>
+    <string name="action_delete">Suprimeix</string>
+    <string name="action_shuffle">Mesclar lletres</string>
+    <string name="action_enter">Introdueix</string>
+    <string name="action_close">Tanca</string>
+    <string name="status_loading">Carregant…</string>
+    <string name="toast_short">Massa curt</string>
+    <string name="toast_correct">Correcte!</string>
+    <string name="state_found_n_words">Has trobat %1$d de %2$d paraules: %3$s.</string>
+    <string name="state_found_no_words">Encara no has trobat cap paraula avui.</string>
+    <string name="state_found_no_tuti">Encara no has trobat el tuti d\'avui.</string>
+    <string name="state_found_no_tutis">Encara no has trobat els %d tutis d\'avui.</string>
+    <string name="state_found_tuti">Entre els quals el tuti d\'avui.</string>
+    <string name="state_found_tutis">Entre els quals %1$d dels %2$d tutis d\'avui.</string>
+    <string name="state_found_tutis_all">Entre els quals tots els tutis d\'avui.</string>
+    <string name="points">Puntuació: %1$d/%2$d</string>
+    <string name="info_rules_title">Normes</string>
+    <string name="info_rules">- Cal formar paraules amb aquestes lletres. Les lletres es poden repetir.\n- La lletra del mig és obligatòria.\n- Les paraules han de tenir un mínim de 3 lletres.\n- Dels verbs només s’admeten els infinitius (no les formes conjugades). Dels noms i adjectius s’admeten les formes masculina i femenina (no els plurals).\n- No s’admeten noms propis; només paraules que figurin al Diccionari de la llengua catalana de l’Institut d’Estudis Catalans (DIEC).</string>
+    <string name="info_points_title">Puntuació</string>
+    <string name="info_points">- Les paraules de 3 lletres donen 1 punt. Les de 4 lletres, 2 punts.\n- A partir de 5 lletres, tants punts com lletres tingui la paraula.\n- Cada joc inclou almenys un ‘tuti’ en què s’usen totes les lletres. Amb cada tuti obteniu 10 punts extra!</string>
+    <string name="toast_missing_center">Falta la lletra del mig</string>
+    <string name="toast_already_found">Ja hi és!</string>
+</resources>
