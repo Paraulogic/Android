@@ -17,6 +17,8 @@ import timber.log.Timber
 import java.util.Calendar
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
+    val correctWords = mutableStateOf<List<IntroducedWord>>(emptyList())
+
     fun loadGameInfo() =
         mutableStateOf<GameInfo?>(null).apply {
             viewModelScope.launch {
@@ -26,27 +28,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-    fun loadCorrectWords(gameInfo: GameInfo) =
-        mutableStateOf<List<IntroducedWord>?>(null).apply {
-            val databaseSingleton = DatabaseSingleton.getInstance(getApplication())
-            viewModelScope.launch {
-                val hash = gameInfo.hash()
-                val dao = databaseSingleton.db.wordsDao()
-                val correctWords = withContext(Dispatchers.IO) { dao.getAll() }
-                correctWords.collect { list ->
-                    val newList = arrayListOf<IntroducedWord>()
-                    val lWords = arrayListOf<String>()
-                    list.sortedBy { it.word }
-                        .forEach {
-                            if (it.isCorrect && !lWords.contains(it.word) && it.hash == hash) {
-                                newList.add(it)
-                                lWords.add(it.word)
-                            }
+    fun loadCorrectWords(gameInfo: GameInfo) {
+        val databaseSingleton = DatabaseSingleton.getInstance(getApplication())
+        viewModelScope.launch {
+            val hash = gameInfo.hash()
+            val dao = databaseSingleton.db.wordsDao()
+            val correctWords = withContext(Dispatchers.IO) { dao.getAll() }
+            correctWords.collect { list ->
+                val newList = arrayListOf<IntroducedWord>()
+                val lWords = arrayListOf<String>()
+                list.sortedBy { it.word }
+                    .forEach {
+                        if (it.isCorrect && !lWords.contains(it.word) && it.hash == hash) {
+                            newList.add(it)
+                            lWords.add(it.word)
                         }
-                    value = newList
-                }
+                    }
+                this@MainViewModel.correctWords.value = newList
             }
         }
+    }
 
     fun introduceWord(gameInfo: GameInfo, word: String, isCorrect: Boolean) {
         val databaseSingleton = DatabaseSingleton.getInstance(getApplication())
