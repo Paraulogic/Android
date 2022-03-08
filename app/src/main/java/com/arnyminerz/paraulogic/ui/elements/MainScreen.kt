@@ -39,8 +39,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arnyminerz.paraulogic.R
+import com.arnyminerz.paraulogic.activity.SettingsActivity
 import com.arnyminerz.paraulogic.ui.Game
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
+import com.arnyminerz.paraulogic.utils.launch
 import com.arnyminerz.paraulogic.utils.launchUrl
 import timber.log.Timber
 
@@ -146,7 +148,7 @@ fun ComponentActivity.MainScreen(viewModel: MainViewModel) {
                         )
                     }
                     IconButton(
-                        onClick = { /*TODO*/ }
+                        onClick = { launch(SettingsActivity::class.java) }
                     ) {
                         Icon(
                             Icons.Outlined.Settings,
