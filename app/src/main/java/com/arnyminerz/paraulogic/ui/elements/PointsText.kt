@@ -1,10 +1,10 @@
 package com.arnyminerz.paraulogic.ui.elements
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -43,7 +43,10 @@ fun PointsText(foundWords: List<IntroducedWord>, gameInfo: GameInfo) {
                 for (word in foundWords) {
                     withStyle(
                         SpanStyle(
-                            color = if (gameInfo.isTuti(word.word)) Color.Red else Color.Black,
+                            color = if (gameInfo.isTuti(word.word))
+                                MaterialTheme.colorScheme.error
+                            else
+                                MaterialTheme.colorScheme.onBackground,
                             fontWeight = FontWeight.Bold
                         )
                     ) {
