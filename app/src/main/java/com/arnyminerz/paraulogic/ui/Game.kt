@@ -33,11 +33,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.game.GameInfo
+import com.arnyminerz.paraulogic.game.getTutis
 import com.arnyminerz.paraulogic.game.lettersString
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 import com.arnyminerz.paraulogic.ui.elements.ButtonsBox
 import com.arnyminerz.paraulogic.ui.elements.listeners.HexButtonClickListener
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
+import timber.log.Timber
 
 @UiThread
 @Composable
@@ -124,13 +126,38 @@ fun Game(
         }
 
         Text(
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(start = 8.dp, end = 8.dp),
             text = if (foundWords.isNotEmpty())
                 stringResource(
                     R.string.state_found_n_words,
                     foundWords.size,
-                    foundWords.joinToString(", ") { it.word }
+                    foundWords.joinToString(", ") {
+                        gameInfo.words[it.word.lowercase()] ?: "<error>"
+                    }
                 )
             else stringResource(R.string.state_found_no_words)
+        )
+
+        val tutis = foundWords.getTutis(gameInfo)
+        val todayTutis = gameInfo.tutisCount
+        Timber.i("Found tutis: $tutis. Today count: $todayTutis")
+        Text(
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp),
+            text = if (tutis.isEmpty())
+                if (todayTutis > 1)
+                    stringResource(R.string.state_found_no_tutis/*, todayTutis*/)
+                else
+                    stringResource(R.string.state_found_no_tuti)
+            else if (todayTutis == 1)
+                stringResource(R.string.state_found_tuti)
+            else if (tutis.size == todayTutis)
+                stringResource(R.string.state_found_tutis_all)
+            else
+                stringResource(R.string.state_found_tutis/*, tutis.size, todayTutis*/)
         )
     }
 }
