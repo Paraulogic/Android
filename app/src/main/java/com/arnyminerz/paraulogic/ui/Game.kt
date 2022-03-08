@@ -4,7 +4,6 @@ import android.media.MediaPlayer
 import androidx.annotation.UiThread
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,13 +48,11 @@ import timber.log.Timber
 @UiThread
 @Composable
 fun Game(
-    paddingValues: PaddingValues,
     gameInfo: GameInfo,
     viewModel: MainViewModel,
 ) {
     Column(
         modifier = Modifier
-            .padding(paddingValues)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
