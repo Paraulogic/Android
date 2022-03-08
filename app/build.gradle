@@ -131,7 +131,9 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:5.0.1'
 
     // Sentry
-    implementation 'io.sentry:sentry-android:5.6.2'
+    implementation platform('io.sentry:sentry-bom:5.6.2')
+    implementation 'io.sentry:sentry-android'
+    implementation 'io.sentry:sentry-android-timber'
 
     // Play Services
     implementation 'com.google.android.gms:play-services-games:22.0.1'
