@@ -37,6 +37,11 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.game.GameInfo
+import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_ALREADY_FOUND
+import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_CENTER_MISSING
+import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_CORRECT
+import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_INCORRECT
+import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_SHORT
 import com.arnyminerz.paraulogic.game.getTutis
 import com.arnyminerz.paraulogic.game.lettersString
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
@@ -110,17 +115,16 @@ fun Game(
             }
             Button(
                 onClick = {
-                    val answer = text.trim().lowercase()
-                    if (answer.length < 3)
-                        context.toast(R.string.toast_short)
-                    else if (!answer.contains(gameInfo.centerLetter))
-                        context.toast(R.string.toast_missing_center)
-                    else if (!gameInfo.words.contains(answer))
-                        context.toast(answer)
-                    else
-                        context.toast("Correcte!")
+                    val wordCheck = gameInfo.checkWord(text, foundWords)
+                    when (wordCheck) {
+                        CHECK_WORD_ALREADY_FOUND -> context.toast(R.string.toast_already_found)
+                        CHECK_WORD_CENTER_MISSING -> context.toast(R.string.toast_missing_center)
+                        CHECK_WORD_INCORRECT -> context.toast(text)
+                        CHECK_WORD_SHORT -> context.toast(R.string.toast_short)
+                        CHECK_WORD_CORRECT -> context.toast(R.string.toast_correct)
+                    }
 
-                    viewModel.introduceWord(gameInfo, text, gameInfo.words.contains(answer))
+                    viewModel.introduceWord(gameInfo, text, wordCheck == CHECK_WORD_CORRECT)
                     text = ""
                 },
                 colors = ButtonDefaults.outlinedButtonColors()
