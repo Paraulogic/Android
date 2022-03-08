@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.arnyminerz.paraulogic.singleton.VolleySingleton
-import io.sentry.Sentry
+import com.google.firebase.perf.metrics.AddTrace
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -18,19 +18,20 @@ private const val GAME_URL = "https://vilaweb.cat/paraulogic/"
  * @since 20220307
  * @param context The context to run as.
  */
+@AddTrace(name = "SourceFetching")
 suspend fun fetchSource(context: Context) = suspendCoroutine<String> { cont ->
-    val transaction = Sentry.startTransaction("server-data-load", "server-data-load")
     val request = StringRequest(
         Request.Method.GET,
         GAME_URL,
-        { cont.resume(it); transaction.finish() },
-        { cont.resumeWithException(it); transaction.finish() },
+        { cont.resume(it) },
+        { cont.resumeWithException(it); },
     )
     VolleySingleton
         .getInstance(context)
         .addToRequestQueue(request)
 }
 
+@AddTrace(name = "SourceDecoding")
 fun decodeSource(source: String): GameInfo {
     val tPos = source.indexOf("var t=")
     val sPos = source.indexOf(';', tPos)

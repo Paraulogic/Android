@@ -35,8 +35,8 @@ import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.ui.elements.FieldWithLabel
 import com.arnyminerz.paraulogic.ui.toast
 import com.arnyminerz.paraulogic.utils.activity
-import io.sentry.Sentry
-import io.sentry.UserFeedback
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 
 @Composable
 @ExperimentalMaterial3Api
@@ -46,7 +46,7 @@ fun FeedbackScreen() {
     var fieldsEnabled by remember { mutableStateOf(true) }
     var nameField by remember { mutableStateOf("") }
     var emailField by remember { mutableStateOf("") }
-    var message by remember { mutableStateOf("") }
+    var messageField by remember { mutableStateOf("") }
 
     val nameFocusRequester = FocusRequester()
     val emailFocusRequester = FocusRequester()
@@ -58,19 +58,18 @@ fun FeedbackScreen() {
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    if (message.isBlank())
+                    if (messageField.isBlank())
                         isMessageAnError = true
                     else {
                         fieldsEnabled = false
-                        val sentryId = Sentry.captureMessage(message)
-                        val userFeedback = UserFeedback(sentryId)
-                            .apply {
-                                if (emailField.isNotEmpty())
-                                    email = emailField
-                                if (nameField.isNotEmpty())
-                                    name = nameField
-                            }
-                        Sentry.captureUserFeedback(userFeedback)
+
+                        val message = StringBuilder()
+                        if (emailField.isNotEmpty())
+                            message.appendLine(emailField)
+                        if (nameField.isNotEmpty())
+                            message.appendLine(nameField)
+                        message.appendLine(messageField)
+                        Firebase.crashlytics.log(message.toString())
 
                         context.toast(R.string.toast_message_sent)
                         fieldsEnabled = true
@@ -118,8 +117,8 @@ fun FeedbackScreen() {
                 emailFocusRequester,
             ) { msgFocusRequester.requestFocus() }
             TextField(
-                value = message,
-                onValueChange = { message = it; isMessageAnError = false },
+                value = messageField,
+                onValueChange = { messageField = it; isMessageAnError = false },
                 modifier = Modifier
                     .focusRequester(msgFocusRequester)
                     .padding(start = 16.dp, end = 16.dp)
