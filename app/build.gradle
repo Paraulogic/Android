@@ -109,8 +109,9 @@ dependencies {
     // Sentry
     implementation 'io.sentry:sentry-android:5.6.2'
 
-    // Google Play Games
+    // Play Services
     implementation 'com.google.android.gms:play-services-games:22.0.1'
+    implementation 'com.google.android.gms:play-services-auth:20.1.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
