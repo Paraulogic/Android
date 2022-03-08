@@ -25,12 +25,30 @@ android {
         resValue "string", "SENTRY_DSS", properties.getProperty("SENTRY_DSS", "")
     }
 
+    // Configures the APK and AAB signing config
+    signingConfigs {
+        release {
+            def props = new Properties()
+            file("${rootDir}/local.properties").withInputStream { props.load(it) }
+
+            storeFile file("${rootDir}/keystore.jks")
+            storePassword props.getProperty("SIGNING_KEY_PASSWORD")
+            keyAlias props.getProperty("SIGNING_KEY_ALIAS")
+            keyPassword props.getProperty("SIGNING_KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig signingConfigs.release
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
