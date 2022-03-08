@@ -33,6 +33,21 @@ data class GameInfo(
                 centerLetter
         return md5(toHash)
     }
+
+    /**
+     * Checks if [word] is a tuti.
+     * @author Arnau Mora
+     * @since 20220308
+     * @param word The word to check.
+     */
+    fun isTuti(word: String): Boolean {
+        val letters = letters.value
+        var containsAll = true
+        for (letter in letters)
+            if (!word.contains(letter, true))
+                containsAll = false
+        return containsAll
+    }
 }
 
 fun List<Char>.lettersString(centerLetter: Char): String {
@@ -42,5 +57,5 @@ fun List<Char>.lettersString(centerLetter: Char): String {
             builder.append(centerLetter)
         builder.append(letter)
     }
-    return builder.toString().uppercase()
+    return builder.toString().uppercase().trim()
 }
