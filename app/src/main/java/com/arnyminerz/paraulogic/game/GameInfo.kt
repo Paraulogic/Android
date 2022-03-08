@@ -8,6 +8,20 @@ data class GameInfo(
     val centerLetter: Char,
     val words: Map<String, String>,
 ) {
+    /**
+     * Returns the amount of tutis there are on the game info.
+     * @author Arnau Mora
+     * @since 20220308
+     */
+    val tutisCount: Int
+        get() {
+            var count = 0
+            for (word in words.keys)
+                if (isTuti(word))
+                    count++
+            return count
+        }
+
     override fun toString(): String =
         "Letters: $letters. Center: $centerLetter. Words: $words"
 
