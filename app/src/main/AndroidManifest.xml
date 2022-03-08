@@ -48,5 +48,10 @@
             android:name=".activity.SettingsActivity"
             android:exported="false"
             android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".activity.FeedbackActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme" />
     </application>
 </manifest>
