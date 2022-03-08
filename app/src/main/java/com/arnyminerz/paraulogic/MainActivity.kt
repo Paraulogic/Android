@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
@@ -40,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.arnyminerz.paraulogic.game.calculatePoints
 import com.arnyminerz.paraulogic.play.games.createSignInClient
 import com.arnyminerz.paraulogic.play.games.signInSilently
@@ -136,7 +138,28 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     bottomBar = {
-                        BottomAppBar {
+                        BottomAppBar(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ) {
+                            if (gameInfo != null) {
+                                val points = foundWords.calculatePoints(gameInfo!!)
+                                AnimatedVisibility(visible = points > 0) {
+                                    Text(
+                                        text = when {
+                                            points < 5 -> "\uD83D\uDC24" // 🐤
+                                            points < 10 -> "\uD83D\uDD4A️" // 🕊️
+                                            points < 20 -> "\uD83E\uDD86" // 🦆
+                                            points < 40 -> "\uD83E\uDDA2" // 🦢
+                                            points < 70 -> "\uD83E\uDD89" // 🦉
+                                            points < 100 -> "\uD83E\uDD85" // 🦅
+                                            else -> "\uD83E\uDD9A" // 🦚
+                                        },
+                                        fontSize = 22.sp,
+                                        modifier = Modifier.padding(end = 8.dp)
+                                    )
+                                }
+                            }
                             Text(
                                 text = if (gameInfo == null)
                                     stringResource(R.string.status_loading)
