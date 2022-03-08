@@ -13,12 +13,12 @@ fun List<IntroducedWord>.getTutis(gameInfo: GameInfo): List<IntroducedWord> {
 fun List<IntroducedWord>.calculatePoints(gameInfo: GameInfo): Int {
     var points = 0
     for (iWord in this) {
-        val len = iWord.word.length
-        points += when {
-            len == 3 -> 1
-            len == 4 -> 2
-            gameInfo.isTuti(iWord.word) -> 10
-            else -> iWord.word.length
+        val word = iWord.word
+        val len = word.length
+        points += when (len) {
+            3 -> 1
+            4 -> 2
+            else -> len + (if (gameInfo.isTuti(word)) 10 else 0)
         }
     }
     return points

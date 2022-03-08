@@ -34,7 +34,7 @@ data class GameInfo(
                 points += when (word.length) {
                     3 -> 1
                     4 -> 2
-                    else -> word.length
+                    else -> word.length + (if (isTuti(word)) 10 else 0)
                 }
             return points
         }
