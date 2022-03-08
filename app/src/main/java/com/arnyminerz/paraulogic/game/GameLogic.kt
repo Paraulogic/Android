@@ -1,5 +1,6 @@
 package com.arnyminerz.paraulogic.game
 
+import androidx.annotation.IntRange
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 
 fun List<IntroducedWord>.getTutis(gameInfo: GameInfo): List<IntroducedWord> {
@@ -23,3 +24,15 @@ fun List<IntroducedWord>.calculatePoints(gameInfo: GameInfo): Int {
     }
     return points
 }
+
+@IntRange(from = 0L, to = (AMOUNT_OF_LEVELS - 1).toLong())
+fun getLevelFromPoints(points: Int, pointsPerLevel: Int): Int =
+    when {
+        points < pointsPerLevel -> 0
+        points < 2 * pointsPerLevel -> 1
+        points < 3 * pointsPerLevel -> 2
+        points < 4 * pointsPerLevel -> 3
+        points < 5 * pointsPerLevel -> 4
+        points < 6 * pointsPerLevel -> 5
+        else -> 6
+    }

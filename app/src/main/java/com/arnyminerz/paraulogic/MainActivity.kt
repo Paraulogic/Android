@@ -43,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arnyminerz.paraulogic.game.calculatePoints
+import com.arnyminerz.paraulogic.game.getLevelFromPoints
 import com.arnyminerz.paraulogic.play.games.createSignInClient
 import com.arnyminerz.paraulogic.play.games.signInSilently
 import com.arnyminerz.paraulogic.play.games.startSignInIntent
@@ -147,13 +148,13 @@ class MainActivity : ComponentActivity() {
                                 val ppl = gameInfo!!.pointsPerLevel // Points per level
                                 AnimatedVisibility(visible = points > 0) {
                                     Text(
-                                        text = when {
-                                            points < ppl -> "\uD83D\uDC24" // 🐤
-                                            points < 2 * ppl -> "\uD83D\uDD4A️" // 🕊️
-                                            points < 3 * ppl -> "\uD83E\uDD86" // 🦆
-                                            points < 4 * ppl -> "\uD83E\uDDA2" // 🦢
-                                            points < 5 * ppl -> "\uD83E\uDD89" // 🦉
-                                            points < 6 * ppl -> "\uD83E\uDD85" // 🦅
+                                        text = when (getLevelFromPoints(points, ppl)) {
+                                            0 -> "\uD83D\uDC24" // 🐤
+                                            1 -> "\uD83D\uDD4A️" // 🕊️
+                                            2 -> "\uD83E\uDD86" // 🦆
+                                            3 -> "\uD83E\uDDA2" // 🦢
+                                            4 -> "\uD83E\uDD89" // 🦉
+                                            5 -> "\uD83E\uDD85" // 🦅
                                             else -> "\uD83E\uDD9A" // 🦚
                                         },
                                         fontSize = 22.sp,
