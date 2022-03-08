@@ -110,6 +110,9 @@ dependencies {
     // Jetpack Compose - Async
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
 
+    // Jetpack Compose - Remember preferences
+    implementation 'dev.burnoo:compose-remember-preference:0.3.4'
+
     // Lifecycle async components
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
 
