@@ -22,6 +22,23 @@ data class GameInfo(
             return count
         }
 
+    /**
+     * Calculates the maximum amount of points that can be obtained in the game.
+     * @author Arnau Mora
+     * @since 20220308
+     */
+    val maxPoints: Int
+        get() {
+            var points = 0
+            for (word in words.keys)
+                points += when (word.length) {
+                    3 -> 1
+                    4 -> 2
+                    else -> word.length
+                }
+            return points
+        }
+
     override fun toString(): String =
         "Letters: $letters. Center: $centerLetter. Words: $words"
 
