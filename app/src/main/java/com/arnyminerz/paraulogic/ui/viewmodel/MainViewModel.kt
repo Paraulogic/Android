@@ -123,7 +123,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val databaseSingleton = DatabaseSingleton.getInstance(getApplication())
             val dao = databaseSingleton.db.wordsDao()
             val dbWords = withContext(Dispatchers.IO) { dao.getAll() }
-            dayFoundWords = dbWords
+            val tempDayFoundWords = dbWords
                 .first()
                 .filter { word ->
                     val wordDate = Date(word.timestamp)
@@ -135,7 +135,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                             wordCalendar.get(Calendar.DAY_OF_MONTH) == dateCalendar.get(Calendar.DAY_OF_MONTH) &&
                             word.isCorrect || includeWrongWords
                 }
-            dayFoundTutis = dayFoundWords
+            dayFoundTutis = tempDayFoundWords
                 .filter { gameInfo.isTuti(it.word) }
 
             val wrongWords = hashMapOf<String, Int>()
@@ -149,6 +149,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                             1
                 }
             dayWrongWords = wrongWords
+
+            dayFoundWords = tempDayFoundWords
         }
     }
 
