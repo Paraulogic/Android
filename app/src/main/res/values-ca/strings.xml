@@ -43,4 +43,13 @@
     <string name="feedback_field_email">Correu electrònic</string>
     <string name="feedback_field_email_hint">Ho pots deixar en blanc, ho utilitzarem per a contactar-te en cas de ser necessari.</string>
     <string name="feedback_field_message">Missatge</string>
+    <string name="image_desc_analytics">Estadístiques</string>
+    <string name="action_select_date">Seleccionar data</string>
+    <string name="date_picker_select">Selecciona una data</string>
+    <string name="date_picker_cancel">Cancel·lar</string>
+    <string name="date_picker_ok">Confirmar</string>
+    <string name="stats_day_tuti">El %s vas trobar %d de %d paraules. Entre les quals el tuti del dia.</string>
+    <string name="stats_day_n_tutis">El %s vas trobar %d de %d paraules. Entre les quals %d dels %d tutis que hi havien.</string>
+    <string name="stats_day_all_tutis">El %s vas trobar %d de %d paraules. Entre les quals tots els %d tutis que hi havia!</string>
+    <string name="stats_day_no_tuti">El %s vas trobar %d de %d paraules. No vas poder trobar el tuti.</string>
 </resources>
