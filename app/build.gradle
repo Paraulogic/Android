@@ -116,6 +116,9 @@ dependencies {
     // Jetpack Compose - Accompanist
     implementation 'com.google.accompanist:accompanist-pager:0.24.3-alpha'
 
+    // Jetpack Compose - Glide
+    implementation 'com.github.skydoves:landscapist-glide:1.4.9'
+
     // Lifecycle async components
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
 
