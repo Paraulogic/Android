@@ -45,6 +45,7 @@ fun StatsScreen(
     val selectDateText = stringResource(R.string.action_select_date)
     var buttonText by remember { mutableStateOf(selectDateText) }
     var showPicker by remember { mutableStateOf(false) }
+    var isToday by remember { mutableStateOf(false) }
 
     var historyItem by remember { mutableStateOf<GameHistoryItem?>(null) }
     var historyItemWords by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -59,10 +60,18 @@ fun StatsScreen(
             minDate = gameHistory.minDate(),
             maxDate = gameHistory.maxDate(),
             onDateSelected = { date ->
-                buttonText = DateFormat.format("dd-MM-yyyy", date).toString()
-
+                val today = Calendar.getInstance()
                 val selectedDate = Calendar.getInstance()
                 selectedDate.time = date
+
+                isToday = selectedDate.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+                        selectedDate.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
+                        selectedDate.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH)
+
+                buttonText = if (isToday)
+                    context.getString(R.string.stats_today)
+                else
+                    DateFormat.format("dd-MM-yyyy", date).toString()
 
                 for (item in gameHistory) {
                     val itemDate = Calendar.getInstance()
@@ -122,38 +131,69 @@ fun StatsScreen(
                 ) {
                     Text(
                         modifier = Modifier.padding(8.dp),
-                        text = if (historyItemTutis.size == 1)
-                            if (dayFoundTutis.size == historyItemTutis.size)
+                        text =
+                        if (isToday)
+                            if (historyItemTutis.size == 1)
+                                if (dayFoundTutis.size == historyItemTutis.size)
+                                    stringResource(
+                                        R.string.stats_today_tuti,
+                                        dayFoundWords.size,
+                                        historyItemWords.size
+                                    )
+                                else
+                                    stringResource(
+                                        R.string.stats_today_no_tuti,
+                                        dayFoundWords.size,
+                                        historyItemWords.size
+                                    )
+                            else if (dayFoundTutis.size == historyItemTutis.size)
                                 stringResource(
-                                    R.string.stats_day_tuti,
-                                    buttonText,
+                                    R.string.stats_today_all_tutis,
                                     dayFoundWords.size,
-                                    historyItemWords.size
+                                    historyItemWords.size,
+                                    historyItemTutis.size
                                 )
                             else
                                 stringResource(
-                                    R.string.stats_day_no_tuti,
+                                    R.string.stats_today_n_tutis,
+                                    dayFoundWords.size,
+                                    historyItemWords.size,
+                                    dayFoundTutis.size,
+                                    historyItemTutis.size
+                                )
+                        else
+                            if (historyItemTutis.size == 1)
+                                if (dayFoundTutis.size == historyItemTutis.size)
+                                    stringResource(
+                                        R.string.stats_day_tuti,
+                                        buttonText,
+                                        dayFoundWords.size,
+                                        historyItemWords.size
+                                    )
+                                else
+                                    stringResource(
+                                        R.string.stats_day_no_tuti,
+                                        buttonText,
+                                        dayFoundWords.size,
+                                        historyItemWords.size
+                                    )
+                            else if (dayFoundTutis.size == historyItemTutis.size)
+                                stringResource(
+                                    R.string.stats_day_all_tutis,
                                     buttonText,
                                     dayFoundWords.size,
-                                    historyItemWords.size
+                                    historyItemWords.size,
+                                    historyItemTutis.size
                                 )
-                        else if (dayFoundTutis.size == historyItemTutis.size)
-                            stringResource(
-                                R.string.stats_day_all_tutis,
-                                buttonText,
-                                dayFoundWords.size,
-                                historyItemWords.size,
-                                historyItemTutis.size
-                            )
-                        else
-                            stringResource(
-                                R.string.stats_day_n_tutis,
-                                buttonText,
-                                dayFoundWords.size,
-                                historyItemWords.size,
-                                dayFoundTutis.size,
-                                historyItemTutis.size
-                            )
+                            else
+                                stringResource(
+                                    R.string.stats_day_n_tutis,
+                                    buttonText,
+                                    dayFoundWords.size,
+                                    historyItemWords.size,
+                                    dayFoundTutis.size,
+                                    historyItemTutis.size
+                                )
                     )
                 }
                 Card(
