@@ -44,7 +44,7 @@ private fun addPlayerPoints(
     Timber.d("Getting player account...")
     GoogleSignIn.getLastSignedInAccount(context)?.let { account ->
         Timber.d("Getting leaderboard id...")
-        val leaderboardId = context.getString(R.string.leaderboard_world)
+        val leaderboardId = context.getString(R.string.leaderboard_world_ranking)
 
         Timber.v("Getting current player leaderboard...")
         val leaderboardsClient = Games.getLeaderboardsClient(context, account)

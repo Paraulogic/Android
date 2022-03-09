@@ -103,7 +103,7 @@ fun StatsScreen(
             onClick = {
                 GoogleSignIn.getLastSignedInAccount(context)?.let { account ->
                     Games.getLeaderboardsClient(context, account)
-                        .getLeaderboardIntent(context.getString(R.string.leaderboard_world))
+                        .getLeaderboardIntent(context.getString(R.string.leaderboard_world_ranking))
                         .addOnSuccessListener { popupLauncher.launch(it) }
                 }
             },
