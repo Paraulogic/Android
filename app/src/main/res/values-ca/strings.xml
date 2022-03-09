@@ -56,4 +56,7 @@
     <string name="stats_invalid_words_comment_1">Va ser un dia dur, veritat?</string>
     <string name="stats_invalid_words_comment_2">Estaves inspirat 🥴…</string>
     <string name="stats_invalid_words_comment_3">De debò pensaves que era un bon pla?</string>
+    <string name="image_desc_login">Iniciar sessió</string>
+    <string name="action_leaderboard">Classificació</string>
+    <string name="toast_signed_in">Sessió iniciada!</string>
 </resources>
