@@ -59,4 +59,9 @@
     <string name="image_desc_login">Iniciar sessió</string>
     <string name="action_leaderboard">Classificació</string>
     <string name="toast_signed_in">Sessió iniciada!</string>
+    <string name="stats_today_no_tuti">Hui has trobat %d de %d paraules. Encara no has trobat el tuti.</string>
+    <string name="stats_today_tuti">Hui has trobat %d de %d paraules. Entre les quals el tuti del dia.</string>
+    <string name="stats_today_n_tutis">Hui has trobat %d de %d paraules. Entre les quals %d dels %d que hi ha.</string>
+    <string name="stats_today_all_tutis">Hui has trobat %d de %d paraules. Entre les quals tots els %d tutis que hi ha.</string>
+    <string name="stats_today">Today</string>
 </resources>
