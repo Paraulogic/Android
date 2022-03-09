@@ -37,6 +37,13 @@ data class GameInfo(
     val tutisCount: Int
 
     /**
+     * Returns all the tutis there are in the [GameInfo].
+     * @author Arnau Mora
+     * @since 20220309
+     */
+    val tutis: List<String>
+
+    /**
      * Returns the amount of points that each level has.
      * @author Arnau Mora
      * @since 20220308
@@ -60,11 +67,12 @@ data class GameInfo(
             }
         maxPoints = protoMaxPoints
 
-        var protoTutisCount = 0
+        val tutisList = arrayListOf<String>()
         for (word in words.keys)
             if (isTuti(word))
-                protoTutisCount++
-        tutisCount = protoTutisCount
+                tutisList.add(word)
+        tutis = tutisList
+        tutisCount = tutisList.size
 
         pointsPerLevel = maxPoints / AMOUNT_OF_LEVELS
 
