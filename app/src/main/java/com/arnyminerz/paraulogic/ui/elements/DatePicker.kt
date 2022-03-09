@@ -105,7 +105,6 @@ fun DatePicker(
                 ) {
                     Text(
                         text = stringResource(R.string.date_picker_cancel),
-                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
 
@@ -118,7 +117,6 @@ fun DatePicker(
                 ) {
                     Text(
                         text = stringResource(R.string.date_picker_ok),
-                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
 
@@ -157,7 +155,7 @@ private fun CustomCalendarView(
                     Calendar
                         .getInstance()
                         .apply {
-                            set(year, month + 1, dayOfMonth)
+                            set(year, month, dayOfMonth)
                         }
                         .time
                 )
