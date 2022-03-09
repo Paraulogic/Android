@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.activity.SettingsActivity
 import com.arnyminerz.paraulogic.ui.Game
+import com.arnyminerz.paraulogic.ui.screen.StatsScreen
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
 import com.arnyminerz.paraulogic.utils.launch
 import com.arnyminerz.paraulogic.utils.launchUrl
@@ -60,6 +61,7 @@ fun ComponentActivity.MainScreen(viewModel: MainViewModel) {
     val scope = rememberCoroutineScope()
 
     val gameInfo = viewModel.gameInfo
+    val gameHistory = viewModel.gameHistory
     var showHelpDialog by remember { mutableStateOf(false) }
 
     val pagerState = rememberPagerState()
@@ -207,12 +209,17 @@ fun ComponentActivity.MainScreen(viewModel: MainViewModel) {
                     ) {
                         CircularProgressIndicator()
                     }
-                1 -> Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    Text("Stats")
-                }
+                1 -> if (gameHistory.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        StatsScreen(viewModel, gameHistory)
+                    }
+                } else
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize(),
+                    ) { CircularProgressIndicator() }
             }
         }
 
