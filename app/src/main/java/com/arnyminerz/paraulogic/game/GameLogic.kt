@@ -11,16 +11,25 @@ fun List<IntroducedWord>.getTutis(gameInfo: GameInfo): List<IntroducedWord> {
     return tutis
 }
 
+/**
+ * Calculates the amount of points are obtained from the current instance String.
+ * @author Arnau Mora
+ * @since 20220309
+ * @param gameInfo The game information for checking for tutis.
+ * @return The amount of points the current instance word gives.
+ */
+fun String.getPoints(gameInfo: GameInfo): Int =
+    when (val len = length) {
+        3 -> 1
+        4 -> 2
+        else -> len + (if (gameInfo.isTuti(this)) 10 else 0)
+    }
+
 fun List<IntroducedWord>.calculatePoints(gameInfo: GameInfo): Int {
     var points = 0
     for (iWord in this) {
         val word = iWord.word
-        val len = word.length
-        points += when (len) {
-            3 -> 1
-            4 -> 2
-            else -> len + (if (gameInfo.isTuti(word)) 10 else 0)
-        }
+        points += word.getPoints(gameInfo)
     }
     return points
 }
