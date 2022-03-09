@@ -239,8 +239,6 @@ fun ComponentActivity.MainScreen(
                 0 -> if (gameInfo != null) {
                     Timber.i("Game info: $gameInfo")
 
-                    doAsync { startSynchronization(context, gameInfo) }
-
                     Game(gameInfo, viewModel, signInRequest)
                 } else
                     LoadingBox()
@@ -255,5 +253,7 @@ fun ComponentActivity.MainScreen(
             }
         }
 
+        if (gameInfo != null && gameHistory.isNotEmpty())
+            doAsync { startSynchronization(context, gameInfo, gameHistory) }
     }
 }
