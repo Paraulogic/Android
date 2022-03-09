@@ -20,10 +20,12 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Calendar
+import java.util.Date
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     var gameInfo by mutableStateOf<GameInfo?>(null)
@@ -38,6 +40,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val introducedTutis = mutableStateListOf<IntroducedWord>()
 
     val gameHistory = mutableStateListOf<GameHistoryItem>()
+    var dayFoundWords by mutableStateOf<List<IntroducedWord>>(emptyList())
+        private set
+    var dayFoundTutis by mutableStateOf<List<IntroducedWord>>(emptyList())
+        private set
 
     fun loadGameInfo() {
         viewModelScope.launch {
@@ -104,6 +110,31 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             introducedTutis.clear()
             introducedTutis.addAll(correctWords.getTutis(gameInfo))
+        }
+    }
+
+    fun loadWordsForDay(gameInfo: GameInfo, date: Date, includeWrongWords: Boolean = false) {
+        viewModelScope.launch {
+            val dateCalendar = Calendar.getInstance()
+            dateCalendar.time = date
+
+            val databaseSingleton = DatabaseSingleton.getInstance(getApplication())
+            val dao = databaseSingleton.db.wordsDao()
+            val dbCorrectWords = withContext(Dispatchers.IO) { dao.getAll() }
+            dayFoundWords = dbCorrectWords
+                .first()
+                .filter { word ->
+                    val wordDate = Date(word.timestamp)
+                    val wordCalendar = Calendar.getInstance()
+                    wordCalendar.time = wordDate
+
+                    wordCalendar.get(Calendar.YEAR) == dateCalendar.get(Calendar.YEAR) &&
+                            wordCalendar.get(Calendar.MONTH) == dateCalendar.get(Calendar.MONTH) &&
+                            wordCalendar.get(Calendar.DAY_OF_MONTH) == dateCalendar.get(Calendar.DAY_OF_MONTH) &&
+                            word.isCorrect || includeWrongWords
+                }
+            dayFoundTutis = dayFoundWords
+                .filter { gameInfo.isTuti(it.word) }
         }
     }
 
