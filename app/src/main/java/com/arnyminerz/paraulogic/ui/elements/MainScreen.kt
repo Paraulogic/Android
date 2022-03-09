@@ -1,6 +1,8 @@
 package com.arnyminerz.paraulogic.ui.elements
 
+import android.content.Intent
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -53,14 +55,20 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @Composable
 @ExperimentalMaterial3Api
 @ExperimentalPagerApi
-fun ComponentActivity.MainScreen(viewModel: MainViewModel) {
+fun ComponentActivity.MainScreen(
+    viewModel: MainViewModel,
+    popupLauncher: ActivityResultLauncher<Intent>,
+    signInRequest: () -> Unit,
+) {
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val gameInfo = viewModel.gameInfo
     val gameHistory = viewModel.gameHistory
@@ -93,6 +101,43 @@ fun ComponentActivity.MainScreen(viewModel: MainViewModel) {
                         modifier = Modifier
                             .fillMaxWidth(.6f)
                     )
+                },
+                actions = {
+                    val account = GoogleSignIn.getLastSignedInAccount(context)
+                    if (account == null)
+                        IconButton(
+                            onClick = signInRequest,
+                            modifier = Modifier
+                                .size(48.dp)
+                        ) {
+                            Icon(
+                                Icons.Outlined.Person,
+                                contentDescription = stringResource(R.string.image_desc_login)
+                            )
+                        }
+                    else {
+                        val photoUrl = account.photoUrl
+                        if (photoUrl == null) {
+                            Timber.e("User does not have a photo or permission is denied")
+                            IconButton(
+                                onClick = { /* TODO */ },
+                                modifier = Modifier
+                                    .size(48.dp)
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Person,
+                                    contentDescription = stringResource(R.string.image_desc_login)
+                                )
+                            }
+                        } else
+                            GlideImage(
+                                imageModel = account.photoUrl,
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clickable { /* TODO */ }
+                            )
+                    }
                 },
             )
         },
@@ -182,7 +227,7 @@ fun ComponentActivity.MainScreen(viewModel: MainViewModel) {
                 0 -> if (gameInfo != null) {
                     Timber.i("Game info: $gameInfo")
 
-                    Game(gameInfo, viewModel)
+                    Game(gameInfo, viewModel, signInRequest)
                 } else
                     Box(
                         contentAlignment = Alignment.Center,
@@ -194,7 +239,7 @@ fun ComponentActivity.MainScreen(viewModel: MainViewModel) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                     ) {
-                        StatsScreen(viewModel, gameHistory)
+                        StatsScreen(viewModel, popupLauncher, gameHistory)
                     }
                 } else
                     Box(
