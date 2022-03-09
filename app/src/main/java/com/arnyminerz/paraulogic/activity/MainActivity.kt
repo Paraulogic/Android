@@ -24,5 +24,6 @@ class MainActivity : ComponentActivity() {
         }
 
         viewModel.loadGameInfo()
+        viewModel.loadGameHistory()
     }
 }
