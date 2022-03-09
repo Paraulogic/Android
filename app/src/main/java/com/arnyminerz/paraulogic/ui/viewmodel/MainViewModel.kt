@@ -44,6 +44,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private set
     var dayFoundTutis by mutableStateOf<List<IntroducedWord>>(emptyList())
         private set
+    var dayWrongWords by mutableStateOf<Map<String, Int>>(emptyMap())
+        private set
 
     fun loadGameInfo() {
         viewModelScope.launch {
@@ -120,8 +122,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             val databaseSingleton = DatabaseSingleton.getInstance(getApplication())
             val dao = databaseSingleton.db.wordsDao()
-            val dbCorrectWords = withContext(Dispatchers.IO) { dao.getAll() }
-            dayFoundWords = dbCorrectWords
+            val dbWords = withContext(Dispatchers.IO) { dao.getAll() }
+            dayFoundWords = dbWords
                 .first()
                 .filter { word ->
                     val wordDate = Date(word.timestamp)
@@ -135,6 +137,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
             dayFoundTutis = dayFoundWords
                 .filter { gameInfo.isTuti(it.word) }
+
+            val wrongWords = hashMapOf<String, Int>()
+            dbWords
+                .first()
+                .forEach { word ->
+                    wrongWords[word.word] =
+                        if (wrongWords.contains(word.word))
+                            wrongWords.getValue(word.word) + 1
+                        else
+                            1
+                }
+            dayWrongWords = wrongWords
         }
     }
 
