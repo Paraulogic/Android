@@ -229,12 +229,7 @@ fun ComponentActivity.MainScreen(
 
                     Game(gameInfo, viewModel, signInRequest)
                 } else
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        CircularProgressIndicator()
-                    }
+                    LoadingBox()
                 1 -> if (gameHistory.isNotEmpty()) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -242,10 +237,7 @@ fun ComponentActivity.MainScreen(
                         StatsScreen(viewModel, popupLauncher, gameHistory)
                     }
                 } else
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize(),
-                    ) { CircularProgressIndicator() }
+                    LoadingBox()
             }
         }
 
