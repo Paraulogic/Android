@@ -1,6 +1,8 @@
 package com.arnyminerz.paraulogic.play.games
 
-import com.arnyminerz.paraulogic.activity.MainActivity
+import android.content.Context
+import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -9,10 +11,20 @@ import timber.log.Timber
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-fun MainActivity.createSignInClient(): GoogleSignInClient =
-    GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
+fun startSignInIntent(signInClient: GoogleSignInClient, launcher: ActivityResultLauncher<Intent>) {
+    val intent = signInClient.signInIntent
+    launcher.launch(intent)
+}
 
-suspend fun MainActivity.signInSilently(client: GoogleSignInClient) =
+fun Context.createSignInClient(): GoogleSignInClient =
+    GoogleSignIn.getClient(
+        this,
+        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
+            .requestProfile()
+            .build()
+    )
+
+suspend fun Context.signInSilently(client: GoogleSignInClient) =
     suspendCoroutine<GoogleSignInAccount?> { cont ->
         Timber.d("Checking if signed in...")
         val signInOptions = GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN
