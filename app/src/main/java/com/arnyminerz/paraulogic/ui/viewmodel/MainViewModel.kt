@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.arnyminerz.paraulogic.game.GameHistoryItem
 import com.arnyminerz.paraulogic.game.GameInfo
 import com.arnyminerz.paraulogic.game.calculatePoints
 import com.arnyminerz.paraulogic.game.decodeSource
@@ -15,6 +16,8 @@ import com.arnyminerz.paraulogic.game.getLevelFromPoints
 import com.arnyminerz.paraulogic.game.getTutis
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -34,6 +37,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private set
     val introducedTutis = mutableStateListOf<IntroducedWord>()
 
+    val gameHistory = mutableStateListOf<GameHistoryItem>()
+
     fun loadGameInfo() {
         viewModelScope.launch {
             val source = fetchSource(getApplication())
@@ -41,6 +46,40 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             this@MainViewModel.gameInfo = decodeSource(source)
 
             loadCorrectWords(gameInfo)
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun loadGameHistory() {
+        viewModelScope.launch {
+            Timber.d("Loading game history...")
+            Firebase.firestore
+                .collection("paraulogic")
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    Timber.d("Got ${snapshot.documents.size} documents.")
+                    gameHistory.clear()
+                    for (document in snapshot.documents) {
+                        val timestamp = document.getTimestamp("timestamp") ?: continue
+                        val gameInfo = document.get("gameInfo") as? Map<String, *> ?: continue
+                        val centerLetter = gameInfo["centerLetter"] as? String ?: continue
+                        val letters = gameInfo["letters"] as? List<String> ?: continue
+                        val words = gameInfo["words"] as? Map<String, String> ?: continue
+
+                        val date = timestamp.toDate()
+                        val gameInfoObject = GameInfo(
+                            mutableStateOf(letters.map { it[0] }),
+                            centerLetter[0],
+                            words,
+                        )
+
+                        gameHistory.add(GameHistoryItem(date, gameInfoObject))
+                        Timber.i("Added game from $date.")
+                    }
+                }
+                .addOnFailureListener { error ->
+                    Timber.e(error, "Could not get history.")
+                }
         }
     }
 
