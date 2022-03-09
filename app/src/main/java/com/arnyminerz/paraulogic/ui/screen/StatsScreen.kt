@@ -1,6 +1,7 @@
 package com.arnyminerz.paraulogic.ui.screen
 
 import android.text.format.DateFormat
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -40,6 +41,7 @@ fun StatsScreen(viewModel: MainViewModel, gameHistory: SnapshotStateList<GameHis
 
     val dayFoundWords = viewModel.dayFoundWords
     val dayFoundTutis = viewModel.dayFoundTutis
+    val dayWrongWords = viewModel.dayWrongWords
 
     if (showPicker)
         DatePicker(
@@ -89,46 +91,69 @@ fun StatsScreen(viewModel: MainViewModel, gameHistory: SnapshotStateList<GameHis
     }
     if (historyItem != null && dayFoundWords.isNotEmpty())
         Row {
-            Card(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp)
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    modifier = Modifier.padding(8.dp),
-                    text = if (historyItemTutis.size == 1)
-                        if (dayFoundTutis.size == historyItemTutis.size)
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        modifier = Modifier.padding(8.dp),
+                        text = if (historyItemTutis.size == 1)
+                            if (dayFoundTutis.size == historyItemTutis.size)
+                                stringResource(
+                                    R.string.stats_day_tuti,
+                                    buttonText,
+                                    dayFoundWords.size,
+                                    historyItemWords.size
+                                )
+                            else
+                                stringResource(
+                                    R.string.stats_day_no_tuti,
+                                    buttonText,
+                                    dayFoundWords.size,
+                                    historyItemWords.size
+                                )
+                        else if (dayFoundTutis.size == historyItemTutis.size)
                             stringResource(
-                                R.string.stats_day_tuti,
+                                R.string.stats_day_all_tutis,
                                 buttonText,
                                 dayFoundWords.size,
-                                historyItemWords.size
+                                historyItemWords.size,
+                                historyItemTutis.size
                             )
                         else
                             stringResource(
-                                R.string.stats_day_no_tuti,
+                                R.string.stats_day_n_tutis,
                                 buttonText,
                                 dayFoundWords.size,
-                                historyItemWords.size
+                                historyItemWords.size,
+                                dayFoundTutis.size,
+                                historyItemTutis.size
                             )
-                    else if (dayFoundTutis.size == historyItemTutis.size)
-                        stringResource(
-                            R.string.stats_day_all_tutis,
-                            buttonText,
-                            dayFoundWords.size,
-                            historyItemWords.size,
-                            historyItemTutis.size
+                    )
+                }
+                Card(
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                        .fillMaxWidth()
+                ) {
+                    val maxWordsCount = dayWrongWords.maxOf { it.value }
+                    Text(
+                        modifier = Modifier.padding(8.dp),
+                        text = stringResource(
+                            R.string.stats_invalid_words,
+                            dayWrongWords.size,
+                            maxWordsCount,
+                            if (maxWordsCount < 5)
+                                stringResource(R.string.stats_invalid_words_comment_1)
+                            else if (maxWordsCount < 10)
+                                stringResource(R.string.stats_invalid_words_comment_2)
+                            else
+                                stringResource(R.string.stats_invalid_words_comment_3)
                         )
-                    else
-                        stringResource(
-                            R.string.stats_day_n_tutis,
-                            buttonText,
-                            dayFoundWords.size,
-                            historyItemWords.size,
-                            dayFoundTutis.size,
-                            historyItemTutis.size
-                        )
-                )
+                    )
+                }
             }
         }
 }
