@@ -1,6 +1,7 @@
 package com.arnyminerz.paraulogic.ui.viewmodel
 
 import android.app.Application
+import androidx.annotation.UiThread
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -29,8 +30,6 @@ import java.util.Date
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     var gameInfo by mutableStateOf<GameInfo?>(null)
         private set
-
-    val everFoundCorrectWords = mutableStateListOf<IntroducedWord>()
 
     val correctWords = mutableStateListOf<IntroducedWord>()
 
@@ -92,6 +91,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    @UiThread
     private suspend fun loadCorrectWords(gameInfo: GameInfo) {
         val databaseSingleton = DatabaseSingleton.getInstance(getApplication())
         val hash = gameInfo.hash
@@ -103,9 +103,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val lWords = arrayListOf<String>()
             list.sortedBy { it.word }
                 .forEach {
-                    if (it.isCorrect)
-                        everFoundCorrectWords.add(it)
-
                     if (it.isCorrect && !lWords.contains(it.word) && it.hash == hash) {
                         correctWords.add(it)
                         lWords.add(it.word)
