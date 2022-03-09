@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_id" translatable="false">433089785123</string>
+
+    <string name="achievement_1" translatable="false">CgkIo9qmsc0MEAIQAQ</string>
+    <string name="achievement_2" translatable="false">CgkIo9qmsc0MEAIQAg</string>
+    <string name="achievement_3" translatable="false">CgkIo9qmsc0MEAIQBQ</string>
+
+    <string name="leaderboard_world" translatable="false">CgkIo9qmsc0MEAIQBA</string>
+</resources>
