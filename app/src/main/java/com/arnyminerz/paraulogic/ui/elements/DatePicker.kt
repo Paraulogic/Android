@@ -110,7 +110,16 @@ fun DatePicker(
 
                 Button(
                     onClick = {
-                        onDateSelected(selDate.value)
+                        val newDate = selDate.value
+                        onDateSelected(
+                            // This makes sure date is not out of range
+                            Date(
+                                maxOf(
+                                    minOf(maxDate ?: Long.MAX_VALUE, newDate.time),
+                                    minDate ?: Long.MIN_VALUE
+                                )
+                            )
+                        )
                         onDismissRequest()
                     },
                     colors = ButtonDefaults.textButtonColors(),
