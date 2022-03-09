@@ -7,7 +7,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +21,6 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,7 +33,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -45,16 +42,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.activity.SettingsActivity
+import com.arnyminerz.paraulogic.play.games.startSynchronization
 import com.arnyminerz.paraulogic.ui.Game
 import com.arnyminerz.paraulogic.ui.dialog.HelpDialog
 import com.arnyminerz.paraulogic.ui.screen.StatsScreen
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
+import com.arnyminerz.paraulogic.utils.doAsync
 import com.arnyminerz.paraulogic.utils.launch
 import com.arnyminerz.paraulogic.utils.launchUrl
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.games.Games
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -116,11 +116,23 @@ fun ComponentActivity.MainScreen(
                             )
                         }
                     else {
+                        val showAchievements: () -> Unit = {
+                            Games.getAchievementsClient(context, account)
+                                .achievementsIntent
+                                .addOnSuccessListener { popupLauncher.launch(it) }
+                                .addOnFailureListener {
+                                    Timber.e(
+                                        it,
+                                        "Could not launch achievements popup."
+                                    )
+                                }
+                        }
+
                         val photoUrl = account.photoUrl
                         if (photoUrl == null) {
-                            Timber.e("User does not have a photo or permission is denied")
+                            Timber.w("User does not have a photo or permission is denied")
                             IconButton(
-                                onClick = { /* TODO */ },
+                                onClick = showAchievements,
                                 modifier = Modifier
                                     .size(48.dp)
                             ) {
@@ -135,7 +147,7 @@ fun ComponentActivity.MainScreen(
                                 contentScale = ContentScale.Fit,
                                 modifier = Modifier
                                     .size(48.dp)
-                                    .clickable { /* TODO */ }
+                                    .clickable(onClick = showAchievements)
                             )
                     }
                 },
@@ -226,6 +238,8 @@ fun ComponentActivity.MainScreen(
             when (page) {
                 0 -> if (gameInfo != null) {
                     Timber.i("Game info: $gameInfo")
+
+                    doAsync { startSynchronization(context, gameInfo) }
 
                     Game(gameInfo, viewModel, signInRequest)
                 } else
