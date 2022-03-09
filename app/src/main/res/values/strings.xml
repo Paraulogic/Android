@@ -65,4 +65,9 @@
     <string name="stats_day_tuti">On %s you found %d of %d words. Containing the tuti of the day.</string>
     <string name="stats_day_n_tutis">On %s you found %d of %d words. Containing %d of the %d tutis there were.</string>
     <string name="stats_day_all_tutis">On %s you found %d of %d words. Containing all of the %d tutis there were.</string>
+
+    <string name="stats_invalid_words">That day you managed to make up %d words, repeating one of them up to %d times. %s</string>
+    <string name="stats_invalid_words_comment_1">What a tough day.</string>
+    <string name="stats_invalid_words_comment_2">You were inspired that day 🥴…</string>
+    <string name="stats_invalid_words_comment_3">Did you really think that was going to work?</string>
 </resources>
