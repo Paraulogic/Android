@@ -60,7 +60,7 @@ jobs:
         id: build_aab
         run: |
           echo "Building ${{ steps.create_release.outputs.tag_name }}..."
-          bash ./gradlew :base:bundleRelease --stacktrace
+          bash ./gradlew bundleRelease --stacktrace
       - name: AAB Artifact
         id: aab_artifact
         uses: actions/upload-artifact@v2
