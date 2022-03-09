@@ -1,6 +1,8 @@
 package com.arnyminerz.paraulogic.ui.screen
 
+import android.content.Intent
 import android.text.format.DateFormat
+import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.arnyminerz.paraulogic.R
@@ -25,12 +28,20 @@ import com.arnyminerz.paraulogic.game.maxDate
 import com.arnyminerz.paraulogic.game.minDate
 import com.arnyminerz.paraulogic.ui.elements.DatePicker
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.games.Games
 import timber.log.Timber
 import java.util.Calendar
 
 @Composable
 @ExperimentalMaterial3Api
-fun StatsScreen(viewModel: MainViewModel, gameHistory: SnapshotStateList<GameHistoryItem>) {
+fun StatsScreen(
+    viewModel: MainViewModel,
+    popupLauncher: ActivityResultLauncher<Intent>,
+    gameHistory: SnapshotStateList<GameHistoryItem>
+) {
+    val context = LocalContext.current
+
     val selectDateText = stringResource(R.string.action_select_date)
     var buttonText by remember { mutableStateOf(selectDateText) }
     var showPicker by remember { mutableStateOf(false) }
@@ -87,6 +98,18 @@ fun StatsScreen(viewModel: MainViewModel, gameHistory: SnapshotStateList<GameHis
             colors = ButtonDefaults.outlinedButtonColors(),
         ) {
             Text(text = buttonText)
+        }
+        Button(
+            onClick = {
+                GoogleSignIn.getLastSignedInAccount(context)?.let { account ->
+                    Games.getLeaderboardsClient(context, account)
+                        .getLeaderboardIntent(context.getString(R.string.leaderboard_world))
+                        .addOnSuccessListener { popupLauncher.launch(it) }
+                }
+            },
+            colors = ButtonDefaults.textButtonColors()
+        ) {
+            Text(text = stringResource(R.string.action_leaderboard))
         }
     }
     if (historyItem != null && dayFoundWords.isNotEmpty())
