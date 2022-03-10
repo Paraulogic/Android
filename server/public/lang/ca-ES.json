@@ -1,0 +1,21 @@
+{
+  "title": "Paraulògic&reg; App per a Android - Termes d'ús i política de privacitat",
+  "link-web": "Web oficial",
+  "link-google-play": "Google Play",
+  
+  "copy-info": "<a href=\"https://vilaweb.cat\">Vilaweb</a> i <a href=\"https://xarxa.cat/\">Xarxa de Mots</a> son els propietaris legítims de la idea, del joc, i tots els continguts relacions. Açò és simplement un projecte passional fet per un estudiant d'ingenyeria a qui li encanta el joc, i simplement vol extendre més enllà l'experiència. Tot i això, per aquest motiu, si els propietaris del Paraulògic&reg; volen que aquest siga retirat, em veig obligat a reservar-me el dret de fer-ho, i eliminar el progrés que tots els jugadors hagen fet fins a eixe moment.",
+
+  "android-title": "App d'Android",
+  "android-tracing-title": "Rastreig",
+  "android-tracing-1": "No es col·lecta cap tipus d'informació personal, com a molt es poden recol·lectar informes d'error i de rendiment lligats al dispositiu que facis servir, per tal de facilitar la recerca d'errors.",
+  "android-tracing-2": "Pots desactivar qualsevol col·lecció de dades des de la configuració de l'aplicació.",
+  "android-tracing-3": "L'aplicació fa servir els serveis de jocs de Google Play Jocs, d'aquesta manera, si inicies sessió estàs acceptant <a href=\"https://developers.google.com/games/services/terms\">els termes d'ús i polítiques de privacitat de Google</a> i eximeixes el desenvolupador de qualsevol obligació legal i responsabilitat.",
+  "android-tracing-4": "Si desitges que les teues dades personals siguen eliminades en qualsevol moment, i pel motiu que siga, senteix-te lliure a enviar un correu electrònic <a href=\"mailto:arnyminer.z@gmail.com\">arnyminer.z@gmail.com</a>.",
+
+  "android-ads-title": "Anuncis",
+  "android-ads-1": "Com el joc original, l'aplicació no té anuncis, ni mai en tindrà. És per tant, una aplicació que no genera cap tipus de benefici econòmic.",
+
+  "android-source-code-title": "Codi font",
+  "android-source-code-1": "Com que m'encanta el <a href=\"https://ca.wikipedia.org/wiki/FOSS\">FOSS</a>, i crec que deuria ser la tendència general de totes les aplicacions de qualsevol plataforma, el codi obert és públic i està disponible a <a href=\"https://github.com/ArnyminerZ/Paraulogic-Android\">Github</a>.",
+  "android-source-code-2": "Senteix-te lliure de pegar-li una ullada, i proposar canvis per tal de seguir millorant l'aplicació."
+}
