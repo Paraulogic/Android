@@ -17,14 +17,6 @@
         android:theme="@style/AppTheme"
         tools:targetApi="31">
 
-        <!-- Sentry Meta -->
-        <meta-data
-            android:name="io.sentry.dsn"
-            android:value="@string/SENTRY_DSS" />
-        <meta-data
-            android:name="io.sentry.traces.sample-rate"
-            android:value="1.0" />
-
         <!-- Google Play Games Meta -->
         <meta-data
             android:name="com.google.android.gms.games.APP_ID"
