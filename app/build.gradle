@@ -23,8 +23,6 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
-
-        resValue "string", "SENTRY_DSS", properties.getProperty("SENTRY_DSS", "")
     }
 
     // Configures the APK and AAB signing config
