@@ -34,6 +34,16 @@ la informació que vulgues.
 Aquesta informació es desa al dispositiu i no s'envia a cap lloc, per a assegurar la teua
 privacitat.
 
+## Servidor
+
+Tots els dies a les 5 del matí es fa una còpia de les dades del dia del paraulògic al servidor, per
+tal de tenir un registre extens, ja que aquest es perd a la web oficial als dos dies.
+
+En un futur l'aplicació podria gastar aquestes dades, per tal d'evitar sobrecarregar la web original
+si molta gent l'utilitza. No obstant, aquesta funció no està activa, ja que la web oficial fa ús
+d'una sèrie de rastrejadors, que encara que amb l'aplicació volem eliminar, entenem que Vilaweb té
+interès en tenir-los.
+
 # Crèdits
 
 Per suposat, tots els crèdits van a Vilaweb, per haver ideat aquest meravellós joc, i a Pere Orga
