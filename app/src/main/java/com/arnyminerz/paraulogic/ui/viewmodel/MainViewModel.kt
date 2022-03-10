@@ -19,6 +19,7 @@ import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.ktx.initialize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -59,10 +60,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     @Suppress("UNCHECKED_CAST")
     fun loadGameHistory() {
+        Timber.d("Getting Firestore instance.")
+        val db = try {
+            Firebase.firestore
+        } catch (e: IllegalStateException) {
+            Timber.w("FirebaseApp not initialized. Initializing...")
+            Firebase.initialize(getApplication())
+            Firebase.firestore
+        }
+
         viewModelScope.launch {
             Timber.d("Loading game history...")
-            Firebase.firestore
-                .collection("paraulogic")
+            db.collection("paraulogic")
                 .get()
                 .addOnSuccessListener { snapshot ->
                     Timber.d("Got ${snapshot.documents.size} documents.")
