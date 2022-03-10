@@ -1,4 +1,3 @@
-const url = require('url');
 const req = require('./httpPromise');
 
 module.exports = {
@@ -21,7 +20,7 @@ module.exports = {
         const sPos = source.indexOf(';', tPos);
         const data = source.substring(tPos, sPos);
 
-        const lettersPos = data.indexOf('"l"=[');
+        const lettersPos = data.indexOf('"l":[');
         const lettersEndPos = data.indexOf(']', lettersPos);
         const lettersArray = data.substring(lettersPos + 5, lettersEndPos);
         const splitLetters = lettersArray.split(',');
