@@ -4,7 +4,7 @@ const admin = require("firebase-admin");
 
 const {fetchSource, decodeSource} = require('./loader');
 
-exports.scheduledFunctionCrontab = functions.pubsub.schedule('0 8 * * *')
+exports.scheduledFunctionCrontab = functions.pubsub.schedule('0 5 * * *')
     .timeZone('Europe/Madrid')
     .onRun(async () => {
         admin.initializeApp();
