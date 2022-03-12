@@ -26,8 +26,17 @@ data class GameInfo(
     val words: Map<String, String>,
 ) {
     companion object {
+        /**
+         * Obtains the [GameInfo] object from a [DocumentSnapshot] of the Firestore server.
+         * @author Arnau Mora
+         * @since 20220312
+         * @param documentSnapshot The document to decode.
+         * @return An instantiated [GameInfo] object with the data from [documentSnapshot]
+         * @throws NoSuchElementException When there's a missing key on [documentSnapshot]
+         */
         @AddTrace(name = "ServerDataDecode")
         @Suppress("UNCHECKED_CAST")
+        @Throws(NoSuchElementException::class)
         fun fromServer(documentSnapshot: DocumentSnapshot): GameInfo {
             val gameInfo = documentSnapshot.get("gameInfo") as? Map<String, *>
                 ?: throw NoSuchElementException("Could not find \"gameInfo\" in document.")
