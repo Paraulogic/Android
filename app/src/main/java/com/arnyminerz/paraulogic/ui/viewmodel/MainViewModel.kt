@@ -49,7 +49,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadGameInfo() {
         viewModelScope.launch {
-            val gameInfo = loadGameInfoFromServer()
+            val gameInfo = loadGameInfoFromServer(getApplication())
             this@MainViewModel.gameInfo = gameInfo
 
             loadCorrectWords(gameInfo)
