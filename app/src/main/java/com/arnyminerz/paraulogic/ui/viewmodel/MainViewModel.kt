@@ -52,7 +52,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val source = fetchSource(getApplication())
             val gameInfo = decodeSource(source)
-            this@MainViewModel.gameInfo = decodeSource(source)
+            this@MainViewModel.gameInfo = gameInfo
 
             loadCorrectWords(gameInfo)
         }
