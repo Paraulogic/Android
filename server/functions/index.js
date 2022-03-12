@@ -11,8 +11,13 @@ const makeDataRequest = async () => {
     return decodeSource(source);
 };
 
+// Redirects to the Github Page
+exports.gh = functions.https
+    .onRequest(async (_request, response) => response.redirect("https://github.com/ArnyminerZ/Paraulogic-Android"));
+
+// Returns the data the server loads from Paraulògic (only for dev)
 exports.fetchSource = functions.https
-    .onRequest(async (request, response) => {
+    .onRequest(async (_request, response) => {
         if(!process.env.FUNCTIONS_EMULATOR)
             return response.send({"error":"not-dev-environment"});
 
