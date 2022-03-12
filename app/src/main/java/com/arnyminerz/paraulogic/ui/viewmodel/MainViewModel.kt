@@ -11,10 +11,9 @@ import androidx.lifecycle.viewModelScope
 import com.arnyminerz.paraulogic.game.GameHistoryItem
 import com.arnyminerz.paraulogic.game.GameInfo
 import com.arnyminerz.paraulogic.game.calculatePoints
-import com.arnyminerz.paraulogic.game.decodeSource
-import com.arnyminerz.paraulogic.game.fetchSource
 import com.arnyminerz.paraulogic.game.getLevelFromPoints
 import com.arnyminerz.paraulogic.game.getTutis
+import com.arnyminerz.paraulogic.game.loadGameInfoFromServer
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 import com.google.firebase.firestore.ktx.firestore
@@ -50,8 +49,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadGameInfo() {
         viewModelScope.launch {
-            val source = fetchSource(getApplication())
-            val gameInfo = decodeSource(source)
+            val gameInfo = loadGameInfoFromServer()
             this@MainViewModel.gameInfo = gameInfo
 
             loadCorrectWords(gameInfo)

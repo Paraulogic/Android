@@ -1,82 +1,40 @@
 package com.arnyminerz.paraulogic.game
 
-import android.content.Context
-import androidx.compose.runtime.mutableStateOf
-import com.android.volley.Request
-import com.android.volley.toolbox.StringRequest
-import com.arnyminerz.paraulogic.singleton.VolleySingleton
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.perf.metrics.AddTrace
+import timber.log.Timber
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-private const val GAME_URL = "https://vilaweb.cat/paraulogic/"
-
 /**
- * Fetches the source code of the game.
+ * Obtains the last game info from the Firestore database.
  * @author Arnau Mora
- * @since 20220307
- * @param context The context to run as.
+ * @since 20220312
+ * @throws NoSuchElementException Could not get the game data from server.
  */
-@AddTrace(name = "SourceFetching")
-suspend fun fetchSource(context: Context) = suspendCoroutine<String> { cont ->
-    val request = StringRequest(
-        Request.Method.GET,
-        GAME_URL,
-        { cont.resume(it) },
-        { cont.resumeWithException(it); },
-    )
-    VolleySingleton
-        .getInstance(context)
-        .addToRequestQueue(request)
-}
-
-@AddTrace(name = "SourceDecoding")
-fun decodeSource(source: String): GameInfo {
-    val tPos = source.indexOf("var t=")
-    val sPos = source.indexOf(';', tPos)
-    val data = source.substring(tPos, sPos)
-
-    val lettersPos = data.indexOf("\"l\":[")
-    val lettersEndPos = data.indexOf("]", lettersPos)
-    val lettersArray = data.substring(lettersPos + 5, lettersEndPos)
-    val splitLetters = lettersArray.split(',')
-    val letters = arrayListOf<Char>()
-    for (splitLetter in splitLetters) {
-        val quoteStart = splitLetter.indexOf('"')
-        val quoteEnd = splitLetter.indexOf('"', quoteStart + 1)
-        val letterString = splitLetter.substring(quoteStart + 1, quoteEnd)
-        val letter = if (letterString.startsWith("\\u"))
-            Char(
-                letterString
-                    .substring(2)
-                    .toInt(16)
-            )
-        else letterString[0]
-
-        letters.add(letter)
-    }
-
-    val wordsPos = data.indexOf("\"p\":{")
-    val wordsEnd = data.indexOf("}", wordsPos)
-    val wordsString = data.substring(wordsPos + 5, wordsEnd)
-    val splitWords = wordsString.split(',')
-    val correctWords = hashMapOf<String, String>()
-    for (word in splitWords) {
-        val splitWord = word.split(':')
-        val key = splitWord[0]
-            .replace("\"", "")
-            .lowercase()
-            .trim()
-        val value = splitWord[1]
-            .replace("\"", "")
-            .trim()
-        correctWords[key] = value
-    }
-
-    return GameInfo(
-        mutableStateOf(letters.subList(0, letters.size - 1)),
-        letters.last(),
-        correctWords
-    )
+@AddTrace(name = "DataLoad")
+@Throws(NoSuchElementException::class)
+suspend fun loadGameInfoFromServer() = suspendCoroutine<GameInfo> { cont ->
+    Firebase
+        .firestore
+        .collection("paraulogic")
+        .orderBy("timestamp", Query.Direction.DESCENDING)
+        .limit(1)
+        .get()
+        .addOnSuccessListener { snapshot ->
+            if (snapshot.isEmpty)
+                cont.resumeWithException(NoSuchElementException("Could not get data from server"))
+            else {
+                Timber.d("Got documents, fetching first...")
+                val documents = snapshot.documents
+                val document = documents.first()
+                Timber.d("Decoding GameInfo...")
+                val gameInfo = GameInfo.fromServer(document)
+                cont.resume(gameInfo)
+            }
+        }
+        .addOnFailureListener { cont.resumeWithException(it) }
 }
