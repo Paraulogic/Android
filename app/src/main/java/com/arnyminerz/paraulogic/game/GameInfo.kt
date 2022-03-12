@@ -11,6 +11,7 @@ import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_SHORT
 import com.arnyminerz.paraulogic.game.annotation.CheckWordResult
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.perf.metrics.AddTrace
 
 /**
  * The amount of levels there are.
@@ -25,6 +26,7 @@ data class GameInfo(
     val words: Map<String, String>,
 ) {
     companion object {
+        @AddTrace(name = "ServerDataDecode")
         @Suppress("UNCHECKED_CAST")
         fun fromServer(documentSnapshot: DocumentSnapshot): GameInfo {
             val gameInfo = documentSnapshot.get("gameInfo") as? Map<String, *>
