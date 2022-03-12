@@ -29,14 +29,20 @@ module.exports = {
          */
         const letters = [];
         for (let l in splitLetters)
-            if (splitLetters.hasOwnProperty(l))
-                letters.push(
-                    splitLetters[l]
-                        .replaceAll('"', '')
-                        .trim()
-                        .toLowerCase()
-                        .substring(0, 1)
-                );
+            if (splitLetters.hasOwnProperty(l)){
+                const splitLetter = splitLetters[l];
+                const quoteStart = splitLetter.indexOf('"') + 1;
+                const quoteEnd = splitLetter.indexOf('"', quoteStart);
+                let letter = splitLetter
+                    .substring(quoteStart, quoteEnd)
+                    .trim()
+                    .toLowerCase();
+                if(letter.startsWith("\\")) {
+                    const charCode = letter.substring(2);
+                    letter = String.fromCharCode(parseInt(charCode, 16));
+                }
+                letters.push(letter);
+            }
 
         const wordsPos = data.indexOf('"p":{');
         const wordsEnd = data.indexOf('}', wordsPos);
