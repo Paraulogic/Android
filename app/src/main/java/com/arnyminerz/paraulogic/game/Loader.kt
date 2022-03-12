@@ -66,3 +66,41 @@ suspend fun loadGameInfoFromServer(context: Context): GameInfo {
         return GameInfo.fromServer(document)
     }
 }
+
+/**
+ * Loads all the games there has ever been from the server.
+ * @author Arnau Mora
+ * @since 20220312
+ * @param context The context to initialize the Firestore instance from.
+ * @param itemLoaded Will get called once each item of the history gets loaded.
+ * @return A list of the found [GameHistoryItem].
+ * @throws FirebaseException If there happens to be an error while loading data from server.
+ * @throws NoSuchElementException Could not get the game data from server.
+ */
+@AddTrace(name = "HistoryLoad")
+@Throws(NoSuchElementException::class, FirebaseException::class)
+suspend fun loadGameHistoryFromServer(
+    context: Context,
+    itemLoaded: ((item: GameHistoryItem) -> Unit)? = null
+): List<GameHistoryItem> {
+    val snapshot = serverData(context, limit = 10000)
+    if (snapshot.isEmpty)
+        throw NoSuchElementException("Could not get data from server")
+    else {
+        Timber.d("Got documents, decoding GameHistoryItem...")
+        val history = arrayListOf<GameHistoryItem>()
+        for (document in snapshot.documents) {
+            val timestamp = document.getTimestamp("timestamp") ?: continue
+
+            val date = timestamp.toDate()
+            val gameInfoObject = GameInfo.fromServer(document)
+
+            val gameHistoryItem = GameHistoryItem(date, gameInfoObject)
+            history.add(gameHistoryItem)
+            itemLoaded?.invoke(gameHistoryItem)
+
+            Timber.i("Added game from $date.")
+        }
+        return history
+    }
+}

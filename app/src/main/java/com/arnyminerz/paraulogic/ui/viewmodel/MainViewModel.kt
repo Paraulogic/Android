@@ -13,12 +13,11 @@ import com.arnyminerz.paraulogic.game.GameInfo
 import com.arnyminerz.paraulogic.game.calculatePoints
 import com.arnyminerz.paraulogic.game.getLevelFromPoints
 import com.arnyminerz.paraulogic.game.getTutis
+import com.arnyminerz.paraulogic.game.loadGameHistoryFromServer
 import com.arnyminerz.paraulogic.game.loadGameInfoFromServer
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.ktx.initialize
+import com.google.firebase.FirebaseException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -56,37 +55,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun loadGameHistory() {
-        Timber.d("Getting Firestore instance.")
-        val db = try {
-            Firebase.firestore
-        } catch (e: IllegalStateException) {
-            Timber.w("FirebaseApp not initialized. Initializing...")
-            Firebase.initialize(getApplication())
-            Firebase.firestore
-        }
-
         viewModelScope.launch {
             Timber.d("Loading game history...")
-            db.collection("paraulogic")
-                .get()
-                .addOnSuccessListener { snapshot ->
-                    Timber.d("Got ${snapshot.documents.size} documents.")
-                    gameHistory.clear()
-                    for (document in snapshot.documents) {
-                        val timestamp = document.getTimestamp("timestamp") ?: continue
-
-                        val date = timestamp.toDate()
-                        val gameInfoObject = GameInfo.fromServer(document)
-
-                        gameHistory.add(GameHistoryItem(date, gameInfoObject))
-                        Timber.i("Added game from $date.")
-                    }
-                }
-                .addOnFailureListener { error ->
-                    Timber.e(error, "Could not get history.")
-                }
+            try {
+                gameHistory.clear()
+                loadGameHistoryFromServer(getApplication()) { gameHistory.add(it) }
+            } catch (e: NoSuchElementException) {
+                Timber.e(e, "Data from server is not valid.")
+            } catch (e: FirebaseException) {
+                Timber.e(e, "Could not load data from server.")
+            }
         }
     }
 
