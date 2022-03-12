@@ -1,6 +1,7 @@
 package com.arnyminerz.paraulogic.game
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import com.arnyminerz.paraulogic.crypto.md5
 import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_ALREADY_FOUND
 import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_CENTER_MISSING
@@ -9,6 +10,7 @@ import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_INCORRECT
 import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_SHORT
 import com.arnyminerz.paraulogic.game.annotation.CheckWordResult
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
+import com.google.firebase.firestore.DocumentSnapshot
 
 /**
  * The amount of levels there are.
@@ -22,6 +24,26 @@ data class GameInfo(
     val centerLetter: Char,
     val words: Map<String, String>,
 ) {
+    companion object {
+        @Suppress("UNCHECKED_CAST")
+        fun fromServer(documentSnapshot: DocumentSnapshot): GameInfo {
+            val gameInfo = documentSnapshot.get("gameInfo") as? Map<String, *>
+                ?: throw NoSuchElementException("Could not find \"gameInfo\" in document.")
+            val centerLetter = gameInfo["centerLetter"] as? String
+                ?: throw NoSuchElementException("Could not find \"gameInfo.centerLetter\" in document.")
+            val letters = gameInfo["letters"] as? List<String>
+                ?: throw NoSuchElementException("Could not find \"gameInfo.letters\" in document.")
+            val words = gameInfo["words"] as? Map<String, String>
+                ?: throw NoSuchElementException("Could not find \"gameInfo.words\" in document.")
+
+            return GameInfo(
+                mutableStateOf(letters.map { it[0] }),
+                centerLetter[0],
+                words,
+            )
+        }
+    }
+
     /**
      * Calculates the maximum amount of points that can be obtained in the game.
      * @author Arnau Mora

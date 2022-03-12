@@ -78,17 +78,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     gameHistory.clear()
                     for (document in snapshot.documents) {
                         val timestamp = document.getTimestamp("timestamp") ?: continue
-                        val gameInfo = document.get("gameInfo") as? Map<String, *> ?: continue
-                        val centerLetter = gameInfo["centerLetter"] as? String ?: continue
-                        val letters = gameInfo["letters"] as? List<String> ?: continue
-                        val words = gameInfo["words"] as? Map<String, String> ?: continue
 
                         val date = timestamp.toDate()
-                        val gameInfoObject = GameInfo(
-                            mutableStateOf(letters.map { it[0] }),
-                            centerLetter[0],
-                            words,
-                        )
+                        val gameInfoObject = GameInfo.fromServer(document)
 
                         gameHistory.add(GameHistoryItem(date, gameInfoObject))
                         Timber.i("Added game from $date.")
