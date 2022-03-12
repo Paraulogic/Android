@@ -42,8 +42,20 @@ fun decodeSource(source: String): GameInfo {
     val lettersArray = data.substring(lettersPos + 5, lettersEndPos)
     val splitLetters = lettersArray.split(',')
     val letters = arrayListOf<Char>()
-    for (letter in splitLetters)
-        letters.add(letter.replace("\"", "")[0])
+    for (splitLetter in splitLetters) {
+        val quoteStart = splitLetter.indexOf('"')
+        val quoteEnd = splitLetter.indexOf('"', quoteStart + 1)
+        val letterString = splitLetter.substring(quoteStart + 1, quoteEnd)
+        val letter = if (letterString.startsWith("\\u"))
+            Char(
+                letterString
+                    .substring(2)
+                    .toInt(16)
+            )
+        else letterString[0]
+
+        letters.add(letter)
+    }
 
     val wordsPos = data.indexOf("\"p\":{")
     val wordsEnd = data.indexOf("}", wordsPos)
