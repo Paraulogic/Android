@@ -31,7 +31,7 @@ exports.scheduledFunctionCrontab = functions.pubsub.schedule('0 5 * * *')
         admin.initializeApp();
         const firestore = admin.firestore();
 
-        const gameInfo = makeDataRequest();
+        const gameInfo = await makeDataRequest();
 
         console.info("Creating collection...")
         const collection = firestore.collection("paraulogic");
