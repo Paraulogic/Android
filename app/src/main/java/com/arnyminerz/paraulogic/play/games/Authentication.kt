@@ -26,6 +26,13 @@ fun Context.createSignInClient(): GoogleSignInClient =
             .build()
     )
 
+/**
+ * Alias for [GoogleSignIn.getLastSignedInAccount].
+ * @author Arnau Mora
+ * @since 20220313
+ */
+fun Context.getLastSignedInAccount() = GoogleSignIn.getLastSignedInAccount(this)
+
 suspend fun Context.signInSilently(client: GoogleSignInClient) =
     suspendCoroutine<GoogleSignInAccount?> { cont ->
         Timber.d("Checking if signed in...")
