@@ -79,9 +79,9 @@ class MainActivity : ComponentActivity() {
             val account = signInSilently(signInClient)
             if (account != null)
                 Timber.i("Log in successful")
-        }
 
-        Timber.i("Trying to add missing points...")
-        tryToAddPoints(this)
+            Timber.i("Trying to add missing points...")
+            tryToAddPoints(this@MainActivity)
+        }
     }
 }
