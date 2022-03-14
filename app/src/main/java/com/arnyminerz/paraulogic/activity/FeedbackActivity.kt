@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.arnyminerz.paraulogic.ui.screen.FeedbackScreen
+import com.arnyminerz.paraulogic.ui.theme.AppTheme
 
 class FeedbackActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -12,7 +13,9 @@ class FeedbackActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            FeedbackScreen()
+            AppTheme {
+                FeedbackScreen()
+            }
         }
     }
 }
