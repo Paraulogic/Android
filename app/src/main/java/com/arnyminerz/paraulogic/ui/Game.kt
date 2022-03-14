@@ -46,9 +46,7 @@ import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_CENTER_MISSING
 import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_CORRECT
 import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_INCORRECT
 import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_SHORT
-import com.arnyminerz.paraulogic.game.getPoints
 import com.arnyminerz.paraulogic.game.lettersString
-import com.arnyminerz.paraulogic.play.games.addPlayerPoints
 import com.arnyminerz.paraulogic.ui.elements.ButtonsBox
 import com.arnyminerz.paraulogic.ui.elements.PointsText
 import com.arnyminerz.paraulogic.ui.elements.TutisText
@@ -183,10 +181,12 @@ fun Game(
                             Timber.d("Won't play sound. Old level: $oldLevel, level: $level")
                     }
 
-                    if (wordCheck == CHECK_WORD_CORRECT)
-                        addPlayerPoints(context, text.getPoints(gameInfo).toLong(), loginRequired)
-
-                    viewModel.introduceWord(gameInfo, text, wordCheck == CHECK_WORD_CORRECT)
+                    viewModel.introduceWord(
+                        gameInfo,
+                        text,
+                        wordCheck == CHECK_WORD_CORRECT,
+                        loginRequired
+                    )
                     text = ""
                 },
                 colors = ButtonDefaults.outlinedButtonColors()
