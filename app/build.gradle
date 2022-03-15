@@ -111,7 +111,7 @@ dependencies {
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
 
     // Jetpack Compose - Accompanist
-    implementation 'com.google.accompanist:accompanist-pager:0.24.3-alpha'
+    implementation 'com.google.accompanist:accompanist-pager:0.24.4-alpha'
 
     // Jetpack Compose - Glide
     implementation 'com.github.skydoves:landscapist-glide:1.5.0'
