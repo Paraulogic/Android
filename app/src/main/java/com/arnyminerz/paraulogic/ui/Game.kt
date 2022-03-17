@@ -3,6 +3,7 @@ package com.arnyminerz.paraulogic.ui
 import android.content.Context
 import android.content.res.ColorStateList
 import android.media.MediaPlayer
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -81,6 +82,7 @@ fun Game(
             )
             setText(text)
         }
+        toast.setGravity(Gravity.TOP, 0, 250)
         toast.view = view
         toast.show()
     }
