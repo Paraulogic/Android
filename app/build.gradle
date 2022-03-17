@@ -7,8 +7,7 @@ plugins {
 }
 
 android {
-    // compileSdk 32
-    compileSdkPreview "Tiramisu"
+    compileSdk 32
 
     Properties properties = new Properties()
     properties.load(project.rootProject.file("local.properties").newDataInputStream())
@@ -16,8 +15,7 @@ android {
     defaultConfig {
         applicationId "com.arnyminerz.paraulogic"
         minSdk 21
-        // targetSdk 32
-        targetSdkPreview "Tiramisu"
+        targetSdk 32
         versionCode findProperty("android.versionCode") as Integer
         versionName "1.0.1"
 
