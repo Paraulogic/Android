@@ -1,5 +1,6 @@
 package com.arnyminerz.paraulogic.ui.screen
 
+import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,6 +27,7 @@ import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.activity.FeedbackActivity
 import com.arnyminerz.paraulogic.pref.PREF_ERROR_REPORTING
 import com.arnyminerz.paraulogic.pref.rememberBooleanPreference
+import com.arnyminerz.paraulogic.ui.dialog.LanguageDialog
 import com.arnyminerz.paraulogic.ui.elements.SettingsCategory
 import com.arnyminerz.paraulogic.ui.elements.SettingsItem
 import com.arnyminerz.paraulogic.utils.activity
@@ -63,6 +67,19 @@ fun SettingsScreen() {
                 initialValue = true,
                 defaultValue = true
             )
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                var showLanguageDialog by remember { mutableStateOf(false) }
+                if (showLanguageDialog)
+                    LanguageDialog { showLanguageDialog = false }
+
+                SettingsCategory(text = stringResource(R.string.settings_category_general))
+                SettingsItem(
+                    title = stringResource(R.string.settings_general_language_title),
+                    subtitle = stringResource(R.string.settings_general_language_summary),
+                    onClick = { showLanguageDialog = true }
+                )
+            }
 
             SettingsCategory(text = stringResource(R.string.settings_category_info))
             SettingsItem(
