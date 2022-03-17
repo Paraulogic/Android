@@ -1,8 +1,6 @@
 package com.arnyminerz.paraulogic.ui.dialog
 
 import android.app.Activity
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,7 +23,6 @@ import com.arnyminerz.paraulogic.utils.updateAppLocales
 import java.util.Locale
 
 @Composable
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @ExperimentalMaterialApi
 fun LanguageDialog(onDismissRequested: () -> Unit) {
     val context = LocalContext.current
@@ -57,17 +54,14 @@ fun LanguageDialog(onDismissRequested: () -> Unit) {
                         },
                         modifier = Modifier
                             .clickable {
-                                (context as? Activity)
-                                    ?.let { activity ->
-                                        if (tag != systemLocale)
-                                            activity.updateAppLocales(
-                                                Locale.forLanguageTag(
-                                                    tag
-                                                )
-                                            )
-                                        else
-                                            activity.updateAppLocales()
-                                    }
+                                if (tag != systemLocale)
+                                    updateAppLocales(
+                                        Locale.forLanguageTag(
+                                            tag
+                                        )
+                                    )
+                                else
+                                    updateAppLocales()
                             }
                     ) {
                         Text(text = name)
