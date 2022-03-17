@@ -117,7 +117,10 @@ dependencies {
     implementation 'com.github.skydoves:landscapist-glide:1.5.0'
 
     // Lifecycle async components
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
 
     // Datastore Preferences
     implementation 'androidx.datastore:datastore-preferences:1.0.0'
