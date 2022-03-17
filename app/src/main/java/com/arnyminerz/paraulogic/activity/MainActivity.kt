@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.play.games.createSignInClient
 import com.arnyminerz.paraulogic.play.games.signInSilently
@@ -58,7 +58,10 @@ class MainActivity : ComponentActivity() {
         signInClient = createSignInClient()
 
         Timber.d("Initializing main view model...")
-        val viewModel: MainViewModel by viewModels()
+        val viewModel: MainViewModel = ViewModelProvider(
+            this,
+            MainViewModel.Factory(application)
+        )[MainViewModel::class.java]
 
         setContent {
             AppTheme {
