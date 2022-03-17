@@ -64,4 +64,7 @@
     <string name="stats_today_n_tutis">Hui has trobat %d de %d paraules. Entre les quals %d dels %d que hi ha.</string>
     <string name="stats_today_all_tutis">Hui has trobat %d de %d paraules. Entre les quals tots els %d tutis que hi ha.</string>
     <string name="stats_today">Today</string>
+    <string name="settings_category_general">General</string>
+    <string name="settings_general_language_title">Idioma</string>
+    <string name="settings_general_language_summary">Selecciona el idioma que mostrar a l\'app</string>
 </resources>

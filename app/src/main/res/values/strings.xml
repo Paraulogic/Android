@@ -1,4 +1,6 @@
 <resources>
+    <string name="system_locale" translatable="false">system</string>
+
     <string name="app_name">Paraulògic</string>
 
     <string name="image_desc_vilaweb">Vilaweb\'s Website</string>
@@ -45,8 +47,12 @@
     <string name="info_points_title">Points</string>
     <string name="info_points">- 3-letter words give 1 point; 4-letter words give 2 points.\n- Words larger than 5 letters will be worth as many points as letters the word has.\n- Each game has at least one "tuti" which is a word that has all the letters. Each tuti gives 10 extra points.</string>
 
+    <string name="settings_category_general">General</string>
     <string name="settings_category_info">Information</string>
     <string name="settings_category_advanced">Advanced</string>
+
+    <string name="settings_general_language_title">Language</string>
+    <string name="settings_general_language_summary">Select the language to display for the app</string>
 
     <string name="settings_info_github_title">Github Repository</string>
     <string name="settings_info_github_summary">View the source code of the app.</string>
