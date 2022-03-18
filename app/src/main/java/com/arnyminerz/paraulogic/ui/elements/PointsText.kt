@@ -3,7 +3,6 @@ package com.arnyminerz.paraulogic.ui.elements
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -41,7 +40,8 @@ fun PointsText(foundWords: List<IntroducedWord>, gameInfo: GameInfo) {
                 append(gameInfo.words.size.toString())
             }
             append(string.substring(totalPosArg + 4, listPosArg))
-            for (word in foundWords) {
+
+            for (word in foundWords.sortedBy { it.word }) {
                 pushStringAnnotation("definition", word.word.lowercase())
                 withStyle(
                     SpanStyle(
