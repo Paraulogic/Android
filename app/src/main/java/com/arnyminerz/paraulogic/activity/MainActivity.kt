@@ -1,12 +1,12 @@
 package com.arnyminerz.paraulogic.activity
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
+import com.arnyminerz.paraulogic.activity.model.LanguageActivity
 import com.arnyminerz.paraulogic.play.games.createSignInClient
 import com.arnyminerz.paraulogic.play.games.signInSilently
 import com.arnyminerz.paraulogic.play.games.startSignInIntent
@@ -21,7 +21,7 @@ import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import timber.log.Timber
 
-class MainActivity : ComponentActivity() {
+class MainActivity : LanguageActivity() {
     /**
      * The client for performing sign in operations with Google.
      * @author Arnau Mora

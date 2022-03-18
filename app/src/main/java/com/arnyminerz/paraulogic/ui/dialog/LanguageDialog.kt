@@ -55,13 +55,13 @@ fun LanguageDialog(onDismissRequested: () -> Unit) {
                         modifier = Modifier
                             .clickable {
                                 if (tag != systemLocale)
-                                    updateAppLocales(
-                                        Locale.forLanguageTag(
-                                            tag
-                                        )
+                                    context.updateAppLocales(
+                                        Locale.forLanguageTag(tag)
                                     )
                                 else
-                                    updateAppLocales()
+                                    context.updateAppLocales()
+                                (context as? Activity)?.recreate()
+                                onDismissRequested()
                             }
                     ) {
                         Text(text = name)
