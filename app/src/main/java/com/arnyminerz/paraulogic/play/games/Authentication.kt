@@ -7,6 +7,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.drive.Drive
 import com.google.android.gms.games.Games
 import timber.log.Timber
 import kotlin.coroutines.resume
@@ -17,14 +18,14 @@ fun startSignInIntent(signInClient: GoogleSignInClient, launcher: ActivityResult
     launcher.launch(intent)
 }
 
+val signInOptions: GoogleSignInOptions
+    get() = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
+        .requestProfile()
+        .requestScopes(Games.SCOPE_GAMES_LITE, Drive.SCOPE_APPFOLDER)
+        .build()
+
 fun Context.createSignInClient(): GoogleSignInClient =
-    GoogleSignIn.getClient(
-        this,
-        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
-            .requestProfile()
-            .requestScopes(Games.SCOPE_GAMES_LITE)
-            .build()
-    )
+    GoogleSignIn.getClient(this, signInOptions)
 
 /**
  * Alias for [GoogleSignIn.getLastSignedInAccount].
@@ -36,7 +37,6 @@ fun Context.getLastSignedInAccount() = GoogleSignIn.getLastSignedInAccount(this)
 suspend fun Context.signInSilently(client: GoogleSignInClient) =
     suspendCoroutine<GoogleSignInAccount?> { cont ->
         Timber.d("Checking if signed in...")
-        val signInOptions = GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN
         val account = GoogleSignIn.getLastSignedInAccount(this)
         if (GoogleSignIn.hasPermissions(account, *signInOptions.scopeArray))
             cont.resume(account!!)

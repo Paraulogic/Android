@@ -1,15 +1,19 @@
 package com.arnyminerz.paraulogic.ui.viewmodel
 
 import android.app.Application
+import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.UiThread
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.arnyminerz.paraulogic.App
 import com.arnyminerz.paraulogic.game.GameHistoryItem
 import com.arnyminerz.paraulogic.game.GameInfo
 import com.arnyminerz.paraulogic.game.calculatePoints
@@ -19,13 +23,25 @@ import com.arnyminerz.paraulogic.game.getTutis
 import com.arnyminerz.paraulogic.game.loadGameHistoryFromServer
 import com.arnyminerz.paraulogic.game.loadGameInfoFromServer
 import com.arnyminerz.paraulogic.play.games.addPlayerPoints
+import com.arnyminerz.paraulogic.play.games.loadSnapshot
+import com.arnyminerz.paraulogic.play.games.startSignInIntent
+import com.arnyminerz.paraulogic.play.games.writeSnapshot
+import com.arnyminerz.paraulogic.pref.PreferencesModule
+import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
+import com.arnyminerz.paraulogic.utils.doAsync
+import com.arnyminerz.paraulogic.utils.mapJsonObject
+import com.arnyminerz.paraulogic.utils.toJsonArray
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.FirebaseException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONException
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
@@ -50,12 +66,89 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var dayWrongWords by mutableStateOf<Map<String, Int>>(emptyMap())
         private set
 
-    fun loadGameInfo() {
+    @Suppress("BlockingMethodInNonBlockingContext")
+    fun loadGameInfo(
+        signInClient: GoogleSignInClient,
+        signInLauncher: ActivityResultLauncher<Intent>
+    ) {
         viewModelScope.launch {
+            Timber.v("Checking if tried to sign in ever...")
+            val context = getApplication<App>()
+            val dataStore = context.dataStore
+            if (dataStore.data.first()[PreferencesModule.TriedToSignIn] != true) {
+                Timber.i("Never shown sign in intent. Showing...")
+                startSignInIntent(signInClient, signInLauncher)
+                Timber.i("Updating tried to sign in to true...")
+                dataStore.edit { it[PreferencesModule.TriedToSignIn] = true }
+            }
+
+            doAsync {
+                Timber.v("Adding collector for words...")
+                DatabaseSingleton.getInstance(context)
+                    .db
+                    .wordsDao()
+                    .getAll()
+                    .collect { wordsList ->
+                        GoogleSignIn
+                            .getLastSignedInAccount(context)
+                            ?.let { account ->
+                                Timber.i("Saving game progress...")
+                                Timber.d("Decoding words list...")
+                                val array = JSONArray()
+                                wordsList.forEachIndexed { i, t -> array.put(i, t.jsonObject()) }
+                                val serializedString = array.toString()
+                                Timber.v("Progress json: $serializedString")
+                                try {
+                                    Timber.d("Loading snapshot for account...")
+                                    val snapshot = context.loadSnapshot(account)
+                                    if (snapshot != null) {
+                                        Timber.d("Writing snapshot...")
+                                        val snapshotMetadata = context.writeSnapshot(
+                                            account,
+                                            snapshot,
+                                            serializedString.toByteArray(Charsets.UTF_8),
+                                            null,
+                                            "Paraulogic game save",
+                                        )
+                                        Timber.i("Saved game for ${snapshotMetadata.title}")
+                                    } else
+                                        Timber.w("Could not write snapshot since not available on server.")
+                                } catch (e: IllegalStateException) {
+                                    Timber.e(e, "Could not load snapshot.")
+                                    startSignInIntent(signInClient, signInLauncher)
+                                }
+                            } ?: run { Timber.w("User not logged in") }
+                    }
+            }
+
             val gameInfo = loadGameInfoFromServer(getApplication())
             this@MainViewModel.gameInfo = gameInfo
 
-            loadCorrectWords(gameInfo)
+            Timber.d("Loading words from server...")
+            val serverIntroducedWordsList = GoogleSignIn
+                .getLastSignedInAccount(getApplication<App>())
+                ?.let { account ->
+                    try {
+                        getApplication<App>().loadSnapshot(account)
+                            ?.snapshotContents
+                            ?.readFully()
+                            ?.let { String(it) }
+                            ?.toJsonArray()
+                            ?.mapJsonObject { IntroducedWord(it) }
+                            ?.filter { it.hash == gameInfo.hash }
+                            ?.toList()
+                    } catch (e: JSONException) {
+                        Timber.e(e, "Could not parse JSON")
+                        null
+                    }
+                }
+                ?: run {
+                    Timber.w("User not logged in. Will not get data from server.")
+                    emptyList()
+                }
+            Timber.d("Got ${serverIntroducedWordsList.size} words from server.")
+
+            loadCorrectWords(gameInfo, serverIntroducedWordsList)
         }
     }
 
@@ -74,28 +167,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     @UiThread
-    private suspend fun loadCorrectWords(gameInfo: GameInfo) {
+    private suspend fun loadCorrectWords(
+        gameInfo: GameInfo,
+        serverIntroducedWordsList: List<IntroducedWord>,
+    ) {
         val databaseSingleton = DatabaseSingleton.getInstance(getApplication())
         val hash = gameInfo.hash
         val dao = databaseSingleton.db.wordsDao()
-        val dbCorrectWords = withContext(Dispatchers.IO) { dao.getAll() }
-        dbCorrectWords.collect { list ->
-            correctWords.clear()
+        withContext(Dispatchers.IO) { dao.getAll() }
+            .collect { list ->
+                correctWords.clear()
+                correctWords.addAll(serverIntroducedWordsList)
 
-            val lWords = arrayListOf<String>()
-            list.sortedBy { it.word }
-                .forEach {
-                    if (it.isCorrect && !lWords.contains(it.word) && it.hash == hash) {
-                        correctWords.add(it)
-                        lWords.add(it.word)
+                val lWords = serverIntroducedWordsList
+                    .map { it.word }
+                    .toMutableList()
+                list.sortedBy { it.word }
+                    .forEach {
+                        if (it.isCorrect && !lWords.contains(it.word) && it.hash == hash) {
+                            correctWords.add(it)
+                            lWords.add(it.word)
+                        }
                     }
-                }
-            points = correctWords.calculatePoints(gameInfo)
-            level = getLevelFromPoints(points, gameInfo.pointsPerLevel)
+                points = correctWords.calculatePoints(gameInfo)
+                level = getLevelFromPoints(points, gameInfo.pointsPerLevel)
 
-            introducedTutis.clear()
-            introducedTutis.addAll(correctWords.getTutis(gameInfo))
-        }
+                introducedTutis.clear()
+                introducedTutis.addAll(correctWords.getTutis(gameInfo))
+            }
     }
 
     fun loadWordsForDay(gameInfo: GameInfo, date: Date, includeWrongWords: Boolean = false) {

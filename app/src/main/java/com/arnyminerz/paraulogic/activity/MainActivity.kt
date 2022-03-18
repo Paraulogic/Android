@@ -8,17 +8,24 @@ import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.activity.model.LanguageActivity
 import com.arnyminerz.paraulogic.play.games.createSignInClient
+import com.arnyminerz.paraulogic.play.games.loadSnapshot
 import com.arnyminerz.paraulogic.play.games.signInSilently
 import com.arnyminerz.paraulogic.play.games.startSignInIntent
 import com.arnyminerz.paraulogic.play.games.tryToAddPoints
+import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
+import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 import com.arnyminerz.paraulogic.ui.elements.MainScreen
 import com.arnyminerz.paraulogic.ui.theme.AppTheme
 import com.arnyminerz.paraulogic.ui.toast
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
 import com.arnyminerz.paraulogic.utils.doAsync
+import com.arnyminerz.paraulogic.utils.mapJsonObject
+import com.arnyminerz.paraulogic.utils.toJsonArray
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import kotlinx.coroutines.flow.first
+import org.json.JSONException
 import timber.log.Timber
 
 class MainActivity : LanguageActivity() {
@@ -29,6 +36,7 @@ class MainActivity : LanguageActivity() {
      */
     private lateinit var signInClient: GoogleSignInClient
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     private val signInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -36,8 +44,36 @@ class MainActivity : LanguageActivity() {
         if (data != null) {
             val signInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
             if (signInResult?.isSuccess == true) {
+                val account = signInResult.signInAccount!!
                 Timber.i("Signed in successfully.")
                 toast(R.string.toast_signed_in)
+
+                doAsync {
+                    Timber.d("Getting words list from logged in account.")
+                    val serverList = try {
+                        loadSnapshot(account)
+                            ?.snapshotContents
+                            ?.readFully()
+                            ?.let { String(it) }
+                            ?.also { Timber.i("Server JSON: $it") }
+                            ?.toJsonArray()
+                            ?.mapJsonObject { IntroducedWord(it) }
+                            ?.toList()
+                    } catch (e: JSONException) {
+                        Timber.e(e, "Could not parse JSON")
+                        null
+                    } ?: emptyList()
+                    DatabaseSingleton.getInstance(this@MainActivity)
+                        .db
+                        .wordsDao()
+                        .let { wordsDao ->
+                            val wordsList = wordsDao.getAll().first()
+                            if (wordsList.isEmpty()) {
+                                Timber.i("Adding ${serverList.size} words to local db")
+                                wordsDao.put(*serverList.toTypedArray())
+                            }
+                        }
+                }
             } else {
                 Timber.e("Could not sign in. Status: ${signInResult?.status}")
                 signInResult?.status?.statusMessage?.let { toast(it) }
@@ -71,7 +107,7 @@ class MainActivity : LanguageActivity() {
             }
         }
 
-        viewModel.loadGameInfo()
+        viewModel.loadGameInfo(signInClient, signInLauncher)
         viewModel.loadGameHistory()
     }
 

@@ -10,5 +10,7 @@ val Context.dataStore by preferencesDataStore(name = "Paraulogic")
 object PreferencesModule {
     val ErrorReportingEnabledKey = booleanPreferencesKey(PREF_ERROR_REPORTING)
 
+    val TriedToSignIn = booleanPreferencesKey(PREF_SHOWN_LOGIN)
+
     val Language = stringPreferencesKey(PREF_LANGUAGE)
 }
