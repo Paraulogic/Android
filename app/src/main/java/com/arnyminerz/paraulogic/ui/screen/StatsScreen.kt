@@ -7,10 +7,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,6 +42,7 @@ import timber.log.Timber
 import java.util.Calendar
 
 @Composable
+@ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 fun StatsScreen(
     viewModel: MainViewModel,
@@ -228,6 +237,48 @@ fun StatsScreen(
                         )
                     )
                 }
+                if (!isToday && historyItem != null)
+                    Card(
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                            .fillMaxWidth(),
+                    ) {
+                        val historyGameInfo = historyItem!!.gameInfo
+
+                        LazyColumn(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth()
+                        ) {
+                            item {
+                                Text(text = stringResource(R.string.stats_words))
+                            }
+                            items(
+                                historyGameInfo.words
+                                    .toList()
+                                    .sortedBy { it.first }
+                            ) { (key, word) ->
+                                Row {
+                                    Column(
+                                        modifier = Modifier.size(24.dp)
+                                    ) {
+                                        Icon(
+                                            if (dayFoundWords.find { it.word.lowercase() == key.lowercase() } != null)
+                                                Icons.Rounded.Check
+                                            else
+                                                Icons.Rounded.Close,
+                                            "Was word found?" // TODO: Localize
+                                        )
+                                    }
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text(text = word)
+                                    }
+                                }
+                            }
+                        }
+                    }
             }
         }
 }
