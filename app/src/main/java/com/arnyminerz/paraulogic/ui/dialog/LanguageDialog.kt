@@ -1,8 +1,6 @@
 package com.arnyminerz.paraulogic.ui.dialog
 
 import android.app.Activity
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,11 +19,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.utils.getLocale
-import com.arnyminerz.paraulogic.utils.updateAppLocales
+import com.arnyminerz.paraulogic.utils.updateAppLocale
 import java.util.Locale
 
 @Composable
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @ExperimentalMaterialApi
 fun LanguageDialog(onDismissRequested: () -> Unit) {
     val context = LocalContext.current
@@ -39,7 +36,7 @@ fun LanguageDialog(onDismissRequested: () -> Unit) {
         },
         text = {
             val systemLocale = stringResource(R.string.system_locale)
-            val localeKeys = listOf(systemLocale, "en-US", "ca-ES")
+            val localeKeys = listOf(/*systemLocale,*/ "en-US", "ca-ES")
             val locales = localeKeys
                 .associateWith { key -> Locale.forLanguageTag(key).displayLanguage }
             val currentLocale = (context as? Activity)?.getLocale()?.language ?: systemLocale
@@ -57,17 +54,9 @@ fun LanguageDialog(onDismissRequested: () -> Unit) {
                         },
                         modifier = Modifier
                             .clickable {
-                                (context as? Activity)
-                                    ?.let { activity ->
-                                        if (tag != systemLocale)
-                                            activity.updateAppLocales(
-                                                Locale.forLanguageTag(
-                                                    tag
-                                                )
-                                            )
-                                        else
-                                            activity.updateAppLocales()
-                                    }
+                                context.updateAppLocale(tag)
+                                (context as? Activity)?.recreate()
+                                onDismissRequested()
                             }
                     ) {
                         Text(text = name)

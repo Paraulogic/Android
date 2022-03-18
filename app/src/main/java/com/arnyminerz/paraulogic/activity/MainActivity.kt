@@ -1,12 +1,12 @@
 package com.arnyminerz.paraulogic.activity
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
+import com.arnyminerz.paraulogic.activity.model.LanguageActivity
 import com.arnyminerz.paraulogic.play.games.createSignInClient
 import com.arnyminerz.paraulogic.play.games.loadSnapshot
 import com.arnyminerz.paraulogic.play.games.signInSilently
@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.first
 import org.json.JSONException
 import timber.log.Timber
 
-class MainActivity : ComponentActivity() {
+class MainActivity : LanguageActivity() {
     /**
      * The client for performing sign in operations with Google.
      * @author Arnau Mora
@@ -94,7 +94,10 @@ class MainActivity : ComponentActivity() {
         signInClient = createSignInClient()
 
         Timber.d("Initializing main view model...")
-        val viewModel: MainViewModel by viewModels()
+        val viewModel: MainViewModel = ViewModelProvider(
+            this,
+            MainViewModel.Factory(application)
+        )[MainViewModel::class.java]
 
         setContent {
             AppTheme {
