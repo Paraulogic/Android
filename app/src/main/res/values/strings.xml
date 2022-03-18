@@ -91,4 +91,6 @@
     <string name="stats_today_invalid_words_comment_1">Are you okay?</string>
     <string name="stats_today_invalid_words_comment_2">Okay, just stop trying.</string>
     <string name="stats_today_invalid_words_comment_3">Seriously, today is not your day.</string>
+
+    <string name="stats_words">Words of the day:</string>
 </resources>
