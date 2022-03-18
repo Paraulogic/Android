@@ -205,15 +205,26 @@ fun StatsScreen(
                     Text(
                         modifier = Modifier.padding(8.dp),
                         text = stringResource(
-                            R.string.stats_invalid_words,
+                            if (isToday)
+                                R.string.stats_today_invalid_words
+                            else
+                                R.string.stats_invalid_words,
                             dayWrongWords.size,
                             maxWordsCount,
-                            if (maxWordsCount < 5)
-                                stringResource(R.string.stats_invalid_words_comment_1)
-                            else if (maxWordsCount < 10)
-                                stringResource(R.string.stats_invalid_words_comment_2)
+                            if (isToday)
+                                if (maxWordsCount < 5)
+                                    stringResource(R.string.stats_today_invalid_words_comment_1)
+                                else if (maxWordsCount < 10)
+                                    stringResource(R.string.stats_today_invalid_words_comment_2)
+                                else
+                                    stringResource(R.string.stats_today_invalid_words_comment_3)
                             else
-                                stringResource(R.string.stats_invalid_words_comment_3)
+                                if (maxWordsCount < 5)
+                                    stringResource(R.string.stats_invalid_words_comment_1)
+                                else if (maxWordsCount < 10)
+                                    stringResource(R.string.stats_invalid_words_comment_2)
+                                else
+                                    stringResource(R.string.stats_invalid_words_comment_3)
                         )
                     )
                 }
