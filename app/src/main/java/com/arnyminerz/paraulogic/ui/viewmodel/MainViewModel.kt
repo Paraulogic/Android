@@ -97,7 +97,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                                 val array = JSONArray()
                                 wordsList.forEachIndexed { i, t -> array.put(i, t.jsonObject()) }
                                 val serializedString = array.toString()
-                                Timber.v("Progress json: $serializedString")
+                                // Timber.v("Progress json: $serializedString")
                                 try {
                                     Timber.d("Loading snapshot for account...")
                                     val snapshot = context.loadSnapshot(account)
@@ -177,18 +177,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         withContext(Dispatchers.IO) { dao.getAll() }
             .collect { list ->
                 correctWords.clear()
-                correctWords.addAll(serverIntroducedWordsList)
+                correctWords.addAll(
+                    listOf(
+                        serverIntroducedWordsList,
+                        list.filter { !serverIntroducedWordsList.contains(it) }
+                    )
+                        .flatten()
+                        .filter { it.isCorrect && it.hash == hash }
+                )
 
-                val lWords = serverIntroducedWordsList
-                    .map { it.word }
-                    .toMutableList()
-                list.sortedBy { it.word }
-                    .forEach {
-                        if (it.isCorrect && !lWords.contains(it.word) && it.hash == hash) {
-                            correctWords.add(it)
-                            lWords.add(it.word)
-                        }
-                    }
                 points = correctWords.calculatePoints(gameInfo)
                 level = getLevelFromPoints(points, gameInfo.pointsPerLevel)
 
