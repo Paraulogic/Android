@@ -19,7 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.utils.getLocale
-import com.arnyminerz.paraulogic.utils.updateAppLocales
+import com.arnyminerz.paraulogic.utils.updateAppLocale
 import java.util.Locale
 
 @Composable
@@ -36,7 +36,7 @@ fun LanguageDialog(onDismissRequested: () -> Unit) {
         },
         text = {
             val systemLocale = stringResource(R.string.system_locale)
-            val localeKeys = listOf(systemLocale, "en-US", "ca-ES")
+            val localeKeys = listOf(/*systemLocale,*/ "en-US", "ca-ES")
             val locales = localeKeys
                 .associateWith { key -> Locale.forLanguageTag(key).displayLanguage }
             val currentLocale = (context as? Activity)?.getLocale()?.language ?: systemLocale
@@ -54,12 +54,7 @@ fun LanguageDialog(onDismissRequested: () -> Unit) {
                         },
                         modifier = Modifier
                             .clickable {
-                                if (tag != systemLocale)
-                                    context.updateAppLocales(
-                                        Locale.forLanguageTag(tag)
-                                    )
-                                else
-                                    context.updateAppLocales()
+                                context.updateAppLocale(tag)
                                 (context as? Activity)?.recreate()
                                 onDismissRequested()
                             }
