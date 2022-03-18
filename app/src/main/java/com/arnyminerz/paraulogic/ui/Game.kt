@@ -98,7 +98,7 @@ fun Game(
         val context = LocalContext.current
         var text by remember { mutableStateOf("") }
 
-        var oldLevel = 0
+        var oldLevel by remember { mutableStateOf(0) }
         val level = viewModel.level
         val foundWords = viewModel.correctWords
         val tutis = viewModel.introducedTutis
@@ -164,7 +164,7 @@ fun Game(
 
                     if (wordCheck == CHECK_WORD_CORRECT) {
                         if (oldLevel != level) {
-                            Timber.i("Playing sound...")
+                            Timber.i("Playing sound (level=$level,oldLevel=$oldLevel)...")
                             val mp = MediaPlayer.create(
                                 context,
                                 when (level) {
