@@ -7,6 +7,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.arnyminerz.paraulogic.game.GameHistoryItem
 import com.arnyminerz.paraulogic.game.GameInfo
@@ -155,6 +157,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
             Timber.i("Stored word: $word. Correct: $isCorrect")
+        }
+    }
+
+    class Factory(private val application: Application) : ViewModelProvider.NewInstanceFactory() {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return MainViewModel(application) as T
         }
     }
 }

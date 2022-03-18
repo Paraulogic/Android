@@ -1,23 +1,37 @@
 package com.arnyminerz.paraulogic.utils
 
 import android.app.Activity
-import android.app.LocaleManager
-import android.os.Build
-import android.os.LocaleList
-import androidx.annotation.RequiresApi
+import android.content.Context
+import androidx.annotation.UiThread
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import androidx.datastore.preferences.core.edit
 import com.arnyminerz.paraulogic.R
+import com.arnyminerz.paraulogic.pref.PreferencesModule
+import com.arnyminerz.paraulogic.pref.dataStore
+import timber.log.Timber
 import java.util.Locale
 
 /**
  * Updates the user preference about the app's locale.
  * @author Arnau Mora
  * @since 20220317
- * @param locales The list of locales ordered by user's preference.
+ * @param language The language to set.
  */
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
-fun Activity.updateAppLocales(vararg locales: Locale) {
-    val localeManager = getSystemService(LocaleManager::class.java)
-    localeManager.applicationLocales = LocaleList(*locales)
+@UiThread
+fun Context.updateAppLocale(language: String) {
+    Timber.v("Setting application locales...")
+    AppCompatDelegate
+        .setApplicationLocales(
+            LocaleListCompat.forLanguageTags(language)
+        )
+
+    doAsync {
+        Timber.v("Storing language preference into DataStore...")
+        dataStore.edit {
+            it[PreferencesModule.Language] = language
+        }
+    }
 }
 
 /**
@@ -25,9 +39,8 @@ fun Activity.updateAppLocales(vararg locales: Locale) {
  * @author Arnau Mora
  * @since 20220317
  */
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
-fun Activity.getLocale(): Locale = getSystemService(LocaleManager::class.java)
-    .applicationLocales
-    .takeIf { !it.isEmpty }
-    ?.get(0)
-    ?: Locale.forLanguageTag(getString(R.string.system_locale))
+fun Activity.getLocale(): Locale =
+    AppCompatDelegate.getApplicationLocales()
+        .takeIf { !it.isEmpty }
+        ?.get(0)
+        ?: Locale.forLanguageTag(getString(R.string.system_locale))

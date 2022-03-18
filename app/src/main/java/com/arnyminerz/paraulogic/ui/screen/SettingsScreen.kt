@@ -1,6 +1,5 @@
 package com.arnyminerz.paraulogic.ui.screen
 
-import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -68,18 +67,16 @@ fun SettingsScreen() {
                 defaultValue = true
             )
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                var showLanguageDialog by remember { mutableStateOf(false) }
-                if (showLanguageDialog)
-                    LanguageDialog { showLanguageDialog = false }
+            var showLanguageDialog by remember { mutableStateOf(false) }
+            if (showLanguageDialog)
+                LanguageDialog { showLanguageDialog = false }
 
-                SettingsCategory(text = stringResource(R.string.settings_category_general))
-                SettingsItem(
-                    title = stringResource(R.string.settings_general_language_title),
-                    subtitle = stringResource(R.string.settings_general_language_summary),
-                    onClick = { showLanguageDialog = true }
-                )
-            }
+            SettingsCategory(text = stringResource(R.string.settings_category_general))
+            SettingsItem(
+                title = stringResource(R.string.settings_general_language_title),
+                subtitle = stringResource(R.string.settings_general_language_summary),
+                onClick = { showLanguageDialog = true }
+            )
 
             SettingsCategory(text = stringResource(R.string.settings_category_info))
             SettingsItem(
