@@ -6,6 +6,8 @@ plugins {
     id 'com.google.firebase.firebase-perf'
 }
 
+apply from: './version.gradle'
+
 android {
     compileSdk 32
 
@@ -17,7 +19,7 @@ android {
         minSdk 21
         targetSdk 32
         versionCode findProperty("android.versionCode") as Integer
-        versionName "1.0.1"
+        versionName VERSION_NAME
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
