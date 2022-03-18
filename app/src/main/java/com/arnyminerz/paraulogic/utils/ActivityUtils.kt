@@ -16,24 +16,21 @@ import java.util.Locale
  * Updates the user preference about the app's locale.
  * @author Arnau Mora
  * @since 20220317
- * @param locales The list of locales ordered by user's preference.
+ * @param language The language to set.
  */
 @UiThread
-fun Context.updateAppLocales(vararg locales: Locale) {
+fun Context.updateAppLocale(language: String) {
     Timber.v("Setting application locales...")
     AppCompatDelegate
         .setApplicationLocales(
-            LocaleListCompat.create(*locales)
+            LocaleListCompat.forLanguageTags(language)
         )
 
     doAsync {
         Timber.v("Storing language preference into DataStore...")
-        if (locales.isNotEmpty())
-            dataStore.edit {
-                it[PreferencesModule.Language] = locales[0].isO3Country
-            }
-        else
-            Timber.w("Will not update language preference since locales is empty.")
+        dataStore.edit {
+            it[PreferencesModule.Language] = language
+        }
     }
 }
 
