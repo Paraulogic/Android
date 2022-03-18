@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Analytics
 import androidx.compose.material.icons.outlined.Gamepad
@@ -60,8 +61,9 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @Composable
-@ExperimentalMaterial3Api
 @ExperimentalPagerApi
+@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 fun ComponentActivity.MainScreen(
     viewModel: MainViewModel,
     popupLauncher: ActivityResultLauncher<Intent>,
