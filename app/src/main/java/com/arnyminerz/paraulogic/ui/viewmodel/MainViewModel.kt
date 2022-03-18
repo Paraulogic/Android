@@ -220,6 +220,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val wrongWords = hashMapOf<String, Int>()
             dbWords
                 .first()
+                .filter { it.hash == gameInfo.hash }
                 .forEach { word ->
                     wrongWords[word.word] =
                         if (wrongWords.contains(word.word))
