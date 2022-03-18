@@ -71,4 +71,5 @@
     <string name="stats_today_invalid_words_comment_1">Estàs bé?</string>
     <string name="stats_today_invalid_words_comment_2">Val, ja està bé.</string>
     <string name="stats_today_invalid_words_comment_3">De debò, hui no és el teu dia.</string>
+    <string name="stats_words">Paraules del dia:</string>
 </resources>

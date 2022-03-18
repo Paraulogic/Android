@@ -3,6 +3,7 @@ package com.arnyminerz.paraulogic.activity
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
@@ -86,7 +87,11 @@ class MainActivity : LanguageActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { }
 
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
+    @OptIn(
+        ExperimentalPagerApi::class,
+        ExperimentalMaterialApi::class,
+        ExperimentalMaterial3Api::class,
+    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
