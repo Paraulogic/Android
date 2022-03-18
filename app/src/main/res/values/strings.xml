@@ -86,4 +86,9 @@
     <string name="stats_invalid_words_comment_1">What a tough day.</string>
     <string name="stats_invalid_words_comment_2">You were inspired that day 🥴…</string>
     <string name="stats_invalid_words_comment_3">Did you really think that was going to work?</string>
+
+    <string name="stats_today_invalid_words">Today day you have managed to make up %d words, repeating one of them up to %d times. %s</string>
+    <string name="stats_today_invalid_words_comment_1">Are you okay?</string>
+    <string name="stats_today_invalid_words_comment_2">Okay, just stop trying.</string>
+    <string name="stats_today_invalid_words_comment_3">Seriously, today is not your day.</string>
 </resources>
