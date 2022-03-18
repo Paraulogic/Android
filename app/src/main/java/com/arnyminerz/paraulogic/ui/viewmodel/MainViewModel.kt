@@ -121,6 +121,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     }
             }
 
+            val gameInfo = loadGameInfoFromServer(getApplication())
+            this@MainViewModel.gameInfo = gameInfo
+
             Timber.d("Loading words from server...")
             val serverIntroducedWordsList = GoogleSignIn
                 .getLastSignedInAccount(getApplication<App>())
@@ -130,9 +133,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                             ?.snapshotContents
                             ?.readFully()
                             ?.let { String(it) }
-                            ?.also { Timber.i("Server JSON: $it") }
                             ?.toJsonArray()
                             ?.mapJsonObject { IntroducedWord(it) }
+                            ?.filter { it.hash == gameInfo.hash }
                             ?.toList()
                     } catch (e: JSONException) {
                         Timber.e(e, "Could not parse JSON")
@@ -144,9 +147,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     emptyList()
                 }
             Timber.d("Got ${serverIntroducedWordsList.size} words from server.")
-
-            val gameInfo = loadGameInfoFromServer(getApplication())
-            this@MainViewModel.gameInfo = gameInfo
 
             loadCorrectWords(gameInfo, serverIntroducedWordsList)
         }
