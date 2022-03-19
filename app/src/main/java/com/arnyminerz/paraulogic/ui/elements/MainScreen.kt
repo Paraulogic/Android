@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Analytics
 import androidx.compose.material.icons.outlined.Gamepad
 import androidx.compose.material.icons.outlined.Info
@@ -139,7 +140,7 @@ fun ComponentActivity.MainScreen(
                                     .size(48.dp)
                             ) {
                                 Icon(
-                                    Icons.Outlined.Person,
+                                    Icons.Outlined.AccountCircle,
                                     contentDescription = stringResource(R.string.image_desc_login)
                                 )
                             }
