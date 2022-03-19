@@ -35,6 +35,7 @@ import com.arnyminerz.paraulogic.utils.mapJsonObject
 import com.arnyminerz.paraulogic.utils.toJsonArray
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.tasks.RuntimeExecutionException
 import com.google.firebase.FirebaseException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -116,6 +117,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                                 } catch (e: IllegalStateException) {
                                     Timber.e(e, "Could not load snapshot.")
                                     startSignInIntent(signInClient, signInLauncher)
+                                } catch (e: RuntimeExecutionException) {
+                                    Timber.e(e, "There's no stored snapshot.")
                                 }
                             } ?: run { Timber.w("User not logged in") }
                     }
@@ -139,6 +142,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                             ?.toList()
                     } catch (e: JSONException) {
                         Timber.e(e, "Could not parse JSON")
+                        null
+                    } catch (e: RuntimeExecutionException) {
+                        Timber.e(e, "There's no stored snapshot.")
                         null
                     }
                 }
