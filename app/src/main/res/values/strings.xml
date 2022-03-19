@@ -9,6 +9,7 @@
     <string name="image_desc_settings">Settings</string>
     <string name="image_desc_analytics">Analytics</string>
     <string name="image_desc_login">Log In</string>
+    <string name="image_desc_profile">Profile</string>
 
     <string name="action_delete">Delete</string>
     <string name="action_shuffle">Shuffle</string>
