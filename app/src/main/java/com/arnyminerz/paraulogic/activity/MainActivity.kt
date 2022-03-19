@@ -25,6 +25,7 @@ import com.arnyminerz.paraulogic.utils.toJsonArray
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.tasks.RuntimeExecutionException
 import kotlinx.coroutines.flow.first
 import org.json.JSONException
 import timber.log.Timber
@@ -62,6 +63,9 @@ class MainActivity : LanguageActivity() {
                             ?.toList()
                     } catch (e: JSONException) {
                         Timber.e(e, "Could not parse JSON")
+                        null
+                    } catch (e: RuntimeExecutionException) {
+                        Timber.e(e, "Could not get snapshot.")
                         null
                     } ?: emptyList()
                     DatabaseSingleton.getInstance(this@MainActivity)
