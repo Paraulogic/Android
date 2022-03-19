@@ -41,6 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberImagePainter
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.activity.SettingsActivity
 import com.arnyminerz.paraulogic.play.games.startSynchronization
@@ -56,7 +57,6 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.games.Games
-import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -144,8 +144,9 @@ fun ComponentActivity.MainScreen(
                                 )
                             }
                         } else
-                            GlideImage(
-                                imageModel = account.photoUrl,
+                            Image(
+                                painter = rememberImagePainter(account.photoUrl),
+                                contentDescription = stringResource(R.string.image_desc_profile),
                                 contentScale = ContentScale.Fit,
                                 modifier = Modifier
                                     .size(48.dp)
