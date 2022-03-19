@@ -76,9 +76,9 @@ suspend fun Context.loadSnapshot(account: GoogleSignInAccount): Snapshot? =
                 Timber.e(error, "Could not load snapshot.")
                 cont.resumeWithException(error)
             }
-            .addOnCompleteListener { task ->
+            .addOnSuccessListener { result ->
                 Timber.v("Processing snapshot open result...")
-                processSnapshotOpenResult(account, task.result, 0)
+                processSnapshotOpenResult(account, result, 0)
                     .addOnSuccessListener { cont.resume(it) }
                     .addOnFailureListener { cont.resumeWithException(it) }
             }
