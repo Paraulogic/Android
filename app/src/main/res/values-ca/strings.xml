@@ -73,4 +73,7 @@
     <string name="stats_today_invalid_words_comment_3">De debò, hui no és el teu dia.</string>
     <string name="stats_words">Paraules del dia:</string>
     <string name="image_desc_profile">Perfil</string>
+    <string name="error_gameinfo_no_such_element">No s\'han pogut obtenir les dades d\'avui.</string>
+    <string name="error_gameinfo_firebase">No s\'ha obtingut cap resposta del servidor.</string>
+    <string name="error_try_again">Prova altra vegada, o contacta a un administrador.</string>
 </resources>

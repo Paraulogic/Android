@@ -94,4 +94,8 @@
     <string name="stats_today_invalid_words_comment_3">Seriously, today is not your day.</string>
 
     <string name="stats_words">Words of the day:</string>
+
+    <string name="error_gameinfo_no_such_element">Could not get data for today.</string>
+    <string name="error_gameinfo_firebase">Could not get response from server.</string>
+    <string name="error_try_again">Try again, or contact and administrator.</string>
 </resources>

@@ -53,6 +53,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val correctWords = mutableStateListOf<IntroducedWord>()
 
+    /**
+     * Specifies if an error has happened.
+     * List:
+     * * <pre>0</pre>: No error
+     * * <pre>1</pre>: [NoSuchElementException]
+     * * <pre>2</pre>: [FirebaseException]
+     * @author Arnau Mora
+     * @since 20220320
+     */
+    var error by mutableStateOf(0)
+        private set
+
     var points by mutableStateOf(0)
         private set
     var level by mutableStateOf(0)
@@ -73,6 +85,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         signInLauncher: ActivityResultLauncher<Intent>
     ) {
         viewModelScope.launch {
+            Timber.v("Resetting error flag...")
+            error = 0
+
             Timber.v("Checking if tried to sign in ever...")
             val context = getApplication<App>()
             val dataStore = context.dataStore
@@ -124,7 +139,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     }
             }
 
-            val gameInfo = loadGameInfoFromServer(getApplication())
+            val gameInfo = try {
+                loadGameInfoFromServer(getApplication())
+            } catch (e: NoSuchElementException) {
+                Timber.e(e, "Could not get game info from server.")
+                error = 1
+                return@launch
+            } catch (e: FirebaseException) {
+                Timber.e(e, "Could not get game info from server.")
+                error = 2
+                return@launch
+            }
             this@MainViewModel.gameInfo = gameInfo
 
             Timber.d("Loading words from server...")
