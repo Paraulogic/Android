@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,11 +36,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
@@ -73,6 +76,7 @@ fun ComponentActivity.MainScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    val error = viewModel.error
     val gameInfo = viewModel.gameInfo
     val gameHistory = viewModel.gameHistory
     var showHelpDialog by remember { mutableStateOf(false) }
@@ -240,11 +244,34 @@ fun ComponentActivity.MainScreen(
             state = pagerState,
         ) { page ->
             when (page) {
-                0 -> if (gameInfo != null) {
+                0 -> if (gameInfo != null && error == 0) {
                     Timber.i("Game info: $gameInfo")
 
                     Game(gameInfo, viewModel, signInRequest)
-                } else
+                } else if (error > 0)
+                    Box(
+                        modifier = Modifier
+                            .padding(start = 48.dp, end = 48.dp)
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Column {
+                            Text(
+                                text = stringResource(
+                                    if (error == 1)
+                                        R.string.error_gameinfo_no_such_element
+                                    else
+                                        R.string.error_gameinfo_firebase
+                                ),
+                                textAlign = TextAlign.Center,
+                            )
+                            Text(
+                                text = stringResource(R.string.error_try_again),
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                else
                     LoadingBox()
                 1 -> if (gameHistory.isNotEmpty()) {
                     Column(
