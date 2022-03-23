@@ -10,6 +10,7 @@ import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_INCORRECT
 import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_SHORT
 import com.arnyminerz.paraulogic.game.annotation.CheckWordResult
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
+import com.arnyminerz.paraulogic.utils.generateNumbers
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.perf.metrics.AddTrace
 
@@ -52,6 +53,57 @@ data class GameInfo(
                 centerLetter[0],
                 words,
             )
+        }
+
+        /**
+         * Used by [random] by default to generate words. Generates random words, may not have any
+         * sense.
+         * @author Arnau Mora
+         * @since 20220323
+         */
+        private val randomWordGenerator: (letters: Collection<Char>, wordsCount: Int, minWordLength: Int, maxWordLength: Int) -> List<String> =
+            { letters, wordsCount, minWordLength, maxWordLength ->
+                val wordsList = arrayListOf<String>()
+                for (c in 0 until wordsCount)
+                    List(
+                        // Get a random number between minWordLength and maxWordLength, this will be the
+                        // length of the word.
+                        (minWordLength..maxWordLength).random()
+                    ) {
+                        // Select random letters from the letters list
+                        letters.random()
+                    } // Stick all the letters together into a string
+                        .joinToString()
+                wordsList
+            }
+
+        /**
+         * Generates a random [GameInfo] instance.
+         * @author Arnau Mora
+         * @since 20220323
+         * @param wordsCount The amount of words to generate.
+         * @param minWordLength The minimum length of each word.
+         * @param maxWordLength The maximum length of each word.
+         * @param generator A function that generates words from the given parameters.
+         */
+        @Suppress("SpellCheckingInspection")
+        fun random(
+            wordsCount: Int = 40,
+            minWordLength: Int = 3,
+            maxWordLength: Int = 10,
+            generator: (letters: Collection<Char>, wordsCount: Int, minWordLength: Int, maxWordLength: Int) -> List<String> = randomWordGenerator
+        ): GameInfo {
+            // First, generate letters
+            val lettersSource = ('A'..'Z') + 'Ç'
+            val indexes = generateNumbers(7, from = 0, until = lettersSource.size)
+            val letters = arrayListOf<Char>()
+            for (index in indexes)
+                letters.add(lettersSource[index])
+
+            // Now, generate words
+            val wordsList = generator(letters, wordsCount, minWordLength, maxWordLength)
+
+            return GameInfo(mutableStateOf(letters), letters[5], wordsList.associateWith { it })
         }
     }
 

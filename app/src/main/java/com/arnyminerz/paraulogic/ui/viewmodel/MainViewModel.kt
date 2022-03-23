@@ -1,6 +1,7 @@
 package com.arnyminerz.paraulogic.ui.viewmodel
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.UiThread
@@ -25,6 +26,7 @@ import com.arnyminerz.paraulogic.game.loadGameInfoFromServer
 import com.arnyminerz.paraulogic.play.games.addPlayerPoints
 import com.arnyminerz.paraulogic.play.games.loadSnapshot
 import com.arnyminerz.paraulogic.play.games.startSignInIntent
+import com.arnyminerz.paraulogic.play.games.startSynchronization
 import com.arnyminerz.paraulogic.play.games.writeSnapshot
 import com.arnyminerz.paraulogic.pref.PreferencesModule
 import com.arnyminerz.paraulogic.pref.dataStore
@@ -105,6 +107,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     .wordsDao()
                     .getAll()
                     .collect { wordsList ->
+                        Timber.i("Introduced new word.")
                         GoogleSignIn
                             .getLastSignedInAccount(context)
                             ?.let { account ->
@@ -193,6 +196,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 Timber.e(e, "Data from server is not valid.")
             } catch (e: FirebaseException) {
                 Timber.e(e, "Could not load data from server.")
+            }
+        }
+    }
+
+    /**
+     * Runs [startSynchronization] in the view model scope.
+     * @author Arnau Mora
+     * @since 20220323
+     * @param context The context to launch the synchronization from.
+     * @param gameInfo The [GameInfo] instance of the currently playing game.
+     * @param history The history of all the games.
+     */
+    fun synchronize(
+        context: Context,
+        gameInfo: GameInfo,
+        history: List<GameHistoryItem>
+    ) {
+        viewModelScope.launch {
+            launch(Dispatchers.IO) {
+                startSynchronization(context, gameInfo, history)
             }
         }
     }
