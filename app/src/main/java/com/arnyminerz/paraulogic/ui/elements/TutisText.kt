@@ -1,6 +1,7 @@
 package com.arnyminerz.paraulogic.ui.elements
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,6 +14,11 @@ import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 @Composable
 fun TutisText(tutisCount: Int, tutis: List<IntroducedWord>) {
     Text(
+        style = MaterialTheme.typography.bodyMedium
+            .copy(
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = TextAlign.Center,
+            ),
         textAlign = TextAlign.Center,
         modifier = Modifier
             .padding(start = 16.dp, end = 16.dp),
