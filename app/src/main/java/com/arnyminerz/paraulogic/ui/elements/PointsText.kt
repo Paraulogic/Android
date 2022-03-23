@@ -22,8 +22,10 @@ import com.arnyminerz.paraulogic.utils.launchUrl
 fun PointsText(foundWords: List<IntroducedWord>, gameInfo: GameInfo) {
     val context = LocalContext.current
 
+    val words = foundWords.sortedBy { it.word }
+
     val annotatedText = buildAnnotatedString {
-        if (foundWords.isNotEmpty()) {
+        if (words.isNotEmpty()) {
             val string = stringResource(R.string.state_found_n_words)
             val countPosArg = string.indexOf("%1\$d")
             val totalPosArg = string.indexOf("%2\$d")
@@ -32,7 +34,7 @@ fun PointsText(foundWords: List<IntroducedWord>, gameInfo: GameInfo) {
             append(string.substring(0, countPosArg))
 
             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                append(foundWords.size.toString())
+                append(words.size.toString())
             }
             append(string.substring(countPosArg + 4, totalPosArg))
 
@@ -41,7 +43,7 @@ fun PointsText(foundWords: List<IntroducedWord>, gameInfo: GameInfo) {
             }
             append(string.substring(totalPosArg + 4, listPosArg))
 
-            for (word in foundWords.sortedBy { it.word }) {
+            for (word in words) {
                 pushStringAnnotation("definition", word.word.lowercase())
                 withStyle(
                     SpanStyle(
@@ -55,7 +57,7 @@ fun PointsText(foundWords: List<IntroducedWord>, gameInfo: GameInfo) {
                     append(gameInfo.words[word.word.lowercase()] ?: "<error>")
                 }
                 pop()
-                if (foundWords.last() != word)
+                if (words.last() != word)
                     append(", ")
             }
         } else
