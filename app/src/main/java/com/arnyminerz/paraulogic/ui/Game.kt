@@ -1,14 +1,6 @@
 package com.arnyminerz.paraulogic.ui
 
-import android.content.Context
-import android.content.res.ColorStateList
 import android.media.MediaPlayer
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
-import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -65,30 +56,6 @@ fun Game(
     val onPrimaryContainerColor = MaterialTheme.colorScheme.onPrimaryContainer
     val errorContainerColor = MaterialTheme.colorScheme.errorContainer
     val onErrorContainerColor = MaterialTheme.colorScheme.onErrorContainer
-
-    fun customToast(context: Context, text: String, isError: Boolean = true) {
-        val view = LayoutInflater.from(context)
-            .inflate(R.layout.toast_layout, null)
-        val toast = Toast(context)
-        view.findViewById<LinearLayout>(R.id.toast_root).apply {
-            backgroundTintList =
-                ColorStateList.valueOf(
-                    (if (isError) errorContainerColor else primaryContainerColor).toArgb()
-                )
-        }
-        view.findViewById<TextView>(R.id.message).apply {
-            setTextColor(
-                (if (isError) onErrorContainerColor else onPrimaryContainerColor).toArgb()
-            )
-            setText(text)
-        }
-        toast.setGravity(Gravity.TOP, 0, 250)
-        toast.view = view
-        toast.show()
-    }
-
-    fun customToast(context: Context, @StringRes text: Int, isError: Boolean = true) =
-        customToast(context, context.getString(text), isError)
 
     Column(
         modifier = Modifier
@@ -151,15 +118,31 @@ fun Game(
                     when (wordCheck) {
                         CHECK_WORD_ALREADY_FOUND -> customToast(
                             context,
-                            R.string.toast_already_found
+                            R.string.toast_already_found,
+                            errorContainerColor,
+                            onErrorContainerColor,
                         )
                         CHECK_WORD_CENTER_MISSING -> customToast(
                             context,
-                            R.string.toast_missing_center
+                            R.string.toast_missing_center,
+                            errorContainerColor,
+                            onErrorContainerColor,
                         )
-                        CHECK_WORD_INCORRECT -> customToast(context, text.lowercase())
-                        CHECK_WORD_SHORT -> customToast(context, R.string.toast_short)
-                        CHECK_WORD_CORRECT -> customToast(context, R.string.toast_correct, false)
+                        CHECK_WORD_INCORRECT -> customToast(
+                            context, text.lowercase(),
+                            errorContainerColor,
+                            onErrorContainerColor,
+                        )
+                        CHECK_WORD_SHORT -> customToast(
+                            context, R.string.toast_short,
+                            errorContainerColor,
+                            onErrorContainerColor,
+                        )
+                        CHECK_WORD_CORRECT -> customToast(
+                            context, R.string.toast_correct,
+                            primaryContainerColor,
+                            onPrimaryContainerColor,
+                        )
                     }
 
                     if (wordCheck == CHECK_WORD_CORRECT) {
