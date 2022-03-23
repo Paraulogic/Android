@@ -89,7 +89,7 @@ android.applicationVariants.all { variant ->
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'com.google.android.material:material:1.6.0-alpha03'
+    implementation 'com.google.android.material:material:1.6.0-beta01'
     implementation "androidx.activity:activity-ktx:$activity_version"
     implementation "androidx.fragment:fragment-ktx:$fragment_version"
     implementation "androidx.appcompat:appcompat:1.6.0-alpha01"
