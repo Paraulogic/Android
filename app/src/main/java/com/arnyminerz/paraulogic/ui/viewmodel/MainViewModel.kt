@@ -19,6 +19,7 @@ import com.arnyminerz.paraulogic.game.GameHistoryItem
 import com.arnyminerz.paraulogic.game.GameInfo
 import com.arnyminerz.paraulogic.game.calculatePoints
 import com.arnyminerz.paraulogic.game.getLevelFromPoints
+import com.arnyminerz.paraulogic.game.getServerIntroducedWordsList
 import com.arnyminerz.paraulogic.game.getTutis
 import com.arnyminerz.paraulogic.game.loadGameHistoryFromServer
 import com.arnyminerz.paraulogic.game.loadGameInfoFromServer
@@ -30,9 +31,7 @@ import com.arnyminerz.paraulogic.pref.PreferencesModule
 import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
-import com.arnyminerz.paraulogic.utils.doAsync
-import com.arnyminerz.paraulogic.utils.mapJsonObject
-import com.arnyminerz.paraulogic.utils.toJsonArray
+import com.arnyminerz.paraulogic.utils.ioContext
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.RuntimeExecutionException
@@ -42,7 +41,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
-import org.json.JSONException
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
@@ -79,12 +77,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var dayWrongWords by mutableStateOf<Map<String, Int>>(emptyMap())
         private set
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     fun loadGameInfo(
         signInClient: GoogleSignInClient,
-        signInLauncher: ActivityResultLauncher<Intent>
+        signInLauncher: ActivityResultLauncher<Intent>,
+        loadingGameProgressCallback: (finished: Boolean) -> Unit,
     ) {
         viewModelScope.launch {
+            /*if (correctWords.isNotEmpty()) {
+                Timber.i("Tried to load GameInfo when already loaded.")
+                return@launch
+            }*/
+
             Timber.v("Resetting error flag...")
             error = 0
 
@@ -98,7 +101,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 dataStore.edit { it[PreferencesModule.TriedToSignIn] = true }
             }
 
-            doAsync {
+            ioContext {
                 Timber.v("Adding collector for words...")
                 DatabaseSingleton.getInstance(context)
                     .db
@@ -154,30 +157,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             this@MainViewModel.gameInfo = gameInfo
 
             Timber.d("Loading words from server...")
-            val serverIntroducedWordsList = GoogleSignIn
-                .getLastSignedInAccount(getApplication<App>())
-                ?.let { account ->
-                    try {
-                        getApplication<App>().loadSnapshot(account)
-                            ?.snapshotContents
-                            ?.readFully()
-                            ?.let { String(it) }
-                            ?.toJsonArray()
-                            ?.mapJsonObject { IntroducedWord(it) }
-                            ?.filter { it.hash == gameInfo.hash }
-                            ?.toList()
-                    } catch (e: JSONException) {
-                        Timber.e(e, "Could not parse JSON")
-                        null
-                    } catch (e: RuntimeExecutionException) {
-                        Timber.e(e, "There's no stored snapshot.")
-                        null
-                    }
-                }
-                ?: run {
-                    Timber.w("User not logged in. Will not get data from server.")
-                    emptyList()
-                }
+            val serverIntroducedWordsList = getServerIntroducedWordsList(
+                getApplication(),
+                gameInfo,
+                loadingGameProgressCallback,
+            )
             Timber.d("Got ${serverIntroducedWordsList.size} words from server.")
 
             loadCorrectWords(gameInfo, serverIntroducedWordsList)
