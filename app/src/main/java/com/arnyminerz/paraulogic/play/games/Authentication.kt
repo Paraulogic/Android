@@ -18,6 +18,7 @@ fun startSignInIntent(signInClient: GoogleSignInClient, launcher: ActivityResult
     launcher.launch(intent)
 }
 
+@Suppress("DEPRECATION")
 val signInOptions: GoogleSignInOptions
     get() = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
         .requestProfile()
