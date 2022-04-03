@@ -5,6 +5,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -86,10 +87,12 @@ fun MainScreen(
                                         R.string.error_gameinfo_firebase
                                 ),
                                 textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
                             )
                             Text(
                                 text = stringResource(R.string.error_try_again),
                                 textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
                             )
                         }
                     }
