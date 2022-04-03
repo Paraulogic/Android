@@ -25,6 +25,8 @@
     <string name="date_picker_ok">OK</string>
 
     <string name="status_loading">Loading…</string>
+    <string name="status_loading_server">Loading your game progress…</string>
+    <string name="status_loaded_server">Progress loaded!</string>
 
     <string name="toast_short">The word is too short</string>
     <string name="toast_missing_center">The center letter is missing</string>

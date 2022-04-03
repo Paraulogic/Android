@@ -5,6 +5,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.activity.model.LanguageActivity
@@ -20,6 +22,7 @@ import com.arnyminerz.paraulogic.ui.theme.AppTheme
 import com.arnyminerz.paraulogic.ui.toast
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
 import com.arnyminerz.paraulogic.utils.doAsync
+import com.arnyminerz.paraulogic.utils.doOnUi
 import com.arnyminerz.paraulogic.utils.mapJsonObject
 import com.arnyminerz.paraulogic.utils.toJsonArray
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -109,15 +112,28 @@ class MainActivity : LanguageActivity() {
         )[MainViewModel::class.java]
 
         setContent {
+            val snackbarHostState = remember { SnackbarHostState() }
+
             AppTheme {
-                MainScreen(viewModel, popupLauncher) {
+                MainScreen(snackbarHostState, viewModel, popupLauncher) {
                     startSignInIntent(signInClient, signInLauncher)
                 }
             }
-        }
 
-        viewModel.loadGameInfo(signInClient, signInLauncher)
-        viewModel.loadGameHistory()
+            viewModel.loadGameInfo(signInClient, signInLauncher) {
+                doOnUi {
+                    if (it)
+                        snackbarHostState.showSnackbar(
+                            message = getString(R.string.status_loading_server),
+                        )
+                    else
+                        snackbarHostState.showSnackbar(
+                            message = getString(R.string.status_loaded_server),
+                        )
+                }
+            }
+            viewModel.loadGameHistory()
+        }
     }
 
     override fun onResume() {

@@ -14,7 +14,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -37,6 +36,7 @@ import timber.log.Timber
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 fun MainScreen(
+    snackbarHostState: SnackbarHostState,
     viewModel: MainViewModel,
     popupLauncher: ActivityResultLauncher<Intent>,
     signInRequest: () -> Unit,
@@ -48,7 +48,6 @@ fun MainScreen(
     val gameHistory = viewModel.gameHistory
 
     val pagerState = rememberPagerState()
-    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

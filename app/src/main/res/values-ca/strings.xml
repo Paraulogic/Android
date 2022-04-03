@@ -76,4 +76,6 @@
     <string name="error_gameinfo_no_such_element">No s\'han pogut obtenir les dades d\'avui.</string>
     <string name="error_gameinfo_firebase">No s\'ha obtingut cap resposta del servidor.</string>
     <string name="error_try_again">Prova altra vegada, o contacta a un administrador.</string>
+    <string name="status_loading_server">Carregant el teu progrés…</string>
+    <string name="status_loaded_server">Progrés carregat!</string>
 </resources>
