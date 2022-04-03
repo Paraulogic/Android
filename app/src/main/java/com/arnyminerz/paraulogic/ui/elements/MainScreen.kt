@@ -69,7 +69,7 @@ fun MainScreen(
                 0 -> if (gameInfo != null && error == 0) {
                     Timber.i("Game info: $gameInfo")
 
-                    Game(gameInfo, viewModel, signInRequest)
+                    Game(gameInfo, viewModel)
                 } else if (error > 0)
                     Box(
                         modifier = Modifier

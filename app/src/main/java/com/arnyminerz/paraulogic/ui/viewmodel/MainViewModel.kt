@@ -19,11 +19,9 @@ import com.arnyminerz.paraulogic.game.GameHistoryItem
 import com.arnyminerz.paraulogic.game.GameInfo
 import com.arnyminerz.paraulogic.game.calculatePoints
 import com.arnyminerz.paraulogic.game.getLevelFromPoints
-import com.arnyminerz.paraulogic.game.getPoints
 import com.arnyminerz.paraulogic.game.getTutis
 import com.arnyminerz.paraulogic.game.loadGameHistoryFromServer
 import com.arnyminerz.paraulogic.game.loadGameInfoFromServer
-import com.arnyminerz.paraulogic.play.games.addPlayerPoints
 import com.arnyminerz.paraulogic.play.games.loadSnapshot
 import com.arnyminerz.paraulogic.play.games.startSignInIntent
 import com.arnyminerz.paraulogic.play.games.startSynchronization
@@ -292,13 +290,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gameInfo: GameInfo,
         word: String,
         isCorrect: Boolean,
-        loginRequired: () -> Unit,
     ) {
         val databaseSingleton = DatabaseSingleton.getInstance(getApplication())
         viewModelScope.launch {
-            if (isCorrect)
-                addPlayerPoints(getApplication(), word.getPoints(gameInfo).toLong(), loginRequired)
-
             val dao = databaseSingleton.db.wordsDao()
             val now = Calendar.getInstance().timeInMillis
             val hash = gameInfo.hash
