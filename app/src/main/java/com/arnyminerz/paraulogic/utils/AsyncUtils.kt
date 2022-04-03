@@ -12,6 +12,15 @@ fun doAsync(@WorkerThread call: suspend CoroutineScope.() -> Unit) {
 }
 
 /**
+ * Runs the code on [call] asynchronously in the UI thread.
+ * @author Arnau Mora
+ * @since 20220404
+ * @param call The code block to run.
+ */
+fun doOnUi(@UiThread call: suspend CoroutineScope.() -> Unit) =
+    CoroutineScope(Dispatchers.Main).launch { call(this) }
+
+/**
  * Runs [call] on the UI thread.
  * @author Arnau Mora
  * @since 20220309
