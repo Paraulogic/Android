@@ -34,6 +34,8 @@ suspend fun tryToAddPoints(context: Context) {
             },
             { missingAddedPoints.clear() },
         )
+    else
+        Timber.d("No points to get added.")
 }
 
 @WorkerThread
