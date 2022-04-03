@@ -9,7 +9,7 @@ plugins {
 apply from: './version.gradle'
 
 android {
-    compileSdkPreview "Tiramisu"
+    compileSdk 32
 
     Properties properties = new Properties()
     properties.load(project.rootProject.file("local.properties").newDataInputStream())
@@ -17,7 +17,7 @@ android {
     defaultConfig {
         applicationId "com.arnyminerz.paraulogic"
         minSdk 21
-        targetSdkPreview "Tiramisu"
+        targetSdk 32
         versionCode findProperty("android.versionCode") as Integer
         versionName VERSION_NAME
 
@@ -107,7 +107,7 @@ dependencies {
     implementation "androidx.activity:activity-compose:$activity_version"
 
     // Jetpack Compose - Material 3
-    implementation 'androidx.compose.material3:material3:1.0.0-alpha07'
+    implementation 'androidx.compose.material3:material3:1.0.0-alpha08'
 
     // Jetpack Compose - Async
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
