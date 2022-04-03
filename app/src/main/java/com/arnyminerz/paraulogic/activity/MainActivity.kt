@@ -132,4 +132,17 @@ class MainActivity : LanguageActivity() {
             tryToAddPoints(this@MainActivity)
         }
     }
+
+    override fun onStop() {
+        super.onStop()
+
+        doAsync {
+            val account = signInSilently(signInClient)
+            if (account != null)
+                Timber.i("Log in successful")
+
+            Timber.i("Trying to add missing points...")
+            tryToAddPoints(this@MainActivity)
+        }
+    }
 }

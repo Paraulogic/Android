@@ -5,6 +5,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,7 +70,7 @@ fun MainScreen(
                 0 -> if (gameInfo != null && error == 0) {
                     Timber.i("Game info: $gameInfo")
 
-                    Game(gameInfo, viewModel, signInRequest)
+                    Game(gameInfo, viewModel)
                 } else if (error > 0)
                     Box(
                         modifier = Modifier
@@ -86,10 +87,12 @@ fun MainScreen(
                                         R.string.error_gameinfo_firebase
                                 ),
                                 textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
                             )
                             Text(
                                 text = stringResource(R.string.error_try_again),
                                 textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
                             )
                         }
                     }

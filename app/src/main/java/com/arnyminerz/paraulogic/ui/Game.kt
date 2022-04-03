@@ -50,7 +50,6 @@ import timber.log.Timber
 fun Game(
     gameInfo: GameInfo,
     viewModel: MainViewModel,
-    loginRequired: () -> Unit,
 ) {
     val primaryContainerColor = MaterialTheme.colorScheme.primaryContainer
     val onPrimaryContainerColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -170,7 +169,6 @@ fun Game(
                         gameInfo,
                         text,
                         wordCheck == CHECK_WORD_CORRECT,
-                        loginRequired
                     )
                     text = ""
                 },
