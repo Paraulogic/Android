@@ -9,7 +9,7 @@ plugins {
 apply from: './version.gradle'
 
 android {
-    compileSdk 32
+    compileSdkPreview "Tiramisu"
 
     Properties properties = new Properties()
     properties.load(project.rootProject.file("local.properties").newDataInputStream())
@@ -17,7 +17,7 @@ android {
     defaultConfig {
         applicationId "com.arnyminerz.paraulogic"
         minSdk 21
-        targetSdk 32
+        targetSdkPreview "Tiramisu"
         versionCode findProperty("android.versionCode") as Integer
         versionName VERSION_NAME
 
