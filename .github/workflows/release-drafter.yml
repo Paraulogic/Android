@@ -46,7 +46,7 @@ jobs:
           echo "Building ${{ steps.create_release.outputs.tag_name }}..."
           bash ./gradlew assembleRelease --stacktrace
       - name: APK Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: APK Artifact
           path: ./app/build/outputs/apk/release/app-release.apk
@@ -63,7 +63,7 @@ jobs:
           bash ./gradlew bundleRelease --stacktrace
       - name: AAB Artifact
         id: aab_artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: AAB Artifact
           path: ./app/build/outputs/bundle/release/app-release.aab
