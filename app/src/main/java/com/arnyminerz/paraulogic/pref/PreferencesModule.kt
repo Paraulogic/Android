@@ -13,4 +13,6 @@ object PreferencesModule {
     val TriedToSignIn = booleanPreferencesKey(PREF_SHOWN_LOGIN)
 
     val Language = stringPreferencesKey(PREF_LANGUAGE)
+
+    val ShownDonateDialog = booleanPreferencesKey(PREF_SHOWN_DONATE_DIALOG)
 }
