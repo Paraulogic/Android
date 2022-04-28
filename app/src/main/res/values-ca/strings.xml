@@ -16,6 +16,8 @@
     <string name="action_send">Enviar</string>
     <string name="action_select_date">Seleccionar data</string>
     <string name="action_leaderboard">Classificació</string>
+    <string name="action_not_show_again">Don\'t show again</string>
+    <string name="action_buy_coffee">Buy me a coffee</string>
     <string name="date_picker_select">Selecciona una data</string>
     <string name="date_picker_cancel">Cancel·lar</string>
     <string name="date_picker_ok">Confirmar</string>
@@ -78,4 +80,6 @@
     <string name="error_gameinfo_no_such_element">No s\'han pogut obtenir les dades d\'avui.</string>
     <string name="error_gameinfo_firebase">No s\'ha obtingut cap resposta del servidor.</string>
     <string name="error_try_again">Prova altra vegada, o contacta a un administrador.</string>
+    <string name="dialog_coffee_title">Buy me a coffee</string>
+    <string name="dialog_coffee_message">This project is lead by a student who loves Paraulògic and being a developer. However, maintaining a project like this is not free, and since the app doesn\'t offer any ads all the cost must be covered by me. You can whatsoever buy me a coffee, and I will make sure the app keeps working for as long as I can keep it up.</string>
 </resources>
