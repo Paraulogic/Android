@@ -7,6 +7,8 @@
 
 <a href='https://play.google.com/store/apps/details?id=com.arnyminerz.paraulogic&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img width="200px" alt='Disponible a Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/ca_badge_web_generic.png'/></a>
 
+[![Crowdin](https://badges.crowdin.net/badge/dark/crowdin-on-light.png)](https://crowdin.com/project/paraulgic-android)
+
 Aquesta aplicació ha sigut creada totalment per a la comunitat, veient què demana la gent, i el que
 pròpiament he notat, observat, i m'han dit que estaria bé que fos afegit com a funcionalitat.
 
