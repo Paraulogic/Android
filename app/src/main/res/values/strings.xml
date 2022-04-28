@@ -19,6 +19,8 @@
     <string name="action_send">Send</string>
     <string name="action_select_date">Select date</string>
     <string name="action_leaderboard">Leaderboard</string>
+    <string name="action_not_show_again">Don\'t show again</string>
+    <string name="action_buy_coffee">Buy me a coffee</string>
 
     <string name="date_picker_select">Select date</string>
     <string name="date_picker_cancel">Cancel</string>
@@ -100,4 +102,7 @@
     <string name="error_gameinfo_no_such_element">Could not get data for today.</string>
     <string name="error_gameinfo_firebase">Could not get response from server.</string>
     <string name="error_try_again">Try again, or contact and administrator.</string>
+
+    <string name="dialog_coffee_title">Buy me a coffee</string>
+    <string name="dialog_coffee_message">This project is lead by a student who loves Paraulògic and being a developer. However, maintaining a project like this is not free, and since the app doesn\'t offer any ads all the cost must be covered by me. You can whatsoever buy me a coffee, and I will make sure the app keeps working for as long as I can keep it up.</string>
 </resources>
