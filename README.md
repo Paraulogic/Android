@@ -57,3 +57,7 @@ interès en tenir-los.
 
 Per suposat, tots els crèdits van a Vilaweb, per haver ideat aquest meravellós joc, i a Pere Orga
 pel desenvolupament del lloc web original.
+
+# Donacions
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V0CEM5N)
