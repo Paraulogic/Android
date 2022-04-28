@@ -15,14 +15,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.arnyminerz.paraulogic.App
-import com.arnyminerz.paraulogic.game.GameHistoryItem
-import com.arnyminerz.paraulogic.game.GameInfo
-import com.arnyminerz.paraulogic.game.calculatePoints
-import com.arnyminerz.paraulogic.game.getLevelFromPoints
-import com.arnyminerz.paraulogic.game.getServerIntroducedWordsList
-import com.arnyminerz.paraulogic.game.getTutis
-import com.arnyminerz.paraulogic.game.loadGameHistoryFromServer
-import com.arnyminerz.paraulogic.game.loadGameInfoFromServer
+import com.arnyminerz.paraulogic.annotation.LoadError
+import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_FIREBASE_EXCEPTION
+import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_NO_SUCH_ELEMENT
+import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_OK
+import com.arnyminerz.paraulogic.game.*
 import com.arnyminerz.paraulogic.play.games.loadSnapshot
 import com.arnyminerz.paraulogic.play.games.startSignInIntent
 import com.arnyminerz.paraulogic.play.games.startSynchronization
@@ -31,7 +28,7 @@ import com.arnyminerz.paraulogic.pref.PreferencesModule
 import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
-import com.arnyminerz.paraulogic.utils.ioContext
+import com.arnyminerz.paraulogic.utils.doAsync
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.RuntimeExecutionException
@@ -42,8 +39,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import timber.log.Timber
-import java.util.Calendar
-import java.util.Date
+import java.util.*
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     var gameInfo by mutableStateOf<GameInfo?>(null)
@@ -60,7 +56,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * @author Arnau Mora
      * @since 20220320
      */
-    var error by mutableStateOf(0)
+    var error by mutableStateOf<@LoadError Int>(0)
         private set
 
     var points by mutableStateOf(0)
@@ -89,7 +85,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }*/
 
             Timber.v("Resetting error flag...")
-            error = 0
+            error = RESULT_OK
 
             Timber.v("Checking if tried to sign in ever...")
             val context = getApplication<App>()
@@ -147,11 +143,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 loadGameInfoFromServer(getApplication())
             } catch (e: NoSuchElementException) {
                 Timber.e(e, "Could not get game info from server.")
-                error = 1
+                error = RESULT_NO_SUCH_ELEMENT
                 return@launch
             } catch (e: FirebaseException) {
                 Timber.e(e, "Could not get game info from server.")
-                error = 2
+                error = RESULT_FIREBASE_EXCEPTION
                 return@launch
             }
             this@MainViewModel.gameInfo = gameInfo
