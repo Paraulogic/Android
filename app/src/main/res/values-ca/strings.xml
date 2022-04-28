@@ -65,7 +65,7 @@
     <string name="stats_today_tuti">Hui has trobat %d de %d paraules. Entre les quals el tuti del dia.</string>
     <string name="stats_today_n_tutis">Hui has trobat %d de %d paraules. Entre les quals %d dels %d que hi ha.</string>
     <string name="stats_today_all_tutis">Hui has trobat %d de %d paraules. Entre les quals tots els %d tutis que hi ha.</string>
-    <string name="stats_today">Today</string>
+    <string name="stats_today">Avui</string>
     <string name="stats_invalid_words">Eixe dia vas aconseguir inventar %d paraules, repetint una d\'elles fins a %d vegades! %s</string>
     <string name="stats_invalid_words_comment_1">Va ser un dia dur, veritat?</string>
     <string name="stats_invalid_words_comment_2">Estaves inspirat 🥴…</string>
