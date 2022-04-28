@@ -97,7 +97,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 dataStore.edit { it[PreferencesModule.TriedToSignIn] = true }
             }
 
-            ioContext {
+            doAsync {
                 Timber.v("Adding collector for words...")
                 DatabaseSingleton.getInstance(context)
                     .db
