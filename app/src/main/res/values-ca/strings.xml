@@ -16,6 +16,8 @@
     <string name="action_send">Enviar</string>
     <string name="action_select_date">Seleccionar data</string>
     <string name="action_leaderboard">Classificació</string>
+    <string name="action_not_show_again">No ho tornis a mostrar</string>
+    <string name="action_buy_coffee">Invita\'m a un café</string>
     <string name="date_picker_select">Selecciona una data</string>
     <string name="date_picker_cancel">Cancel·lar</string>
     <string name="date_picker_ok">Confirmar</string>
@@ -78,4 +80,6 @@
     <string name="error_gameinfo_no_such_element">No s\'han pogut obtenir les dades d\'avui.</string>
     <string name="error_gameinfo_firebase">No s\'ha obtingut cap resposta del servidor.</string>
     <string name="error_try_again">Prova altra vegada, o contacta a un administrador.</string>
+    <string name="dialog_coffee_title">Invita\'m a un café</string>
+    <string name="dialog_coffee_message">Aquest projecte està realitzat per un estudiant que li encanta el Paraulògic, i programar. No obstant, mantindre un projecte com aquest no és gratuït, i ja que l\'aplicació no ofereix cap tipus de publicitat, tot el cost ha de ser cobert per mi. Pots regalar-me un café, i m\'asseguraré que seguisca funcionant el màxim temps possible.</string>
 </resources>
