@@ -210,7 +210,8 @@ fun StatsScreen(
                         .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
                         .fillMaxWidth()
                 ) {
-                    val maxWordsCount = dayWrongWords.maxOf { it.value }
+                    val maxWordsCount =
+                        dayWrongWords.takeIf { it.isNotEmpty() }?.maxOf { it.value } ?: 0
                     Text(
                         modifier = Modifier.padding(8.dp),
                         text = stringResource(
