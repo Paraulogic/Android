@@ -53,8 +53,8 @@
     <string name="settings_info_feedback_summary">Envia comentaris als desenvolupadors de l\'aplicació.</string>
     <string name="settings_error_reporting_title">Report d\'errors</string>
     <string name="settings_error_reporting_summary">Si està activat, quan l\'aplicació es tanque de manera sobtada, s\'enviarà un report de l\'error als desenvolupadors. D\'aquesta manera és més senzill veure què ha fallat, i solucionar-ho. Cal reiniciar l\'aplicació per a aplicar.</string>
-    <string name="settings_analytics_title">Analytics</string>
-    <string name="settings_analytics_summary">If checked, the app will collect anonymous data for detecting common user patterns, and improve the app.</string>
+    <string name="settings_analytics_title">Analítiques</string>
+    <string name="settings_analytics_summary">Si està habilitat, l\'aplicació col·lectarà estadístiques d\'ús anònimes per a detectar patrons comuns entre els usuaris, i millorar l\'app.</string>
     <string name="feedback_title">Enviar Missatge</string>
     <string name="feedback_field_name">Nom</string>
     <string name="feedback_field_name_hint">Ho pots deixar en blanc, serà utilitzat per a referir-se a tu en cas que et contactem.</string>
