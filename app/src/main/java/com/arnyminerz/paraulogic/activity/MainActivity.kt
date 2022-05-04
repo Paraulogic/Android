@@ -37,6 +37,8 @@ import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.RuntimeExecutionException
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.first
 import org.json.JSONException
 import timber.log.Timber
@@ -60,6 +62,8 @@ class MainActivity : LanguageActivity() {
                 val account = signInResult.signInAccount!!
                 Timber.i("Signed in successfully.")
                 toast(R.string.toast_signed_in)
+
+                Firebase.analytics.setUserId(account.id)
 
                 doAsync {
                     Timber.d("Getting words list from logged in account.")
