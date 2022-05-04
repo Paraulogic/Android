@@ -53,6 +53,8 @@
     <string name="settings_info_feedback_summary">Enviar comentarios a los desarrolladores de la app.</string>
     <string name="settings_error_reporting_title">Reporte de errores</string>
     <string name="settings_error_reporting_summary">Si está habilitado, cuando la app se cierre de manera espontánea un reporte de error será enviado a los desarrolladores, para que puedan tenerlo en cuenta, y solucionarlo lo más pronto posible. Requiere un reinicio de la app.</string>
+    <string name="settings_analytics_title">Analíticas</string>
+    <string name="settings_analytics_summary">Si está marcada, la aplicación recopilará datos anónimos para detectar patrones de usuario comunes y mejorar la aplicación.</string>
     <string name="feedback_title">Enviar Mensaje</string>
     <string name="feedback_field_name">Nombre</string>
     <string name="feedback_field_name_hint">Puedes dejarlo en blanco, sólo será usado para referirse a usted si fuese necesario.</string>
@@ -62,7 +64,7 @@
     <string name="stats_day_no_tuti">El %s encontraste %d de %d palabras. No encontraste el tuti.</string>
     <string name="stats_day_tuti">El %s encontraste %d de %d palabras. Entre los cuales el tuti del día.</string>
     <string name="stats_day_n_tutis">El %s encontraste %d de las %d palabras. Entre los cuales %d de los %d tutis que había.</string>
-    <string name="stats_day_all_tutis">El %s encontraste %d de las %d palabras. Entre las cuales los %d tutis que había.</string>
+    <string name="stats_day_all_tutis">El %d encontraste %d de las %d palabras. Entre las cuales los %d tutis que había.</string>
     <string name="stats_today_no_tuti">Hoy has encontrado %d de las %d palabras. No has conseguido encontrar el tuti.</string>
     <string name="stats_today_tuti">Hoy has encontrado %d de las %d palabras. Entre las cuales el tuti del día.</string>
     <string name="stats_today_n_tutis">Hoy has encontrado %d de las %d palabras. Entre las cuales %d de los %d tutis que hay.</string>
