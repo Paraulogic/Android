@@ -7,6 +7,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.drive.Drive
 import com.google.android.gms.games.Games
 import timber.log.Timber
@@ -37,21 +38,24 @@ fun Context.getLastSignedInAccount() = GoogleSignIn.getLastSignedInAccount(this)
 
 suspend fun Context.signInSilently(client: GoogleSignInClient) =
     suspendCoroutine<GoogleSignInAccount?> { cont ->
-        Timber.d("Checking if signed in...")
-        val account = GoogleSignIn.getLastSignedInAccount(this)
-        if (GoogleSignIn.hasPermissions(account, *signInOptions.scopeArray))
-            cont.resume(account!!)
-        else {
-            Timber.d("Logging in with Games...")
-            client
-                .silentSignIn()
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful)
-                        cont.resume(task.result)
-                    else {
-                        Timber.e("User needs to sign in manually.")
+        try {
+            Timber.d("Checking if signed in...")
+            val account = GoogleSignIn.getLastSignedInAccount(this)
+            if (GoogleSignIn.hasPermissions(account, *signInOptions.scopeArray)) {
+                Timber.d("Already logged in.")
+                cont.resume(account!!)
+            } else {
+                Timber.d("Logging in with Games...")
+                client
+                    .silentSignIn()
+                    .addOnFailureListener {
+                        Timber.e(it, "User needs to sign in manually.")
                         cont.resume(null)
                     }
-                }
+                    .addOnSuccessListener { cont.resume(it) }
+            }
+        } catch (e: ApiException) {
+            Timber.e(e, "An error occurred with the Google Play Api.")
+            cont.resume(null)
         }
     }

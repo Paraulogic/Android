@@ -4,17 +4,12 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
-import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.activity.model.LanguageActivity
@@ -27,23 +22,25 @@ import com.arnyminerz.paraulogic.pref.PreferencesModule
 import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
+import com.arnyminerz.paraulogic.ui.dialog.BuyCoffeeDialog
 import com.arnyminerz.paraulogic.ui.elements.MainScreen
 import com.arnyminerz.paraulogic.ui.theme.AppTheme
 import com.arnyminerz.paraulogic.ui.toast
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
 import com.arnyminerz.paraulogic.utils.doAsync
 import com.arnyminerz.paraulogic.utils.doOnUi
-import com.arnyminerz.paraulogic.utils.launchUrl
 import com.arnyminerz.paraulogic.utils.mapJsonObject
 import com.arnyminerz.paraulogic.utils.toJsonArray
 import com.arnyminerz.paraulogic.utils.uiContext
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.RuntimeExecutionException
 import kotlinx.coroutines.flow.first
 import org.json.JSONException
 import timber.log.Timber
+import java.io.IOException
 
 class MainActivity : LanguageActivity() {
     /**
@@ -57,8 +54,7 @@ class MainActivity : LanguageActivity() {
     private val signInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        val data = result.data
-        if (data != null) {
+        result.data?.let { data ->
             val signInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
             if (signInResult?.isSuccess == true) {
                 val account = signInResult.signInAccount!!
@@ -82,6 +78,12 @@ class MainActivity : LanguageActivity() {
                     } catch (e: RuntimeExecutionException) {
                         Timber.e(e, "Could not get snapshot.")
                         null
+                    } catch (e: ApiException) {
+                        Timber.e(e, "Google Play Api thrown an exception.")
+                        null
+                    } catch (e: IOException) {
+                        Timber.e(e, "Could not read the game progress snapshot's stream.")
+                        null
                     } ?: emptyList()
                     DatabaseSingleton.getInstance(this@MainActivity)
                         .db
@@ -98,8 +100,9 @@ class MainActivity : LanguageActivity() {
                 Timber.e("Could not sign in. Status: ${signInResult?.status}")
                 signInResult?.status?.statusMessage?.let { toast(it) }
             }
-        } else
+        } ?: run {
             Timber.w("Cannot process sign in result since data is null.")
+        }
     }
 
     private val popupLauncher = registerForActivityResult(
@@ -132,45 +135,7 @@ class MainActivity : LanguageActivity() {
                 }
 
                 var showingDialog by remember { mutableStateOf(false) }
-                if (showingDialog)
-                    AlertDialog(
-                        onDismissRequest = { showingDialog = false },
-                        title = {
-                            Text(
-                                text = stringResource(R.string.dialog_coffee_title),
-                            )
-                        },
-                        text = {
-                            Text(
-                                text = stringResource(R.string.dialog_coffee_message),
-                            )
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = { launchUrl("https://ko-fi.com/arnyminerz") },
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.action_buy_coffee),
-                                )
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = {
-                                    doAsync {
-                                        dataStore.edit {
-                                            it[PreferencesModule.ShownDonateDialog] = true
-                                        }
-                                        uiContext { showingDialog = false }
-                                    }
-                                },
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.action_not_show_again),
-                                )
-                            }
-                        },
-                    )
+                BuyCoffeeDialog(showingDialog) { showingDialog = false }
 
                 doAsync {
                     if (dataStore.data.first()[PreferencesModule.ShownDonateDialog] != true)
@@ -198,9 +163,9 @@ class MainActivity : LanguageActivity() {
         super.onResume()
 
         doAsync {
-            val account = signInSilently(signInClient)
-            if (account != null)
+            signInSilently(signInClient)?.run {
                 Timber.i("Log in successful")
+            }
 
             Timber.i("Trying to add missing points...")
             tryToAddPoints(this@MainActivity)
@@ -211,9 +176,9 @@ class MainActivity : LanguageActivity() {
         super.onStop()
 
         doAsync {
-            val account = signInSilently(signInClient)
-            if (account != null)
+            signInSilently(signInClient)?.run {
                 Timber.i("Log in successful")
+            }
 
             Timber.i("Trying to add missing points...")
             tryToAddPoints(this@MainActivity)
