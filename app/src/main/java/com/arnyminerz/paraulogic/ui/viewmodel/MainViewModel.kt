@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.UiThread
+import androidx.annotation.WorkerThread
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -19,7 +20,14 @@ import com.arnyminerz.paraulogic.annotation.LoadError
 import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_FIREBASE_EXCEPTION
 import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_NO_SUCH_ELEMENT
 import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_OK
-import com.arnyminerz.paraulogic.game.*
+import com.arnyminerz.paraulogic.game.GameHistoryItem
+import com.arnyminerz.paraulogic.game.GameInfo
+import com.arnyminerz.paraulogic.game.calculatePoints
+import com.arnyminerz.paraulogic.game.getLevelFromPoints
+import com.arnyminerz.paraulogic.game.getServerIntroducedWordsList
+import com.arnyminerz.paraulogic.game.getTutis
+import com.arnyminerz.paraulogic.game.loadGameHistoryFromServer
+import com.arnyminerz.paraulogic.game.loadGameInfoFromServer
 import com.arnyminerz.paraulogic.play.games.loadSnapshot
 import com.arnyminerz.paraulogic.play.games.startSignInIntent
 import com.arnyminerz.paraulogic.play.games.startSynchronization
@@ -39,7 +47,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import timber.log.Timber
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     var gameInfo by mutableStateOf<GameInfo?>(null)
@@ -76,7 +85,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun loadGameInfo(
         signInClient: GoogleSignInClient,
         signInLauncher: ActivityResultLauncher<Intent>,
-        loadingGameProgressCallback: (finished: Boolean) -> Unit,
+        @WorkerThread loadingGameProgressCallback: (finished: Boolean) -> Unit,
     ) {
         viewModelScope.launch {
             /*if (correctWords.isNotEmpty()) {
