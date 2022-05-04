@@ -199,12 +199,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun synchronize(
         context: Context,
         gameInfo: GameInfo,
-        history: List<GameHistoryItem>
+        history: List<GameHistoryItem>,
     ) {
-        viewModelScope.launch {
-            ioContext {
-                startSynchronization(context, gameInfo, history)
-            }
+        viewModelScope.launch(context = Dispatchers.IO) {
+            startSynchronization(context, gameInfo, history)
         }
     }
 
@@ -243,7 +241,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             val databaseSingleton = DatabaseSingleton.getInstance(getApplication())
             val dao = databaseSingleton.db.wordsDao()
-            val dbWords = withContext(Dispatchers.IO) { dao.getAll() }
+            val dbWords = ioContext { dao.getAll() }
             val tempDayFoundWords = dbWords
                 .first()
                 .filter { word ->
