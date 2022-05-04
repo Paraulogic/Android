@@ -13,6 +13,10 @@ import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.utils.doAsync
 import com.arnyminerz.paraulogic.utils.launchUrl
 import com.arnyminerz.paraulogic.utils.uiContext
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 
 @Composable
 fun BuyCoffeeDialog(showingDialog: Boolean, onDismissRequest: () -> Unit) {
@@ -33,7 +37,13 @@ fun BuyCoffeeDialog(showingDialog: Boolean, onDismissRequest: () -> Unit) {
             },
             confirmButton = {
                 TextButton(
-                    onClick = { context.launchUrl("https://ko-fi.com/arnyminerz") },
+                    onClick = {
+                        Firebase.analytics
+                            .logEvent(FirebaseAnalytics.Event.SELECT_CONTENT) {
+                                param(FirebaseAnalytics.Param.ITEM_NAME, "coffee_url")
+                            }
+                        context.launchUrl("https://ko-fi.com/arnyminerz")
+                    },
                 ) {
                     Text(
                         text = stringResource(R.string.action_buy_coffee),

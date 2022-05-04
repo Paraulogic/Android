@@ -42,6 +42,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.RuntimeExecutionException
 import com.google.firebase.FirebaseException
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.perf.metrics.AddTrace
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -174,6 +179,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    @AddTrace(name = "GameHistoryLoad")
     fun loadGameHistory() {
         viewModelScope.launch {
             Timber.d("Loading game history...")
@@ -207,6 +213,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     @UiThread
+    @AddTrace(name = "CorrectWordsLoad")
     private suspend fun loadCorrectWords(
         gameInfo: GameInfo,
         serverIntroducedWordsList: List<IntroducedWord>,
@@ -234,6 +241,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
     }
 
+    @AddTrace(name = "DailyWordsLoad")
     fun loadWordsForDay(gameInfo: GameInfo, date: Date, includeWrongWords: Boolean = false) {
         viewModelScope.launch {
             val dateCalendar = Calendar.getInstance()
@@ -289,6 +297,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     IntroducedWord(0, now, hash, word, isCorrect)
                 )
             }
+            Firebase.analytics
+                .logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                    param(
+                        FirebaseAnalytics.Param.ITEM_NAME,
+                        word,
+                    )
+                    param(
+                        FirebaseAnalytics.Param.CONTENT_TYPE,
+                        if (isCorrect) "correct" else "wrong",
+                    )
+                }
             Timber.i("Stored word: $word. Correct: $isCorrect")
         }
     }

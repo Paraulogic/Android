@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.activity.FeedbackActivity
+import com.arnyminerz.paraulogic.pref.PREF_ANALYTICS
 import com.arnyminerz.paraulogic.pref.PREF_ERROR_REPORTING
 import com.arnyminerz.paraulogic.pref.rememberBooleanPreference
 import com.arnyminerz.paraulogic.ui.dialog.LanguageDialog
@@ -32,6 +33,9 @@ import com.arnyminerz.paraulogic.ui.elements.SettingsItem
 import com.arnyminerz.paraulogic.utils.activity
 import com.arnyminerz.paraulogic.utils.launch
 import com.arnyminerz.paraulogic.utils.launchUrl
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 
 @Composable
 @ExperimentalMaterial3Api
@@ -66,6 +70,14 @@ fun SettingsScreen() {
                 initialValue = true,
                 defaultValue = true
             )
+            var enableAnalytics by rememberBooleanPreference(
+                PREF_ANALYTICS,
+                initialValue = true,
+                defaultValue = true,
+            )
+
+            val analytics = Firebase.analytics
+            val crashlytics = Firebase.crashlytics
 
             var showLanguageDialog by remember { mutableStateOf(false) }
             if (showLanguageDialog)
@@ -95,8 +107,28 @@ fun SettingsScreen() {
                 title = stringResource(R.string.settings_error_reporting_title),
                 subtitle = stringResource(R.string.settings_error_reporting_summary),
                 stateBoolean = enableErrorReporting,
-                setBoolean = { state -> enableErrorReporting = state },
-                onClick = { enableErrorReporting = !enableErrorReporting },
+                setBoolean = { state ->
+                    enableErrorReporting = state
+                    crashlytics.setCrashlyticsCollectionEnabled(enableErrorReporting)
+                },
+                onClick = {
+                    enableErrorReporting = !enableErrorReporting
+                    crashlytics.setCrashlyticsCollectionEnabled(enableErrorReporting)
+                },
+                switch = true,
+            )
+            SettingsItem(
+                title = stringResource(R.string.settings_analytics_title),
+                subtitle = stringResource(R.string.settings_analytics_summary),
+                stateBoolean = enableAnalytics,
+                setBoolean = { state ->
+                    enableAnalytics = state
+                    analytics.setAnalyticsCollectionEnabled(enableAnalytics)
+                },
+                onClick = {
+                    enableAnalytics = !enableAnalytics
+                    analytics.setAnalyticsCollectionEnabled(enableAnalytics)
+                },
                 switch = true,
             )
         }

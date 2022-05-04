@@ -68,6 +68,9 @@
     <string name="settings_error_reporting_title">Error Reporting</string>
     <string name="settings_error_reporting_summary">If checked, whenever the app crashes an anonymous error report is sent to the developers, so they can see what went wrong, and fix it. Requires app restart.</string>
 
+    <string name="settings_analytics_title">Analytics</string>
+    <string name="settings_analytics_summary">If checked, the app will collect anonymous data for detecting common user patterns, and improve the app.</string>
+
     <string name="feedback_title">Send Feedback</string>
     <string name="feedback_field_name">Name</string>
     <string name="feedback_field_name_hint">You can leave this empty, will only be used to refer to you in case we need to contact you.</string>

@@ -11,6 +11,10 @@ import com.arnyminerz.paraulogic.storage.entity.SynchronizedWord
 import com.arnyminerz.paraulogic.utils.getMaxDifferenceBetweenDates
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.games.Games
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
 import java.util.Calendar
@@ -104,6 +108,11 @@ suspend fun startSynchronization(
             )
         }
         Timber.i("Has to increment $toIncrement points.")
+
+        Firebase.analytics
+            .logEvent(FirebaseAnalytics.Event.POST_SCORE) {
+                param(FirebaseAnalytics.Param.SCORE, toIncrement.toLong())
+            }
 
         val allTutisDays = arrayListOf<Date>()
 
