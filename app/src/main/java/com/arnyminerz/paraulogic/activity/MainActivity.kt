@@ -54,8 +54,7 @@ class MainActivity : LanguageActivity() {
     private val signInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        val data = result.data
-        if (data != null) {
+        result.data?.let { data ->
             val signInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
             if (signInResult?.isSuccess == true) {
                 val account = signInResult.signInAccount!!
@@ -79,6 +78,12 @@ class MainActivity : LanguageActivity() {
                     } catch (e: RuntimeExecutionException) {
                         Timber.e(e, "Could not get snapshot.")
                         null
+                    } catch (e: ApiException) {
+                        Timber.e(e, "Google Play Api thrown an exception.")
+                        null
+                    } catch (e: IOException) {
+                        Timber.e(e, "Could not read the game progress snapshot's stream.")
+                        null
                     } ?: emptyList()
                     DatabaseSingleton.getInstance(this@MainActivity)
                         .db
@@ -95,8 +100,9 @@ class MainActivity : LanguageActivity() {
                 Timber.e("Could not sign in. Status: ${signInResult?.status}")
                 signInResult?.status?.statusMessage?.let { toast(it) }
             }
-        } else
+        } ?: run {
             Timber.w("Cannot process sign in result since data is null.")
+        }
     }
 
     private val popupLauncher = registerForActivityResult(
@@ -157,9 +163,9 @@ class MainActivity : LanguageActivity() {
         super.onResume()
 
         doAsync {
-            val account = signInSilently(signInClient)
-            if (account != null)
+            signInSilently(signInClient)?.run {
                 Timber.i("Log in successful")
+            }
 
             Timber.i("Trying to add missing points...")
             tryToAddPoints(this@MainActivity)
@@ -170,9 +176,9 @@ class MainActivity : LanguageActivity() {
         super.onStop()
 
         doAsync {
-            val account = signInSilently(signInClient)
-            if (account != null)
+            signInSilently(signInClient)?.run {
                 Timber.i("Log in successful")
+            }
 
             Timber.i("Trying to add missing points...")
             tryToAddPoints(this@MainActivity)

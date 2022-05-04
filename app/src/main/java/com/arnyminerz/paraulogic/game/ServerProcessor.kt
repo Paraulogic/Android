@@ -6,6 +6,7 @@ import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 import com.arnyminerz.paraulogic.utils.mapJsonObject
 import com.arnyminerz.paraulogic.utils.toJsonArray
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.RuntimeExecutionException
 import org.json.JSONException
 import timber.log.Timber
@@ -42,6 +43,9 @@ suspend fun getServerIntroducedWordsList(
                 null
             } catch (e: RuntimeExecutionException) {
                 Timber.e(e, "There's no stored snapshot.")
+                null
+            } catch (e: ApiException) {
+                Timber.e(e, "Could not read snapshot.")
                 null
             } finally {
                 loadingGameProgressCallback(true)
