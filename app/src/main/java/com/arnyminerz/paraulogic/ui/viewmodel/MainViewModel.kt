@@ -37,6 +37,7 @@ import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 import com.arnyminerz.paraulogic.utils.doAsync
+import com.arnyminerz.paraulogic.utils.ioContext
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.RuntimeExecutionException
@@ -201,7 +202,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         history: List<GameHistoryItem>
     ) {
         viewModelScope.launch {
-            launch(Dispatchers.IO) {
+            ioContext {
                 startSynchronization(context, gameInfo, history)
             }
         }
