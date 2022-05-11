@@ -121,7 +121,7 @@ dependencies {
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
 
     // Jetpack Compose - Accompanist
-    implementation 'com.google.accompanist:accompanist-pager:0.24.7-alpha'
+    implementation 'com.google.accompanist:accompanist-pager:0.24.8-beta'
 
     // Lifecycle async components
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
