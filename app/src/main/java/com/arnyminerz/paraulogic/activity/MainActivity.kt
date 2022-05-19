@@ -13,11 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.activity.model.LanguageActivity
-import com.arnyminerz.paraulogic.play.games.createSignInClient
-import com.arnyminerz.paraulogic.play.games.loadSnapshot
-import com.arnyminerz.paraulogic.play.games.signInSilently
-import com.arnyminerz.paraulogic.play.games.startSignInIntent
-import com.arnyminerz.paraulogic.play.games.tryToAddPoints
+import com.arnyminerz.paraulogic.play.games.*
 import com.arnyminerz.paraulogic.pref.PreferencesModule
 import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
@@ -27,11 +23,7 @@ import com.arnyminerz.paraulogic.ui.elements.MainScreen
 import com.arnyminerz.paraulogic.ui.theme.AppTheme
 import com.arnyminerz.paraulogic.ui.toast
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
-import com.arnyminerz.paraulogic.utils.doAsync
-import com.arnyminerz.paraulogic.utils.doOnUi
-import com.arnyminerz.paraulogic.utils.mapJsonObject
-import com.arnyminerz.paraulogic.utils.toJsonArray
-import com.arnyminerz.paraulogic.utils.uiContext
+import com.arnyminerz.paraulogic.utils.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -151,12 +143,10 @@ class MainActivity : LanguageActivity() {
                 doOnUi {
                     if (it)
                         snackbarHostState.showSnackbar(
-                            message = getString(R.string.status_loading_server),
-                        )
-                    else
-                        snackbarHostState.showSnackbar(
                             message = getString(R.string.status_loaded_server),
                         )
+                    else
+                        toast(R.string.status_loading_server)
                 }
             }
             viewModel.loadGameHistory()
