@@ -145,7 +145,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:20.2.0'
 
     // Play Services - KotlinX coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.3'
 
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:29.1.0')
