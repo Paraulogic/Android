@@ -6,25 +6,25 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.activity.model.LanguageActivity
-import com.arnyminerz.paraulogic.play.games.*
-import com.arnyminerz.paraulogic.pref.PreferencesModule
-import com.arnyminerz.paraulogic.pref.dataStore
+import com.arnyminerz.paraulogic.play.games.createSignInClient
+import com.arnyminerz.paraulogic.play.games.loadSnapshot
+import com.arnyminerz.paraulogic.play.games.signInSilently
+import com.arnyminerz.paraulogic.play.games.startSignInIntent
+import com.arnyminerz.paraulogic.play.games.tryToAddPoints
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
-import com.arnyminerz.paraulogic.ui.dialog.BuyCoffeeDialog
 import com.arnyminerz.paraulogic.ui.elements.MainScreen
 import com.arnyminerz.paraulogic.ui.theme.AppTheme
 import com.arnyminerz.paraulogic.ui.toast
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
-import com.arnyminerz.paraulogic.utils.*
+import com.arnyminerz.paraulogic.utils.doAsync
+import com.arnyminerz.paraulogic.utils.doOnUi
+import com.arnyminerz.paraulogic.utils.mapJsonObject
+import com.arnyminerz.paraulogic.utils.toJsonArray
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -131,6 +131,7 @@ class MainActivity : LanguageActivity() {
                     startSignInIntent(signInClient, signInLauncher)
                 }
 
+                /* TODO: Integrate donations through Google Pay
                 var showingDialog by remember { mutableStateOf(false) }
                 BuyCoffeeDialog(showingDialog) { showingDialog = false }
 
@@ -142,7 +143,7 @@ class MainActivity : LanguageActivity() {
                     }
                     if (dataStore.data.first()[PreferencesModule.NumberOfLaunches] == 15)
                         uiContext { showingDialog = true }
-                }
+                }*/
             }
 
             viewModel.loadGameInfo(signInClient, signInLauncher) {
