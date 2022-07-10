@@ -19,7 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
+import coil.compose.AsyncImage
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.utils.launchUrl
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -102,8 +102,8 @@ fun MainTopAppBar(
                         )
                     }
                 } else
-                    Image(
-                        painter = rememberImagePainter(account.photoUrl),
+                    AsyncImage(
+                        model = account.photoUrl,
                         contentDescription = stringResource(R.string.image_desc_profile),
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
