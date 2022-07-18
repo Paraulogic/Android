@@ -131,6 +131,15 @@ class MainActivity : LanguageActivity() {
             MainViewModel.Factory(application)
         )[MainViewModel::class.java]
 
+        doAsync {
+            // Increase number of launches
+            dataStore.edit {
+                val dataStoreData = dataStore.data.first()
+                it[PreferencesModule.NumberOfLaunches] =
+                    dataStoreData[PreferencesModule.NumberOfLaunches]?.plus(1) ?: 0
+            }
+        }
+
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
 
@@ -147,12 +156,6 @@ class MainActivity : LanguageActivity() {
                     val numberOfLaunches = dataStoreData[PreferencesModule.NumberOfLaunches]
                     val disabledDonationDialog =
                         dataStoreData[PreferencesModule.DisableDonationDialog]
-
-                    // Increase number of launches
-                    dataStore.edit {
-                        it[PreferencesModule.NumberOfLaunches] =
-                            dataStoreData[PreferencesModule.NumberOfLaunches]?.plus(1) ?: 0
-                    }
 
                     // Show dialog every 15 launches
                     val numberOfLaunchesRem = numberOfLaunches?.rem(15) ?: 0
