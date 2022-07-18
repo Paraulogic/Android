@@ -78,7 +78,7 @@
     <string name="stats_day_no_tuti">El %s encontraste %d de %d palabras. No encontraste el tuti.</string>
     <string name="stats_day_tuti">El %s encontraste %d de %d palabras. Entre los cuales el tuti del día.</string>
     <string name="stats_day_n_tutis">El %s encontraste %d de las %d palabras. Entre los cuales %d de los %d tutis que había.</string>
-    <string name="stats_day_all_tutis">El %d encontraste %d de las %d palabras. Entre las cuales los %d tutis que había.</string>
+    <string name="stats_day_all_tutis">El %s encontraste %d de las %d palabras. Entre las cuales los %d tutis que había.</string>
     <string name="stats_today_no_tuti">Hoy has encontrado %d de las %d palabras. No has conseguido encontrar el tuti.</string>
     <string name="stats_today_tuti">Hoy has encontrado %d de las %d palabras. Entre las cuales el tuti del día.</string>
     <string name="stats_today_n_tutis">Hoy has encontrado %d de las %d palabras. Entre las cuales %d de los %d tutis que hay.</string>
