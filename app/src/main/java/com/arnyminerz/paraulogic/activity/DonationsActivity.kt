@@ -106,10 +106,12 @@ class DonationsActivity : AppCompatActivity() {
             Timber.d("Getting available products...")
             val availableProducts = paymentGateway.getAvailableInAppPurchases()
             this@DonationsActivity.availableProducts.value = availableProducts
+            Timber.d("There are ${availableProducts?.size} products available.")
 
             Timber.d("Getting available subscriptions...")
             val availableSubscriptions = paymentGateway.getAvailableSubscriptions()
             this@DonationsActivity.availableSubscriptions.value = availableSubscriptions
+            Timber.d("There are ${availableSubscriptions?.size} subscriptions available.")
         }
 
         setContent {
