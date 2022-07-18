@@ -3,6 +3,14 @@
 
     <string name="app_name">Paraulògic</string>
 
+    <string name="donations_title">Support the app</string>
+    <string name="donations_explanation_title">Support the app\'s development</string>
+    <string name="donations_explanation_message">Keeping up the development of an app like this is not free, and with your donation you make sure that the app keeps working as for long as possible. All the elements below do not give you any advantage, they are simply for allowing you to support the development of the app.</string>
+    <string name="donations_action_more_info">Information</string>
+    <string name="donations_action_purchase">Purchase</string>
+    <string name="donations_appreciation_title">Thank you for your donation!</string>
+    <string name="donations_appreciation_message">The app will keep running longer thanks to you! You are an amazing person! Thank you very much! Here\'s a cookie to thank you for your donation.</string>
+
     <string name="image_desc_vilaweb">Vilaweb\'s Website</string>
     <string name="image_desc_paraulogic">Paraulògic</string>
     <string name="image_desc_help">Help</string>
@@ -10,6 +18,9 @@
     <string name="image_desc_analytics">Analytics</string>
     <string name="image_desc_login">Log In</string>
     <string name="image_desc_profile">Profile</string>
+    <string name="image_desc_product_information">Product Information</string>
+    <string name="image_desc_purchase">Purchase</string>
+    <string name="image_desc_donation_appreciation">Donation Appreciation</string>
 
     <string name="action_delete">Delete</string>
     <string name="action_shuffle">Shuffle</string>
@@ -36,6 +47,8 @@
     <string name="toast_correct">Correct!</string>
     <string name="toast_message_sent">Message sent successfully</string>
     <string name="toast_signed_in">Signed in!</string>
+    <string name="toast_payment_cancelled">Payment cancelled</string>
+    <string name="toast_payment_error">An unknown error happened during the purchase.</string>
 
     <string name="state_found_n_words">You have found %1$d of %2$d words: %3$s.</string>
     <string name="state_found_no_words">You have still not found any words today.</string>
