@@ -1,5 +1,6 @@
 package com.arnyminerz.paraulogic.ui.dialog
 
+import android.os.Bundle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -14,6 +15,8 @@ import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.utils.doAsync
 import com.arnyminerz.paraulogic.utils.launch
 import com.arnyminerz.paraulogic.utils.uiContext
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 
 @Composable
 fun BuyCoffeeDialog(showingDialog: Boolean, onDismissRequest: () -> Unit) {
@@ -46,6 +49,8 @@ fun BuyCoffeeDialog(showingDialog: Boolean, onDismissRequest: () -> Unit) {
             dismissButton = {
                 TextButton(
                     onClick = {
+                        Firebase.analytics
+                            .logEvent("disable_donations_dialog", Bundle())
                         doAsync {
                             context.dataStore.edit {
                                 it[PreferencesModule.DisableDonationDialog] = true
