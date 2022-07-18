@@ -45,7 +45,7 @@ class PaymentGateway private constructor(context: Context) {
         )
 
         private val SUBSCRIPTIONS = listOf(
-            "monthly" to BillingClient.ProductType.SUBS,
+            "monthly_support" to BillingClient.ProductType.SUBS,
         )
     }
 
