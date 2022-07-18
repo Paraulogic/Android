@@ -1,5 +1,6 @@
 package com.arnyminerz.paraulogic.ui.dialog
 
+import android.os.Bundle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -8,14 +9,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.datastore.preferences.core.edit
 import com.arnyminerz.paraulogic.R
+import com.arnyminerz.paraulogic.activity.DonationsActivity
 import com.arnyminerz.paraulogic.pref.PreferencesModule
 import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.utils.doAsync
-import com.arnyminerz.paraulogic.utils.launchUrl
+import com.arnyminerz.paraulogic.utils.launch
 import com.arnyminerz.paraulogic.utils.uiContext
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 
 @Composable
@@ -38,11 +38,7 @@ fun BuyCoffeeDialog(showingDialog: Boolean, onDismissRequest: () -> Unit) {
             confirmButton = {
                 TextButton(
                     onClick = {
-                        Firebase.analytics
-                            .logEvent(FirebaseAnalytics.Event.SELECT_CONTENT) {
-                                param(FirebaseAnalytics.Param.ITEM_NAME, "coffee_url")
-                            }
-                        context.launchUrl("https://ko-fi.com/arnyminerz")
+                        context.launch(DonationsActivity::class.java)
                     },
                 ) {
                     Text(
@@ -53,9 +49,11 @@ fun BuyCoffeeDialog(showingDialog: Boolean, onDismissRequest: () -> Unit) {
             dismissButton = {
                 TextButton(
                     onClick = {
+                        Firebase.analytics
+                            .logEvent("disable_donations_dialog", Bundle())
                         doAsync {
                             context.dataStore.edit {
-                                it[PreferencesModule.ShownDonateDialog] = true
+                                it[PreferencesModule.DisableDonationDialog] = true
                             }
                             uiContext { onDismissRequest() }
                         }

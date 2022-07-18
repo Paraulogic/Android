@@ -15,7 +15,7 @@ object PreferencesModule {
 
     val Language = stringPreferencesKey(PREF_LANGUAGE)
 
-    val ShownDonateDialog = booleanPreferencesKey(PREF_SHOWN_DONATE_DIALOG)
+    val DisableDonationDialog = booleanPreferencesKey(PREF_DISABLE_DONATE_DIALOG)
 
     val NumberOfLaunches = intPreferencesKey(PREF_NUMBER_OF_LAUNCHES)
 }
