@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Paraulògic</string>
+    <string name="donations_title">Apoya la aplicación</string>
+    <string name="donations_explanation_title">Apoya el desarrollo de la app</string>
+    <string name="donations_explanation_message">Mantener el desarrollo de una aplicación como esta no es gratis, y con tu donación te aseguras de que la aplicación siga funcionando todo el tiempo posible. Todos los elementos a continuación no te dan ninguna ventaja, son simplemente para apoyar el desarrollo de la aplicación.</string>
+    <string name="donations_action_more_info">Información</string>
+    <string name="donations_action_purchase">Comprar</string>
+    <string name="donations_appreciation_title">¡Gracias por tu donación!</string>
+    <string name="donations_appreciation_message">¡La aplicación seguirá funcionando más tiempo gracias a ti! ¡Eres una persona increíble! ¡Muchas gracias! Aquí tienes una galleta para darle las gracias por su donación.</string>
     <string name="image_desc_vilaweb">Página web de Vilaweb</string>
     <string name="image_desc_paraulogic">Paraulògic</string>
     <string name="image_desc_help">Ayuda</string>
@@ -8,6 +15,9 @@
     <string name="image_desc_analytics">Estadísticas</string>
     <string name="image_desc_login">Iniciar sesión</string>
     <string name="image_desc_profile">Perfil</string>
+    <string name="image_desc_product_information">Información del producto</string>
+    <string name="image_desc_purchase">Comprar</string>
+    <string name="image_desc_donation_appreciation">Apreciación de donación</string>
     <string name="action_delete">Eliminar</string>
     <string name="action_shuffle">Mezclar letras</string>
     <string name="action_enter">Introducir</string>
@@ -30,6 +40,8 @@
     <string name="toast_correct">Correcto!</string>
     <string name="toast_message_sent">Mensaje enviado correctamente</string>
     <string name="toast_signed_in">Sesión iniciada!</string>
+    <string name="toast_payment_cancelled">Pago cancelado</string>
+    <string name="toast_payment_error">Se ha producido un error desconocido durante la compra.</string>
     <string name="state_found_n_words">Has encontrado %1$d de %2$d palabras: %3$s.</string>
     <string name="state_found_no_words">Aún no has encontrado ninguna palabra hoy.</string>
     <string name="state_found_no_tuti">Aún no has encontrado el tuti de hoy.</string>
@@ -51,6 +63,8 @@
     <string name="settings_info_github_summary">Ver el código fuente de la app.</string>
     <string name="settings_info_feedback_title">Comentarios</string>
     <string name="settings_info_feedback_summary">Enviar comentarios a los desarrolladores de la app.</string>
+    <string name="settings_info_donation_title">Apoya la aplicación</string>
+    <string name="settings_info_donation_summary">Apoya el desarrollo de la aplicación económicamente.</string>
     <string name="settings_error_reporting_title">Reporte de errores</string>
     <string name="settings_error_reporting_summary">Si está habilitado, cuando la app se cierre de manera espontánea un reporte de error será enviado a los desarrolladores, para que puedan tenerlo en cuenta, y solucionarlo lo más pronto posible. Requiere un reinicio de la app.</string>
     <string name="settings_analytics_title">Analíticas</string>
