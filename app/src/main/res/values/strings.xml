@@ -78,6 +78,9 @@
     <string name="settings_info_feedback_title">Feedback</string>
     <string name="settings_info_feedback_summary">Send feedback to the developers of the app.</string>
 
+    <string name="settings_info_donation_title">Support the app</string>
+    <string name="settings_info_donation_summary">Support the development of the app economically.</string>
+
     <string name="settings_error_reporting_title">Error Reporting</string>
     <string name="settings_error_reporting_summary">If checked, whenever the app crashes an anonymous error report is sent to the developers, so they can see what went wrong, and fix it. Requires app restart.</string>
 
