@@ -331,9 +331,10 @@ class DonationsActivity : AppCompatActivity() {
                             if (product.oneTimePurchaseOfferDetails != null)
                                 paymentGateway.purchase(
                                     this@DonationsActivity,
-                                    product
+                                    product,
                                 )
-                            toast("Subscriptions are not supported yet.")
+                            else
+                                toast("Subscriptions are not supported yet.")
                         },
                         modifier = Modifier
                             .weight(1f)
