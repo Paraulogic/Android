@@ -171,12 +171,13 @@ class PaymentGateway private constructor(context: Context) {
     fun removePurchaseListener(listener: (billingResult: BillingResult, purchases: List<Purchase>?) -> Unit) =
         purchasesListeners.remove(listener)
 
-    fun purchase(activity: Activity, product: ProductDetails): BillingResult {
+    fun purchase(activity: Activity, product: ProductDetails, offerToken: String?): BillingResult {
         val billingFlowParams = BillingFlowParams.newBuilder()
             .setProductDetailsParamsList(
                 listOf(
                     ProductDetailsParams.newBuilder()
                         .setProductDetails(product)
+                        .apply { offerToken?.let { setOfferToken(it) } }
                         .build()
                 )
             )
