@@ -295,6 +295,9 @@ class DonationsActivity : AppCompatActivity() {
                 )
                 Text(
                     text = product.oneTimePurchaseOfferDetails?.formattedPrice
+                        ?: product.subscriptionOfferDetails?.joinToString("\n") { sod ->
+                            sod.pricingPhases.pricingPhaseList.joinToString { it.formattedPrice }
+                        }
                         ?: "0.00€",
                     modifier = Modifier
                         .fillMaxWidth(1f)
@@ -325,10 +328,12 @@ class DonationsActivity : AppCompatActivity() {
                     }
                     OutlinedButton(
                         onClick = {
-                            paymentGateway.purchase(
-                                this@DonationsActivity,
-                                product
-                            )
+                            if (product.oneTimePurchaseOfferDetails != null)
+                                paymentGateway.purchase(
+                                    this@DonationsActivity,
+                                    product
+                                )
+                            toast("Subscriptions are not supported yet.")
                         },
                         modifier = Modifier
                             .weight(1f)
