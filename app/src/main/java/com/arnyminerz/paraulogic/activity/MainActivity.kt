@@ -3,6 +3,7 @@ package com.arnyminerz.paraulogic.activity
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
@@ -13,7 +14,6 @@ import androidx.compose.runtime.setValue
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
-import com.arnyminerz.paraulogic.activity.model.LanguageActivity
 import com.arnyminerz.paraulogic.play.games.createSignInClient
 import com.arnyminerz.paraulogic.play.games.loadSnapshot
 import com.arnyminerz.paraulogic.play.games.signInSilently
@@ -45,7 +45,7 @@ import org.json.JSONException
 import timber.log.Timber
 import java.io.IOException
 
-class MainActivity : LanguageActivity() {
+class MainActivity : AppCompatActivity() {
     /**
      * The client for performing sign in operations with Google.
      * @author Arnau Mora
