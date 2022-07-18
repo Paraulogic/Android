@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.arnyminerz.paraulogic.R
+import com.arnyminerz.paraulogic.activity.DonationsActivity
 import com.arnyminerz.paraulogic.activity.FeedbackActivity
 import com.arnyminerz.paraulogic.pref.PREF_ANALYTICS
 import com.arnyminerz.paraulogic.pref.PREF_ERROR_REPORTING
@@ -100,6 +101,11 @@ fun SettingsScreen() {
                 title = stringResource(R.string.settings_info_feedback_title),
                 subtitle = stringResource(R.string.settings_info_feedback_summary),
                 onClick = { context.launch(FeedbackActivity::class.java) }
+            )
+            SettingsItem(
+                title = stringResource(R.string.settings_info_donation_title),
+                subtitle = stringResource(R.string.settings_info_donation_summary),
+                onClick = { context.launch(DonationsActivity::class.java) }
             )
 
             SettingsCategory(text = stringResource(R.string.settings_category_advanced))
