@@ -36,7 +36,7 @@ fun LanguageDialog(onDismissRequested: () -> Unit) {
         },
         text = {
             val systemLocale = stringResource(R.string.system_locale)
-            val localeKeys = listOf(/*systemLocale,*/ "en-US", "ca-ES")
+            val localeKeys = listOf("en-US", "ca-ES", "es-ES")
             val locales = localeKeys
                 .associateWith { key -> Locale.forLanguageTag(key).displayLanguage }
             val currentLocale = (context as? Activity)?.getLocale()?.language ?: systemLocale
