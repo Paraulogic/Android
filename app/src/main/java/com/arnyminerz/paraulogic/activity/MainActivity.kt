@@ -6,7 +6,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.activity.model.LanguageActivity
@@ -15,8 +19,11 @@ import com.arnyminerz.paraulogic.play.games.loadSnapshot
 import com.arnyminerz.paraulogic.play.games.signInSilently
 import com.arnyminerz.paraulogic.play.games.startSignInIntent
 import com.arnyminerz.paraulogic.play.games.tryToAddPoints
+import com.arnyminerz.paraulogic.pref.PreferencesModule
+import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
+import com.arnyminerz.paraulogic.ui.dialog.BuyCoffeeDialog
 import com.arnyminerz.paraulogic.ui.elements.MainScreen
 import com.arnyminerz.paraulogic.ui.theme.AppTheme
 import com.arnyminerz.paraulogic.ui.toast
@@ -25,6 +32,7 @@ import com.arnyminerz.paraulogic.utils.doAsync
 import com.arnyminerz.paraulogic.utils.doOnUi
 import com.arnyminerz.paraulogic.utils.mapJsonObject
 import com.arnyminerz.paraulogic.utils.toJsonArray
+import com.arnyminerz.paraulogic.utils.uiContext
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -131,19 +139,26 @@ class MainActivity : LanguageActivity() {
                     startSignInIntent(signInClient, signInLauncher)
                 }
 
-                /* TODO: Integrate donations through Google Pay
                 var showingDialog by remember { mutableStateOf(false) }
                 BuyCoffeeDialog(showingDialog) { showingDialog = false }
 
                 doAsync {
+                    val dataStoreData = dataStore.data.first()
+                    val numberOfLaunches = dataStoreData[PreferencesModule.NumberOfLaunches]
+                    val disabledDonationDialog =
+                        dataStoreData[PreferencesModule.DisableDonationDialog]
+
+                    // Increase number of launches
                     dataStore.edit {
                         it[PreferencesModule.NumberOfLaunches] =
-                            (it[PreferencesModule.NumberOfLaunches]
-                                ?: if (it[PreferencesModule.ShownDonateDialog] == true) 15 else 0) + 1
+                            dataStoreData[PreferencesModule.NumberOfLaunches]?.plus(1) ?: 0
                     }
-                    if (dataStore.data.first()[PreferencesModule.NumberOfLaunches] == 15)
+
+                    // Show dialog every 15 launches
+                    val numberOfLaunchesRem = numberOfLaunches?.rem(15) ?: 0
+                    if (numberOfLaunchesRem == 0 && disabledDonationDialog != false)
                         uiContext { showingDialog = true }
-                }*/
+                }
             }
 
             viewModel.loadGameInfo(signInClient, signInLauncher) {
