@@ -67,7 +67,7 @@ class DonationsActivity : AppCompatActivity() {
 
     private val availableProducts = mutableStateOf<List<ProductDetails>?>(null)
 
-    private val purchaseMade = mutableStateOf(true)
+    private val purchaseMade = mutableStateOf(false)
 
     private val onPurchaseMade: (BillingResult, List<Purchase>?) -> Unit =
         { billingResult, purchases ->
