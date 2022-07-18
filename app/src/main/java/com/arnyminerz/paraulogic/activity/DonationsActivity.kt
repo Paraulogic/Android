@@ -35,7 +35,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,6 +65,8 @@ class DonationsActivity : AppCompatActivity() {
     private lateinit var paymentGateway: PaymentGateway
 
     private val availableProducts = mutableStateOf<List<ProductDetails>?>(null)
+    private val availableSubscriptions = mutableStateOf<List<ProductDetails>?>(null)
+    private val paymentExplanation = mutableStateOf<Pair<String, String>?>(null)
 
     private val purchaseMade = mutableStateOf(false)
 
@@ -105,23 +106,10 @@ class DonationsActivity : AppCompatActivity() {
             Timber.d("Getting available products...")
             val availableProducts = paymentGateway.getAvailableInAppPurchases()
             this@DonationsActivity.availableProducts.value = availableProducts
-            Timber.i("Available products:")
-            availableProducts?.forEachIndexed { index, productDetails ->
-                Timber.i("$index. ${productDetails.name}")
-                Timber.i("   Title: ${productDetails.title}")
-                Timber.i("   Type: ${productDetails.productType}")
-                productDetails.subscriptionOfferDetails?.let { subDetails ->
-                    Timber.i("   Subscription details:")
-                    subDetails.forEachIndexed { index, offerDetails ->
-                        val p =
-                            offerDetails.pricingPhases.pricingPhaseList.map { it.formattedPrice }
-                        Timber.i("   $index. Price: $p")
-                    }
-                }
-                productDetails.oneTimePurchaseOfferDetails?.let { otpod ->
-                    Timber.i("   Price: ${otpod.formattedPrice}")
-                }
-            }
+
+            Timber.d("Getting available subscriptions...")
+            val availableSubscriptions = paymentGateway.getAvailableSubscriptions()
+            this@DonationsActivity.availableSubscriptions.value = availableSubscriptions
         }
 
         setContent {
@@ -187,8 +175,9 @@ class DonationsActivity : AppCompatActivity() {
     @Composable
     fun ColumnScope.PurchaseList() {
         val availableProducts by availableProducts
+        val availableSubscriptions by availableSubscriptions
+        var paymentExplanation by paymentExplanation
 
-        var paymentExplanation by remember { mutableStateOf<Pair<String, String>?>(null) }
         if (paymentExplanation != null)
             AlertDialog(
                 onDismissRequest = { paymentExplanation = null },
@@ -206,7 +195,7 @@ class DonationsActivity : AppCompatActivity() {
                 text = { Text(paymentExplanation?.second ?: "") },
             )
 
-        if (availableProducts != null)
+        if (availableProducts != null && availableSubscriptions != null)
             LazyColumn(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
@@ -229,84 +218,8 @@ class DonationsActivity : AppCompatActivity() {
                 }
 
                 // Options cards
-                items(availableProducts ?: emptyList()) { product ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(4.dp),
-                    ) {
-                        Column(
-                            Modifier.padding(8.dp)
-                        ) {
-                            val title = product.title.let { s ->
-                                s.substring(
-                                    0,
-                                    s.lastIndexOf(" (").takeIf { it >= 0 } ?: s.length,
-                                )
-                            }
-                            Text(
-                                text = title,
-                                modifier = Modifier.fillMaxWidth(),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                            )
-                            Text(
-                                text = product.description,
-                                modifier = Modifier.fillMaxWidth(),
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                            Text(
-                                text = product.oneTimePurchaseOfferDetails?.formattedPrice
-                                    ?: "0.00€",
-                                modifier = Modifier
-                                    .fillMaxWidth(1f)
-                                    .padding(end = 12.dp),
-                                style = MaterialTheme.typography.labelLarge,
-                                fontSize = 22.sp,
-                                textAlign = TextAlign.End,
-                            )
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                OutlinedButton(
-                                    onClick = {
-                                        paymentExplanation = title to product.description
-                                    },
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(end = 4.dp),
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Info,
-                                        contentDescription = getString(R.string.image_desc_product_information),
-                                        modifier = Modifier.padding(end = 4.dp),
-                                    )
-                                    Text(stringResource(R.string.donations_action_more_info))
-                                }
-                                OutlinedButton(
-                                    onClick = {
-                                        paymentGateway.purchase(
-                                            this@DonationsActivity,
-                                            product
-                                        )
-                                    },
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(end = 4.dp),
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.ShoppingCart,
-                                        contentDescription = getString(R.string.image_desc_purchase),
-                                        modifier = Modifier.padding(end = 4.dp),
-                                    )
-                                    Text(stringResource(R.string.donations_action_purchase))
-                                }
-                            }
-                        }
-                    }
-                }
+                items(availableProducts ?: emptyList()) { PurchaseCard(it) }
+                items(availableSubscriptions ?: emptyList()) { PurchaseCard(it) }
             }
         else
             CircularProgressIndicator(
@@ -348,5 +261,86 @@ class DonationsActivity : AppCompatActivity() {
                 .fillMaxWidth(),
             textAlign = TextAlign.Center,
         )
+    }
+
+    @Composable
+    @ExperimentalMaterial3Api
+    fun PurchaseCard(product: ProductDetails) {
+        Card(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(4.dp),
+        ) {
+            Column(
+                Modifier.padding(8.dp)
+            ) {
+                val title = product.title.let { s ->
+                    s.substring(
+                        0,
+                        s.lastIndexOf(" (").takeIf { it >= 0 } ?: s.length,
+                    )
+                }
+                Text(
+                    text = title,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = product.description,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Text(
+                    text = product.oneTimePurchaseOfferDetails?.formattedPrice
+                        ?: "0.00€",
+                    modifier = Modifier
+                        .fillMaxWidth(1f)
+                        .padding(end = 12.dp),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontSize = 22.sp,
+                    textAlign = TextAlign.End,
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    OutlinedButton(
+                        onClick = {
+                            paymentExplanation.value = title to product.description
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 4.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Info,
+                            contentDescription = getString(R.string.image_desc_product_information),
+                            modifier = Modifier.padding(end = 4.dp),
+                        )
+                        Text(stringResource(R.string.donations_action_more_info))
+                    }
+                    OutlinedButton(
+                        onClick = {
+                            paymentGateway.purchase(
+                                this@DonationsActivity,
+                                product
+                            )
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 4.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.ShoppingCart,
+                            contentDescription = getString(R.string.image_desc_purchase),
+                            modifier = Modifier.padding(end = 4.dp),
+                        )
+                        Text(stringResource(R.string.donations_action_purchase))
+                    }
+                }
+            }
+        }
     }
 }
