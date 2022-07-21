@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity() {
 
                     // Show dialog every 15 launches
                     val numberOfLaunchesRem = numberOfLaunches?.rem(15) ?: 0
-                    if (numberOfLaunchesRem == 0 && disabledDonationDialog != false)
+                    if (numberOfLaunchesRem == 0 && disabledDonationDialog != true)
                         uiContext { showingDialog = true }
                 }
             }
