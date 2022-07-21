@@ -54,7 +54,7 @@ private fun LetterButton(
         )
     ) {
         Text(
-            (letter.takeIf { it == '\u0000' } ?: " ").toString()
+            (letter.takeUnless { it == '\u0000' } ?: " ").toString()
         )
     }
 }
