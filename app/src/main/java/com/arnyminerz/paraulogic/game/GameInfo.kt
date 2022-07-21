@@ -167,7 +167,7 @@ data class GameInfo(
                 .value
                 .toMutableList()
                 .apply {
-                    (0 until 6)
+                    (letters.value.size until 6)
                         .forEach { _ -> add('\u0000') }
                 }
 
