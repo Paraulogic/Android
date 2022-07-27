@@ -3,15 +3,12 @@ package com.arnyminerz.paraulogic.game
 import android.content.Context
 import com.google.firebase.FirebaseException
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.ktx.initialize
 import com.google.firebase.perf.metrics.AddTrace
+import kotlinx.coroutines.tasks.await
 import timber.log.Timber
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * Fetches the server's data.
@@ -28,21 +25,18 @@ private suspend fun serverData(
     context: Context,
     limit: Long = 1,
     sortDirection: Query.Direction = Query.Direction.DESCENDING
-) = suspendCoroutine<QuerySnapshot> { cont ->
-    try {
-        Firebase.firestore
-    } catch (e: IllegalStateException) {
-        Timber.w("FirebaseApp not initialized. Initializing...")
-        Firebase.initialize(context)
-        Firebase.firestore
-    }
-        .collection("paraulogic")
-        .orderBy("timestamp", sortDirection)
-        .limit(limit)
-        .get()
-        .addOnSuccessListener { cont.resume(it) }
-        .addOnFailureListener { cont.resumeWithException(it) }
+) = try {
+    Firebase.firestore
+} catch (e: IllegalStateException) {
+    Timber.w("FirebaseApp not initialized. Initializing...")
+    Firebase.initialize(context)
+    Firebase.firestore
 }
+    .collection("paraulogic")
+    .orderBy("timestamp", sortDirection)
+    .limit(limit)
+    .get()
+    .await()
 
 /**
  * Obtains the last game info from the Firestore database.
