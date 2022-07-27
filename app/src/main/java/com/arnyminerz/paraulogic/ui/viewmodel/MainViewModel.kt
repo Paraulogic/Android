@@ -17,8 +17,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.arnyminerz.paraulogic.App
 import com.arnyminerz.paraulogic.annotation.LoadError
-import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_FIREBASE_EXCEPTION
-import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_NO_SUCH_ELEMENT
 import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_OK
 import com.arnyminerz.paraulogic.game.GameHistoryItem
 import com.arnyminerz.paraulogic.game.GameInfo
@@ -27,7 +25,6 @@ import com.arnyminerz.paraulogic.game.getLevelFromPoints
 import com.arnyminerz.paraulogic.game.getServerIntroducedWordsList
 import com.arnyminerz.paraulogic.game.getTutis
 import com.arnyminerz.paraulogic.game.loadGameHistoryFromServer
-import com.arnyminerz.paraulogic.game.loadGameInfoFromServer
 import com.arnyminerz.paraulogic.play.games.loadSnapshot
 import com.arnyminerz.paraulogic.play.games.startSignInIntent
 import com.arnyminerz.paraulogic.play.games.startSynchronization
@@ -154,7 +151,33 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     }
             }
 
-            val gameInfo = try {
+            // TODO: Check that the data has already been loaded
+            DatabaseSingleton.getInstance(context)
+                .db
+                .gameInfoDao()
+                .getAll()
+                .collect { gameInfoEntity ->
+                    error = RESULT_OK
+                    gameInfoEntity
+                        .takeIf { it.isNotEmpty() }
+                        ?.also { l -> Timber.i("Game infos: ${l.map { "[ ${it.gameInfo.letters} ]" }}") }
+                        ?.maxByOrNull { it.date }
+                        ?.gameInfo
+                        ?.also { gameInfo ->
+                            this@MainViewModel.gameInfo = gameInfo
+
+                            Timber.d("Loading words from server...")
+                            val serverIntroducedWordsList = getServerIntroducedWordsList(
+                                getApplication(),
+                                gameInfo,
+                                loadingGameProgressCallback,
+                            )
+                            Timber.d("Got ${serverIntroducedWordsList.size} words from server.")
+
+                            loadCorrectWords(gameInfo, serverIntroducedWordsList)
+                        }
+                }
+            /*val gameInfo = try {
                 loadGameInfoFromServer(getApplication())
             } catch (e: NoSuchElementException) {
                 Timber.e(e, "Could not get game info from server.")
@@ -164,18 +187,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 Timber.e(e, "Could not get game info from server.")
                 error = RESULT_FIREBASE_EXCEPTION
                 return@launch
-            }
-            this@MainViewModel.gameInfo = gameInfo
-
-            Timber.d("Loading words from server...")
-            val serverIntroducedWordsList = getServerIntroducedWordsList(
-                getApplication(),
-                gameInfo,
-                loadingGameProgressCallback,
-            )
-            Timber.d("Got ${serverIntroducedWordsList.size} words from server.")
-
-            loadCorrectWords(gameInfo, serverIntroducedWordsList)
+            }*/
         }
     }
 
