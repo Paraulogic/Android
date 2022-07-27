@@ -10,3 +10,9 @@ fun <T> JSONArray.mapJsonObject(constructor: (json: JSONObject) -> T): List<T> =
         for (i in 0 until length())
             add(constructor(getJSONObject(i)))
     }
+
+fun JSONObject.toMap(): Map<String, Any> =
+    keys()
+        .asSequence()
+        .map { it to get(it) }
+        .toMap()
