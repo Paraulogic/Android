@@ -11,6 +11,13 @@ fun <T> JSONArray.mapJsonObject(constructor: (json: JSONObject) -> T): List<T> =
             add(constructor(getJSONObject(i)))
     }
 
+fun <V, T> JSONArray.map(constructor: (item: V) -> T): List<T> =
+    arrayListOf<T>().apply {
+        @Suppress("UNCHECKED_CAST")
+        for (i in 0 until length())
+            add(constructor(this@map.get(i) as V))
+    }
+
 fun JSONObject.toMap(): Map<String, Any> =
     keys()
         .asSequence()
