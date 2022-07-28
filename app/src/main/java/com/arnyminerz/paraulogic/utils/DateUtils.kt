@@ -1,7 +1,9 @@
 package com.arnyminerz.paraulogic.utils
 
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 fun getMaxDifferenceBetweenDates(dates: List<Date>): Int {
@@ -29,3 +31,9 @@ fun daysBetweenDates(min: Date, max: Date): Int {
     val msDiff = mx.timeInMillis - mn.timeInMillis
     return TimeUnit.MILLISECONDS.toDays(msDiff).toInt()
 }
+
+fun Date.format(pattern: String, locale: Locale = Locale.getDefault()): String =
+    SimpleDateFormat(pattern, locale).format(this)
+
+fun Calendar.format(pattern: String, locale: Locale = Locale.getDefault()): String =
+    time.format(pattern, locale)
