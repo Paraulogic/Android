@@ -3,6 +3,7 @@ package com.arnyminerz.paraulogic.ui.viewmodel
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.database.sqlite.SQLiteConstraintException
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
@@ -17,6 +18,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.arnyminerz.paraulogic.App
 import com.arnyminerz.paraulogic.annotation.LoadError
+import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_FIREBASE_EXCEPTION
+import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_NO_SUCH_ELEMENT
 import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_OK
 import com.arnyminerz.paraulogic.game.GameHistoryItem
 import com.arnyminerz.paraulogic.game.GameInfo
@@ -25,6 +28,7 @@ import com.arnyminerz.paraulogic.game.getLevelFromPoints
 import com.arnyminerz.paraulogic.game.getServerIntroducedWordsList
 import com.arnyminerz.paraulogic.game.getTutis
 import com.arnyminerz.paraulogic.game.loadGameHistoryFromServer
+import com.arnyminerz.paraulogic.game.loadGameInfoFromServer
 import com.arnyminerz.paraulogic.play.games.loadSnapshot
 import com.arnyminerz.paraulogic.play.games.startSignInIntent
 import com.arnyminerz.paraulogic.play.games.startSynchronization
@@ -32,8 +36,10 @@ import com.arnyminerz.paraulogic.play.games.writeSnapshot
 import com.arnyminerz.paraulogic.pref.PreferencesModule
 import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
+import com.arnyminerz.paraulogic.storage.entity.GameInfoEntity
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 import com.arnyminerz.paraulogic.utils.doAsync
+import com.arnyminerz.paraulogic.utils.format
 import com.arnyminerz.paraulogic.utils.ioContext
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -109,9 +115,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 dataStore.edit { it[PreferencesModule.TriedToSignIn] = true }
             }
 
+            val databaseSingleton = DatabaseSingleton.getInstance(context)
+
             doAsync {
                 Timber.v("Adding collector for words...")
-                DatabaseSingleton.getInstance(context)
+                databaseSingleton
                     .db
                     .wordsDao()
                     .getAll()
@@ -152,42 +160,83 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             // TODO: Check that the data has already been loaded
-            DatabaseSingleton.getInstance(context)
+            val gameInfo = databaseSingleton
+                // Get the database
                 .db
+                // Access the GameInfo Dao
                 .gameInfoDao()
+                // Call the getAll method to fetch all the stored games
                 .getAll()
-                .collect { gameInfoEntity ->
-                    error = RESULT_OK
-                    gameInfoEntity
-                        .takeIf { it.isNotEmpty() }
-                        ?.also { l -> Timber.i("Game infos: ${l.map { "[ ${it.gameInfo.letters} ]" }}") }
-                        ?.maxByOrNull { it.date }
-                        ?.gameInfo
-                        ?.also { gameInfo ->
-                            this@MainViewModel.gameInfo = gameInfo
+                // Wait until a result is thrown
+                .first()
+                // Take only if there are stored games. If there aren't the null catcher at the end
+                // loads the data from the server.
+                .takeIf { it.isNotEmpty() }
+                // Log all the Games
+                ?.also { l -> Timber.i("Game infos: ${l.map { "[ ${it.gameInfo.letters} ]" }}") }
+                // Take the greatest date, this is the most recent stored game
+                ?.maxByOrNull { it.date }
+                // Take only if the game is in the correct date
+                ?.takeIf { entity ->
+                    val now = Calendar.getInstance()
+                    // If not yet 5am, the day to consider is yesterday
+                    if (now.get(Calendar.HOUR_OF_DAY) < 5)
+                        now.add(Calendar.DAY_OF_MONTH, -1)
 
-                            Timber.d("Loading words from server...")
-                            val serverIntroducedWordsList = getServerIntroducedWordsList(
-                                getApplication(),
-                                gameInfo,
-                                loadingGameProgressCallback,
-                            )
-                            Timber.d("Got ${serverIntroducedWordsList.size} words from server.")
+                    val entityDate = Date(entity.date)
 
-                            loadCorrectWords(gameInfo, serverIntroducedWordsList)
-                        }
+                    val r = entityDate.format("yyyy-MM-dd") == now.format("yyyy-MM-dd")
+                    if (!r)
+                        Timber.w(
+                            "Game's date is not from today. now=${now.format("yyyy-MM-dd")}, entity=${
+                                entityDate.format(
+                                    "yyyy-MM-dd"
+                                )
+                            }"
+                        )
+                    r
                 }
-            /*val gameInfo = try {
-                loadGameInfoFromServer(getApplication())
-            } catch (e: NoSuchElementException) {
-                Timber.e(e, "Could not get game info from server.")
-                error = RESULT_NO_SUCH_ELEMENT
-                return@launch
-            } catch (e: FirebaseException) {
-                Timber.e(e, "Could not get game info from server.")
-                error = RESULT_FIREBASE_EXCEPTION
-                return@launch
-            }*/
+                // Get the game info from the entity
+                ?.gameInfo
+                ?:
+                // If the data could not be loaded, fetch from server.
+                try {
+                    Timber.d("GameInfo not stored in Database, getting from server...")
+                    loadGameInfoFromServer(getApplication())
+                        .also { gameInfo ->
+                            try {
+                                Timber.d("Storing GameInfo in db...")
+                                ioContext {
+                                    databaseSingleton
+                                        .db
+                                        .gameInfoDao()
+                                        .put(GameInfoEntity.fromGameInfo(gameInfo))
+                                }
+                            } catch (e: SQLiteConstraintException) {
+                                Timber.w("Could not store GameInfo since already stored.")
+                            }
+                        }
+                } catch (e: NoSuchElementException) {
+                    Timber.e(e, "Could not get game info from server.")
+                    error = RESULT_NO_SUCH_ELEMENT
+                    return@launch
+                } catch (e: FirebaseException) {
+                    Timber.e(e, "Could not get game info from server.")
+                    error = RESULT_FIREBASE_EXCEPTION
+                    return@launch
+                }
+
+            this@MainViewModel.gameInfo = gameInfo
+
+            Timber.d("Loading words from server...")
+            val serverIntroducedWordsList = getServerIntroducedWordsList(
+                getApplication(),
+                gameInfo,
+                loadingGameProgressCallback,
+            )
+            Timber.d("Got ${serverIntroducedWordsList.size} words from server.")
+
+            loadCorrectWords(gameInfo, serverIntroducedWordsList)
         }
     }
 
