@@ -11,8 +11,10 @@ import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_SHORT
 import com.arnyminerz.paraulogic.game.annotation.CheckWordResult
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 import com.arnyminerz.paraulogic.utils.generateNumbers
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.perf.metrics.AddTrace
+import java.util.Date
 
 /**
  * The amount of levels there are.
@@ -22,6 +24,7 @@ import com.google.firebase.perf.metrics.AddTrace
 const val AMOUNT_OF_LEVELS = 7
 
 data class GameInfo(
+    val timestamp: Date,
     var letters: MutableState<List<Char>>,
     val centerLetter: Char,
     val words: Map<String, String>,
@@ -47,8 +50,10 @@ data class GameInfo(
                 ?: throw NoSuchElementException("Could not find \"gameInfo.letters\" in document.")
             val words = gameInfo["words"] as? Map<String, String>
                 ?: throw NoSuchElementException("Could not find \"gameInfo.words\" in document.")
+            val timestamp = documentSnapshot.get("timestamp") as Timestamp
 
             return GameInfo(
+                timestamp.toDate(),
                 mutableStateOf(letters.map { it[0] }),
                 centerLetter[0],
                 words,
@@ -103,7 +108,14 @@ data class GameInfo(
             // Now, generate words
             val wordsList = generator(letters, wordsCount, minWordLength, maxWordLength)
 
-            return GameInfo(mutableStateOf(letters), letters[5], wordsList.associateWith { it })
+            // Generate a random date
+            val timestamp = Date(com.arnyminerz.paraulogic.utils.random(0, Int.MAX_VALUE).toLong())
+
+            return GameInfo(
+                timestamp,
+                mutableStateOf(letters),
+                letters[5],
+                wordsList.associateWith { it })
         }
     }
 
