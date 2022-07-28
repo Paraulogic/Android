@@ -13,7 +13,7 @@ import kotlin.random.nextInt
  * @param until The maximum number to get.
  */
 fun generateNumbers(count: Int, from: Int = 1, until: Int = 69) =
-    generateSequence { Random.nextInt(from..until) }
+    generateSequence { random(from, until) }
         // Makes sure no numbers get repeated
         .distinct()
         // Take the amount of desired values.
@@ -22,3 +22,10 @@ fun generateNumbers(count: Int, from: Int = 1, until: Int = 69) =
         .sorted()
         // Collect into a set
         .toSet()
+
+/**
+ * Generates a random number between [from] and [until].
+ * @author Arnau Mora
+ * @since 20220728
+ */
+fun random(from: Int, until: Int) = Random.nextInt(from..until)
