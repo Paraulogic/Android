@@ -1,15 +1,11 @@
 package com.arnyminerz.paraulogic
 
 import android.app.Application
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import com.arnyminerz.paraulogic.log.CrashReportingTree
-import com.arnyminerz.paraulogic.worker.DataFetchWorker
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 import timber.log.Timber
 import timber.log.Timber.Forest.plant
-import java.util.concurrent.TimeUnit
 
 class App : Application() {
     override fun onCreate() {
@@ -20,14 +16,11 @@ class App : Application() {
         else
             plant(CrashReportingTree())
 
-        Timber.i("Programming data fetcher...")
-        PeriodicWorkRequestBuilder<DataFetchWorker>(24, TimeUnit.HOURS)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-            )
-            .build()
-            .let { WorkManager.getInstance(this).enqueue(it) }
+        Timber.i("Subscribing to \"gameInfo\" messaging topic.")
+        Firebase.messaging.subscribeToTopic("gameInfo")
+            .addOnSuccessListener {
+                Timber.i("Subscribed to \"gameInfo\".")
+            }
+            .addOnFailureListener { Timber.e(it, "Could not subscribe to \"gameInfo\".") }
     }
 }

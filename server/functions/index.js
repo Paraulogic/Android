@@ -32,13 +32,28 @@ exports.scheduledFunctionCrontab = functions.pubsub.schedule('0 5 * * *')
         const firestore = admin.firestore();
 
         const gameInfo = await makeDataRequest();
+        const timestamp = new Date();
 
         console.info("Creating collection...")
         const collection = firestore.collection("paraulogic");
         await collection.add({
-            "timestamp": new Date(),
+            "timestamp": timestamp,
             "gameInfo": gameInfo,
         });
+
+        console.info("Send notification to topic gameInfo...")
+        const messaging = admin.messaging();
+        const message = {
+            data: {
+                letters: JSON.stringify(gameInfo.letters),
+                centerLetter: gameInfo.centerLetter,
+                words: JSON.stringify(gameInfo.words),
+                date: timestamp.getFullYear() + "-" + timestamp.getMonth() + "-" + timestamp.getDate(),
+            },
+            topic: 'gameInfo'
+        };
+        await messaging.send(message);
+
         console.info('Finished!');
 
         return null;

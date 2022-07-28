@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.arnyminerz.paraulogic.game.GameInfo
+import java.util.Date
 
 @Entity(tableName = "GameInfoList")
 class GameInfoEntity(
@@ -13,9 +14,9 @@ class GameInfoEntity(
     val words: Map<String, String>,
 ) {
     companion object {
-        fun fromGameInfo(date: Long, gameInfo: GameInfo) =
+        fun fromGameInfo(gameInfo: GameInfo) =
             GameInfoEntity(
-                date,
+                gameInfo.timestamp.time,
                 gameInfo.letters.value.joinToString(""),
                 gameInfo.centerLetter,
                 gameInfo.words,
@@ -23,5 +24,10 @@ class GameInfoEntity(
     }
 
     val gameInfo: GameInfo
-        get() = GameInfo(mutableStateOf(letters.toCharArray().toList()), centerLetter, words)
+        get() = GameInfo(
+            Date(date),
+            mutableStateOf(letters.toCharArray().toList()),
+            centerLetter,
+            words,
+        )
 }
