@@ -55,6 +55,13 @@ si molta gent l'utilitza. No obstant, aquesta funció no està activa, ja que la
 d'una sèrie de rastrejadors, que encara que amb l'aplicació volem eliminar, entenem que Vilaweb té
 interès en tenir-los.
 
+# Canviar l'idioma
+
+Totes les paraules són en català, sigui quin sigui l'idioma de l'aplicació, per motius obvis. No obstant, pots seleccionar en quin idioma es mostren la resta de textos. Per defecte ve seleccionat a l'idioma que tingues configurat al teu dispositiu, per ho pots canviar des de la configuració de l'aplicació:
+1. <img src=".sshots/language_1.png" alt="drawing" width="500"/>
+2. <img src=".sshots/language_2.png" alt="drawing" width="500"/>
+3. <img src=".sshots/language_3.png" alt="drawing" width="500"/>
+
 # Crèdits
 
 Per suposat, tots els crèdits van a Vilaweb, per haver ideat aquest meravellós joc, i a Pere Orga
