@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
@@ -178,9 +181,16 @@ fun Game(
             }
         }
 
-        PointsText(foundWords, gameInfo)
+        Column (
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
+                .weight(1f),
+        ) {
+            PointsText(foundWords, gameInfo)
 
-        val todayTutis = gameInfo.tutisCount
-        TutisText(todayTutis, tutis)
+            val todayTutis = gameInfo.tutisCount
+            TutisText(todayTutis, tutis)
+        }
     }
 }
