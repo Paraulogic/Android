@@ -21,6 +21,8 @@ fun TutisText(tutisCount: Int, tutis: List<IntroducedWord>) {
             ),
         textAlign = TextAlign.Center,
         modifier = Modifier
+            .weight(1f)
+            .verticalScroll(rememberScrollState())
             .padding(start = 16.dp, end = 16.dp),
         text = if (tutis.isEmpty())
             if (tutisCount > 1)
