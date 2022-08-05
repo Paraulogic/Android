@@ -211,11 +211,10 @@ data class GameInfo(
      */
     fun isTuti(word: String): Boolean {
         val letters = letters.value
-        var containsAll = true
         for (letter in letters)
-            if (!word.contains(letter, true))
-                containsAll = false
-        return containsAll
+            if (letter != '\u0000' && !word.contains(letter, true))
+                return false
+        return true
     }
 
     /**
