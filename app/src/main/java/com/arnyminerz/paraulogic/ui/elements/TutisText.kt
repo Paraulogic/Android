@@ -1,6 +1,7 @@
 package com.arnyminerz.paraulogic.ui.elements
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ fun TutisText(tutisCount: Int, tutis: List<IntroducedWord>) {
             ),
         textAlign = TextAlign.Center,
         modifier = Modifier
+            .fillMaxWidth()
             .padding(start = 16.dp, end = 16.dp),
         text = if (tutis.isEmpty())
             if (tutisCount > 1)
