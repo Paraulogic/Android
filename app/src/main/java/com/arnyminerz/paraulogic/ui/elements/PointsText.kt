@@ -1,6 +1,7 @@
 package com.arnyminerz.paraulogic.ui.elements
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -71,6 +72,7 @@ fun PointsText(foundWords: List<IntroducedWord>, gameInfo: GameInfo) {
                 textAlign = TextAlign.Center,
             ),
         modifier = Modifier
+            .fillMaxWidth()
             .padding(start = 8.dp, end = 8.dp),
         text = annotatedText,
         onClick = { offset ->
