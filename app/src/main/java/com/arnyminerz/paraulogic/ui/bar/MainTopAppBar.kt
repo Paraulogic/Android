@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -35,6 +36,7 @@ import timber.log.Timber
  * currently logged in user.
  * @param signInRequest When login is required, this will get called.
  */
+@ExperimentalMaterial3Api
 @Composable
 fun MainTopAppBar(
     achievementsLauncher: ActivityResultLauncher<Intent>,
