@@ -21,7 +21,6 @@ import com.arnyminerz.paraulogic.annotation.LoadError
 import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_FIREBASE_EXCEPTION
 import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_NO_SUCH_ELEMENT
 import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_OK
-import com.arnyminerz.paraulogic.game.GameHistoryItem
 import com.arnyminerz.paraulogic.game.GameInfo
 import com.arnyminerz.paraulogic.game.calculatePoints
 import com.arnyminerz.paraulogic.game.getLevelFromPoints
@@ -83,7 +82,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private set
     val introducedTutis = mutableStateListOf<IntroducedWord>()
 
-    val gameHistory = mutableStateListOf<GameHistoryItem>()
+    val gameHistory = mutableStateListOf<GameInfo>()
     var dayFoundWords by mutableStateOf<List<IntroducedWord>>(emptyList())
         private set
     var dayFoundTutis by mutableStateOf<List<IntroducedWord>>(emptyList())
@@ -266,7 +265,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun synchronize(
         context: Context,
         gameInfo: GameInfo,
-        history: List<GameHistoryItem>,
+        history: List<GameInfo>,
     ) {
         viewModelScope.launch(context = Dispatchers.IO) {
             startSynchronization(context, gameInfo, history)
