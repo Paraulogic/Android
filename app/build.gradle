@@ -152,8 +152,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation 'com.google.firebase:firebase-perf-ktx'
-    implementation 'com.google.firebase:firebase-firestore-ktx'
-    implementation 'com.google.firebase:firebase-messaging-ktx'
+
+    // For performing web requests
+    implementation 'com.android.volley:volley:1.2.1'
 
     // Coil Image Loading
     implementation 'io.coil-kt:coil-compose:2.1.0'

@@ -3,7 +3,6 @@ package com.arnyminerz.paraulogic.play.games
 import android.content.Context
 import androidx.annotation.WorkerThread
 import com.arnyminerz.paraulogic.R
-import com.arnyminerz.paraulogic.game.GameHistoryItem
 import com.arnyminerz.paraulogic.game.GameInfo
 import com.arnyminerz.paraulogic.game.getPoints
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
@@ -29,7 +28,7 @@ import java.util.Date
 suspend fun startSynchronization(
     context: Context,
     gameInfo: GameInfo,
-    history: List<GameHistoryItem>
+    history: List<GameInfo>
 ) {
     val databaseSingleton = DatabaseSingleton.getInstance(context)
     val dao = databaseSingleton.db.wordsDao()
@@ -92,14 +91,14 @@ suspend fun startSynchronization(
                     .getInstance()
                     .apply { time = Date(introducedWord.timestamp) }
                 for (item in history) {
-                    val itemCalendar = Calendar.getInstance().apply { time = item.date }
+                    val itemCalendar = Calendar.getInstance().apply { time = item.timestamp }
                     val isCorrectDay =
                         itemCalendar.get(Calendar.YEAR) == wordCalendar.get(Calendar.YEAR) &&
                                 itemCalendar.get(Calendar.MONTH) == wordCalendar.get(Calendar.MONTH) &&
                                 itemCalendar.get(Calendar.DAY_OF_MONTH) == wordCalendar.get(Calendar.DAY_OF_MONTH)
                     if (!isCorrectDay) continue
 
-                    hashTutisCount[introducedWord.hash] = item.gameInfo.tutisCount
+                    hashTutisCount[introducedWord.hash] = item.tutisCount
                 }
             }
 

@@ -1,14 +1,17 @@
 package com.arnyminerz.paraulogic.game
 
 import android.content.Context
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.arnyminerz.paraulogic.singleton.VolleySingleton
+import com.arnyminerz.paraulogic.utils.mapJsonObject
 import com.google.firebase.FirebaseException
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.ktx.initialize
 import com.google.firebase.perf.metrics.AddTrace
-import kotlinx.coroutines.tasks.await
+import org.json.JSONObject
 import timber.log.Timber
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Fetches the server's data.
@@ -16,7 +19,6 @@ import timber.log.Timber
  * @since 20220312
  * @param context The context to initialize Firebase Firestore from.
  * @param limit How many items to load at most.
- * @param sortDirection The sort direction according to timestamp.
  * @throws FirebaseException If there happens to be an error while loading data from server.
  */
 @AddTrace(name = "ServerLoad")
@@ -24,19 +26,26 @@ import timber.log.Timber
 private suspend fun serverData(
     context: Context,
     limit: Long = 1,
-    sortDirection: Query.Direction = Query.Direction.DESCENDING
-) = try {
-    Firebase.firestore
-} catch (e: IllegalStateException) {
-    Timber.w("FirebaseApp not initialized. Initializing...")
-    Firebase.initialize(context)
-    Firebase.firestore
-}
-    .collection("paraulogic")
-    .orderBy("timestamp", sortDirection)
-    .limit(limit)
-    .get()
-    .await()
+): JSONObject =
+    suspendCoroutine { cont ->
+        val request = StringRequest(
+            Request.Method.GET,
+            if (limit <= 1)
+                "http://paraulogic.arnyminerz.com/v1/game_info"
+            else
+                "http://paraulogic.arnyminerz.com/v1/history",
+            { response ->
+                try {
+                    cont.resume(JSONObject(response))
+                } catch (e: Exception) {
+                    cont.resumeWithException(e)
+                }
+            },
+            { cont.resumeWithException(it) })
+        VolleySingleton
+            .getInstance(context)
+            .addToRequestQueue(request)
+    }
 
 /**
  * Obtains the last game info from the Firestore database.
@@ -49,16 +58,15 @@ private suspend fun serverData(
 @AddTrace(name = "DataLoad")
 @Throws(NoSuchElementException::class, FirebaseException::class)
 suspend fun loadGameInfoFromServer(context: Context): GameInfo {
-    val snapshot = serverData(context)
-    if (snapshot.isEmpty)
+    val result = serverData(context)
+    val success = result.getBoolean("success")
+    if (!success)
         throw NoSuchElementException("Could not get data from server")
-    else {
-        Timber.d("Got documents, fetching first...")
-        val documents = snapshot.documents
-        val document = documents.first()
-        Timber.d("Decoding GameInfo...")
-        return GameInfo.fromServer(document)
-    }
+
+    Timber.d("Decoding GameInfo...")
+    val data = result
+        .getJSONObject("data")
+    return GameInfo.fromJson(data)
 }
 
 /**
@@ -75,26 +83,25 @@ suspend fun loadGameInfoFromServer(context: Context): GameInfo {
 @Throws(NoSuchElementException::class, FirebaseException::class)
 suspend fun loadGameHistoryFromServer(
     context: Context,
-    itemLoaded: ((item: GameHistoryItem) -> Unit)? = null
-): List<GameHistoryItem> {
-    val snapshot = serverData(context, limit = 10000)
-    if (snapshot.isEmpty)
+    itemLoaded: ((item: GameInfo) -> Unit)? = null
+): List<GameInfo> {
+    val result = serverData(context, limit = 10000)
+
+    val success = result.getBoolean("success")
+    if (!success)
         throw NoSuchElementException("Could not get data from server")
-    else {
-        Timber.d("Got documents, decoding GameHistoryItem...")
-        val history = arrayListOf<GameHistoryItem>()
-        for (document in snapshot.documents) {
-            val timestamp = document.getTimestamp("timestamp") ?: continue
 
-            val date = timestamp.toDate()
-            val gameInfoObject = GameInfo.fromServer(document)
+    Timber.d("Got documents, decoding GameHistoryItem...")
+    val history = arrayListOf<GameInfo>()
+    val historyData = result
+        .getJSONArray("data")
+        .mapJsonObject { it }
+    for (data in historyData) {
+        val gameInfo = GameInfo.fromJson(data)
+        history.add(gameInfo)
+        itemLoaded?.invoke(gameInfo)
 
-            val gameHistoryItem = GameHistoryItem(date, gameInfoObject)
-            history.add(gameHistoryItem)
-            itemLoaded?.invoke(gameHistoryItem)
-
-            Timber.i("Added game from $date.")
-        }
-        return history
+        Timber.i("Added game from ${gameInfo.timestamp}.")
     }
+    return history
 }

@@ -31,7 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.arnyminerz.paraulogic.R
-import com.arnyminerz.paraulogic.game.GameHistoryItem
+import com.arnyminerz.paraulogic.game.GameInfo
 import com.arnyminerz.paraulogic.game.maxDate
 import com.arnyminerz.paraulogic.game.minDate
 import com.arnyminerz.paraulogic.ui.elements.DatePicker
@@ -47,7 +47,7 @@ import java.util.Calendar
 fun StatsScreen(
     viewModel: MainViewModel,
     popupLauncher: ActivityResultLauncher<Intent>,
-    gameHistory: SnapshotStateList<GameHistoryItem>
+    gameHistory: SnapshotStateList<GameInfo>
 ) {
     val context = LocalContext.current
 
@@ -56,7 +56,7 @@ fun StatsScreen(
     var showPicker by remember { mutableStateOf(false) }
     var isToday by remember { mutableStateOf(false) }
 
-    var historyItem by remember { mutableStateOf<GameHistoryItem?>(null) }
+    var historyItem by remember { mutableStateOf<GameInfo?>(null) }
     var historyItemWords by remember { mutableStateOf<List<String>>(emptyList()) }
     var historyItemTutis by remember { mutableStateOf<List<String>>(emptyList()) }
 
@@ -84,7 +84,7 @@ fun StatsScreen(
 
                 for (item in gameHistory) {
                     val itemDate = Calendar.getInstance()
-                    itemDate.time = item.date
+                    itemDate.time = item.timestamp
                     if (itemDate.get(Calendar.YEAR) == selectedDate.get(Calendar.YEAR) &&
                         itemDate.get(Calendar.MONTH) == selectedDate.get(
                             Calendar.MONTH
@@ -94,14 +94,14 @@ fun StatsScreen(
                         )
                     ) {
                         historyItem = item
-                        historyItemWords = item.gameInfo.words.keys.toList()
-                        historyItemTutis = item.gameInfo.tutis
+                        historyItemWords = item.words.keys.toList()
+                        historyItemTutis = item.tutis
                         break
                     }
                 }
 
                 if (historyItem != null)
-                    viewModel.loadWordsForDay(historyItem!!.gameInfo, date)
+                    viewModel.loadWordsForDay(historyItem!!, date)
                 else
                     Timber.e("Could not find history item for $date")
             },
@@ -244,7 +244,7 @@ fun StatsScreen(
                             .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
                             .fillMaxWidth(),
                     ) {
-                        val historyGameInfo = historyItem!!.gameInfo
+                        val historyGameInfo = historyItem!!
 
                         LazyColumn(
                             modifier = Modifier
