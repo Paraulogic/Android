@@ -11,10 +11,12 @@ import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_SHORT
 import com.arnyminerz.paraulogic.game.annotation.CheckWordResult
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 import com.arnyminerz.paraulogic.utils.generateNumbers
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.perf.metrics.AddTrace
+import com.arnyminerz.paraulogic.utils.map
+import com.arnyminerz.paraulogic.utils.toMap
+import org.json.JSONObject
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 /**
  * The amount of levels there are.
@@ -30,34 +32,40 @@ data class GameInfo(
     val words: Map<String, String>,
 ) {
     companion object {
-        /**
-         * Obtains the [GameInfo] object from a [DocumentSnapshot] of the Firestore server.
-         * @author Arnau Mora
-         * @since 20220312
-         * @param documentSnapshot The document to decode.
-         * @return An instantiated [GameInfo] object with the data from [documentSnapshot]
-         * @throws NoSuchElementException When there's a missing key on [documentSnapshot]
-         */
-        @AddTrace(name = "ServerDataDecode")
         @Suppress("UNCHECKED_CAST")
-        @Throws(NoSuchElementException::class)
-        fun fromServer(documentSnapshot: DocumentSnapshot): GameInfo {
-            val gameInfo = documentSnapshot.get("gameInfo") as? Map<String, *>
-                ?: throw NoSuchElementException("Could not find \"gameInfo\" in document.")
-            val centerLetter = gameInfo["centerLetter"] as? String
-                ?: throw NoSuchElementException("Could not find \"gameInfo.centerLetter\" in document.")
-            val letters = gameInfo["letters"] as? List<String>
-                ?: throw NoSuchElementException("Could not find \"gameInfo.letters\" in document.")
-            val words = gameInfo["words"] as? Map<String, String>
-                ?: throw NoSuchElementException("Could not find \"gameInfo.words\" in document.")
-            val timestamp = documentSnapshot.get("timestamp") as Timestamp
+        fun fromJson(json: JSONObject): GameInfo {
+            val timestamp = json
+                .takeIf { it.has("timestamp") }
+                ?.getString("timestamp")
+                ?.let {
+                    SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).parse(
+                        it
+                    )
+                }
+                ?: throw NoSuchElementException("Could not find \"timestamp\" in response data.")
 
-            return GameInfo(
-                timestamp.toDate(),
-                mutableStateOf(letters.map { it[0] }),
-                centerLetter[0],
-                words,
-            )
+            val gameInfo = json.getJSONObject("game_info")
+                ?: throw NoSuchElementException("Could not find \"game_info\" in response data.")
+            val centerLetter = gameInfo
+                .takeIf { it.has("center_letter") }
+                ?.getString("center_letter")
+                ?.takeIf { it.isNotBlank() }
+                ?.get(0)
+                ?: throw NoSuchElementException("Could not find \"centerLetter\" in response data.")
+            val letters = gameInfo
+                .takeIf { it.has("letters") }
+                ?.getJSONArray("letters")
+                ?.takeIf { it.length() > 0 }
+                ?.map<String, Char> { it[0] }
+                ?: throw NoSuchElementException("Could not find \"letters\" in response data.")
+            val words = gameInfo
+                .takeIf { it.has("words") }
+                ?.getJSONObject("words")
+                ?.toMap()
+                ?.mapValues { it.toString() }
+                ?: throw NoSuchElementException("Could not find \"words\" in response data.")
+
+            return GameInfo(timestamp, mutableStateOf(letters), centerLetter, words)
         }
 
         /**
@@ -248,4 +256,20 @@ fun List<Char>.lettersString(centerLetter: Char): String {
         builder.append(letter)
     }
     return builder.toString().uppercase().trim()
+}
+
+fun Collection<GameInfo>.minDate(): Long {
+    var smallest = Long.MAX_VALUE
+    for (item in this)
+        if (item.timestamp.time < smallest)
+            smallest = item.timestamp.time
+    return smallest
+}
+
+fun Collection<GameInfo>.maxDate(): Long {
+    var largest = Long.MIN_VALUE
+    for (item in this)
+        if (item.timestamp.time > largest)
+            largest = item.timestamp.time
+    return largest
 }
