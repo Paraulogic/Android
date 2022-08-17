@@ -11,6 +11,9 @@
     <string name="donations_appreciation_title">Thank you for your donation!</string>
     <string name="donations_appreciation_message">The app will keep running longer thanks to you! You are an amazing person! Thank you very much! Here\'s a cookie to thank you for your donation.</string>
 
+    <string name="permission_title">Permission required</string>
+    <string name="permission_alarm_message">The app schedules alarms, so when the data is updated at 00:00 you are updated without even having to reboot the app, or simply open it up to load the data.</string>
+
     <string name="image_desc_vilaweb">Vilaweb\'s Website</string>
     <string name="image_desc_paraulogic">Paraulògic</string>
     <string name="image_desc_help">Help</string>
@@ -21,6 +24,9 @@
     <string name="image_desc_product_information">Product Information</string>
     <string name="image_desc_purchase">Purchase</string>
     <string name="image_desc_donation_appreciation">Donation Appreciation</string>
+    <string name="image_desc_grant_permission">Grant permission</string>
+    <string name="image_desc_skip_permission">Skip permission</string>
+    <string name="image_desc_continue">Continue</string>
 
     <string name="action_delete">Delete</string>
     <string name="action_shuffle">Shuffle</string>
