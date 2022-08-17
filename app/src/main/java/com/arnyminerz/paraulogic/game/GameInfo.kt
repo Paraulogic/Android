@@ -61,8 +61,7 @@ data class GameInfo(
             val words = gameInfo
                 .takeIf { it.has("words") }
                 ?.getJSONObject("words")
-                ?.toMap()
-                ?.mapValues { it.toString() }
+                ?.toMap() as Map<String, String>?
                 ?: throw NoSuchElementException("Could not find \"words\" in response data.")
 
             return GameInfo(timestamp, mutableStateOf(letters), centerLetter, words)
