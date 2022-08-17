@@ -8,6 +8,8 @@
     <string name="donations_action_purchase">Comprar</string>
     <string name="donations_appreciation_title">Gràcies per la vostra donació!</string>
     <string name="donations_appreciation_message">Ara l\'aplicació seguirà en peu durant molt més temps gràcies a tu! Eres una persona meravellosa! Moltíssimes gràcies! Et deixe per ací una galeta per a agraïr-te la donació.</string>
+    <string name="permission_title">Permís necessari</string>
+    <string name="permission_alarm_message">L\'aplicació programa alarmes perquè així, en actualitzar-se les dades a les 00:00 s\'actualitzen automàticament sense haver de reiniciar l\'aplicació, o simplement obrir-la i veure les noves dades.</string>
     <string name="image_desc_vilaweb">Lloc web de Vilaweb</string>
     <string name="image_desc_paraulogic">Paraulògic</string>
     <string name="image_desc_help">Ajuda</string>
@@ -18,6 +20,9 @@
     <string name="image_desc_product_information">Informació del producte</string>
     <string name="image_desc_purchase">Comprar</string>
     <string name="image_desc_donation_appreciation">Agraïment per la donació</string>
+    <string name="image_desc_grant_permission">Concedir permís</string>
+    <string name="image_desc_skip_permission">Saltar</string>
+    <string name="image_desc_continue">Continuar</string>
     <string name="action_delete">Suprimeix</string>
     <string name="action_shuffle">Mesclar lletres</string>
     <string name="action_enter">Introdueix</string>
