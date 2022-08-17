@@ -45,6 +45,12 @@ import org.json.JSONException
 import timber.log.Timber
 import java.io.IOException
 
+@OptIn(
+    ExperimentalPagerApi::class,
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalPermissionsApi::class,
+)
 class MainActivity : AppCompatActivity() {
     /**
      * The client for performing sign in operations with Google.
@@ -114,16 +120,37 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { }
 
-    @OptIn(
-        ExperimentalPagerApi::class,
-        ExperimentalMaterialApi::class,
-        ExperimentalMaterial3Api::class,
-    )
+    private val alarmPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == PermissionActivity.RESULT_PERMISSION_GRANTED)
+            AlarmPermissionGrantedReceiver.scheduleAlarm(this)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         Timber.d("Creating sign in client...")
         signInClient = createSignInClient()
+
+        // Permission just required for SDK >= S
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = getSystemService(AlarmManager::class.java)
+            if (!alarmManager.canScheduleExactAlarms()) {
+                alarmPermissionLauncher.launch(
+                    Intent(this, PermissionActivity::class.java).apply {
+                        putExtra(
+                            PermissionActivity.EXTRA_MESSAGE,
+                            getString(R.string.permission_alarm_message),
+                        )
+                        putExtra(
+                            PermissionActivity.EXTRA_PERMISSIONS,
+                            arrayOf(Manifest.permission.SCHEDULE_EXACT_ALARM),
+                        )
+                    }
+                )
+            } else AlarmPermissionGrantedReceiver.scheduleAlarm(this)
+        } else AlarmPermissionGrantedReceiver.scheduleAlarm(this)
 
         Timber.d("Initializing main view model...")
         val viewModel: MainViewModel = ViewModelProvider(
