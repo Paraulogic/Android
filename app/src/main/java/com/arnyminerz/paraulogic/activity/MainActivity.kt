@@ -1,5 +1,10 @@
 package com.arnyminerz.paraulogic.activity
 
+import android.Manifest
+import android.app.AlarmManager
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,6 +19,8 @@ import androidx.compose.runtime.setValue
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
+import com.arnyminerz.paraulogic.broadcast.ACTION_UPDATE_GAME_DATA
+import com.arnyminerz.paraulogic.broadcast.AlarmPermissionGrantedReceiver
 import com.arnyminerz.paraulogic.play.games.createSignInClient
 import com.arnyminerz.paraulogic.play.games.loadSnapshot
 import com.arnyminerz.paraulogic.play.games.signInSilently
@@ -34,6 +41,7 @@ import com.arnyminerz.paraulogic.utils.mapJsonObject
 import com.arnyminerz.paraulogic.utils.toJsonArray
 import com.arnyminerz.paraulogic.utils.uiContext
 import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
@@ -157,6 +165,9 @@ class MainActivity : AppCompatActivity() {
             this,
             MainViewModel.Factory(application)
         )[MainViewModel::class.java]
+
+        val filter = IntentFilter(ACTION_UPDATE_GAME_DATA)
+        registerReceiver(viewModel.broadcastReceiver, filter)
 
         doAsync {
             // Increase number of launches
