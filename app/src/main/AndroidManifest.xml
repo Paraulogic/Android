@@ -59,6 +59,11 @@
             android:exported="false"
             android:theme="@style/AppTheme" />
 
+        <activity
+            android:name=".activity.PermissionActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme" />
+
         <!-- Support language selection for versions <13 -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
