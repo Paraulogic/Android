@@ -90,14 +90,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private set
 
     val broadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent?) {
-            doAsync {
-                val gameInfo = gameInfoForToday(context)
-                if (gameInfo != null) {
-                    Timber.i("Game info got updated. Refreshing UI...")
-                    uiContext { this@MainViewModel.gameInfo = gameInfo }
-                }
-            }
+        override fun onReceive(context: Context, intent: Intent?) =
+            doAsync { attemptGameInfoUpdate(context) }
+    }
+
+    /**
+     * Gets the [GameInfo] for today. If it's not null, it means it has already been loaded from the
+     * server, so [gameInfo] is updated. Hashes are also checked, just in case there's a confusion
+     * by overlapping threads.
+     * @author Arnau Mora
+     * @since 20220820
+     * @param context The context running on.
+     * @see gameInfoForToday
+     */
+    @WorkerThread
+    suspend fun attemptGameInfoUpdate(context: Context) {
+        val gameInfo = gameInfoForToday(context)
+        if (gameInfo != null && gameInfo.hash != this.gameInfo?.hash) {
+            Timber.i("Game info got updated. Refreshing UI...")
+            uiContext { this@MainViewModel.gameInfo = gameInfo }
         }
     }
 
