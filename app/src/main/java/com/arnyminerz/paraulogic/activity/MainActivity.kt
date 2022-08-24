@@ -82,6 +82,7 @@ class MainActivity : AppCompatActivity() {
                             ?.snapshotContents
                             ?.readFully()
                             ?.let { String(it) }
+                            ?.takeIf { it.isNotBlank() }
                             ?.also { Timber.i("Server JSON: $it") }
                             ?.toJsonArray()
                             ?.mapJsonObject { IntroducedWord(it) }
