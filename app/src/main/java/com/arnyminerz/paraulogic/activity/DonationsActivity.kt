@@ -1,5 +1,6 @@
 package com.arnyminerz.paraulogic.activity
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -32,6 +33,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +59,7 @@ import com.arnyminerz.paraulogic.play.payment.PaymentGateway
 import com.arnyminerz.paraulogic.ui.elements.CardWithIcon
 import com.arnyminerz.paraulogic.ui.theme.AppTheme
 import com.arnyminerz.paraulogic.ui.toast
+import com.arnyminerz.paraulogic.ui.utils.LockScreenOrientation
 import com.arnyminerz.paraulogic.utils.doAsync
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -92,7 +97,7 @@ class DonationsActivity : AppCompatActivity() {
             }
         }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -115,6 +120,15 @@ class DonationsActivity : AppCompatActivity() {
         }
 
         setContent {
+            val windowSizeClass = calculateWindowSizeClass(this)
+
+            LockScreenOrientation(
+                when (windowSizeClass.widthSizeClass) {
+                    WindowWidthSizeClass.Compact -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    else -> ActivityInfo.SCREEN_ORIENTATION_SENSOR
+                }
+            )
+
             BackHandler(onBack = ::finish)
 
             AppTheme {

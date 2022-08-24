@@ -1,5 +1,6 @@
 package com.arnyminerz.paraulogic.activity
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -17,6 +18,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -29,6 +33,7 @@ import com.arnyminerz.paraulogic.activity.PermissionActivity.Companion.EXTRA_MES
 import com.arnyminerz.paraulogic.activity.PermissionActivity.Companion.EXTRA_PERMISSIONS
 import com.arnyminerz.paraulogic.activity.PermissionActivity.Companion.EXTRA_REQUIRED
 import com.arnyminerz.paraulogic.ui.theme.AppTheme
+import com.arnyminerz.paraulogic.ui.utils.LockScreenOrientation
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
@@ -45,6 +50,7 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
  */
 @ExperimentalMaterial3Api
 @ExperimentalPermissionsApi
+@ExperimentalMaterial3WindowSizeClassApi
 class PermissionActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_MESSAGE = "message"
@@ -87,6 +93,15 @@ class PermissionActivity : AppCompatActivity() {
 
         setContent {
             AppTheme {
+                val windowSizeClass = calculateWindowSizeClass(this)
+
+                LockScreenOrientation(
+                    when (windowSizeClass.widthSizeClass) {
+                        WindowWidthSizeClass.Compact -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        else -> ActivityInfo.SCREEN_ORIENTATION_SENSOR
+                    }
+                )
+
                 val permission = rememberMultiplePermissionsState(permissions)
 
                 BackHandler {
