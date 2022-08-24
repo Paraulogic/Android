@@ -107,12 +107,17 @@ fun Game(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ActionsButton(
-                onClick = { if (text.isNotEmpty()) text = text.substring(0, text.length - 1) },
-                onLongClick = { text = "" },
-                colors = ButtonDefaults.outlinedButtonColors(),
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.End,
             ) {
-                Text(stringResource(R.string.action_delete))
+                ActionsButton(
+                    onClick = { if (text.isNotEmpty()) text = text.substring(0, text.length - 1) },
+                    onLongClick = { text = "" },
+                    colors = ButtonDefaults.outlinedButtonColors(),
+                ) {
+                    Text(stringResource(R.string.action_delete))
+                }
             }
             IconButton(onClick = { gameInfo.shuffle() }) {
                 Icon(
@@ -120,74 +125,79 @@ fun Game(
                     contentDescription = stringResource(R.string.action_shuffle)
                 )
             }
-            Button(
-                onClick = {
-                    val wordCheck = gameInfo.checkWord(text, foundWords)
-                    when (wordCheck) {
-                        CHECK_WORD_ALREADY_FOUND -> customToast(
-                            context,
-                            R.string.toast_already_found,
-                            errorContainerColor,
-                            onErrorContainerColor,
-                        )
-                        CHECK_WORD_CENTER_MISSING -> customToast(
-                            context,
-                            R.string.toast_missing_center,
-                            errorContainerColor,
-                            onErrorContainerColor,
-                        )
-                        CHECK_WORD_INCORRECT -> customToast(
-                            context, text.lowercase(),
-                            errorContainerColor,
-                            onErrorContainerColor,
-                        )
-                        CHECK_WORD_SHORT -> customToast(
-                            context, R.string.toast_short,
-                            errorContainerColor,
-                            onErrorContainerColor,
-                        )
-                        CHECK_WORD_CORRECT -> customToast(
-                            context, R.string.toast_correct,
-                            primaryContainerColor,
-                            onPrimaryContainerColor,
-                        )
-                    }
-
-                    if (wordCheck == CHECK_WORD_CORRECT) {
-                        if (oldLevel != level) {
-                            Timber.i("Playing sound (level=$level,oldLevel=$oldLevel)...")
-                            val mp = MediaPlayer.create(
-                                context,
-                                when (level) {
-                                    0 -> R.raw.pollet
-                                    1 -> R.raw.colom
-                                    2 -> R.raw.anec
-                                    3 -> R.raw.cigne
-                                    4 -> R.raw.oliba
-                                    5 -> R.raw.aguila
-                                    else -> R.raw.pao
-                                }
-                            )
-                            mp.start()
-                            oldLevel = level
-                        } else
-                            Timber.d("Won't play sound. Old level: $oldLevel, level: $level")
-                    }
-
-                    viewModel.introduceWord(
-                        gameInfo,
-                        text,
-                        wordCheck == CHECK_WORD_CORRECT,
-                    )
-                    text = ""
-                },
-                colors = ButtonDefaults.outlinedButtonColors()
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.Start,
             ) {
-                Text(stringResource(R.string.action_enter))
+                Button(
+                    onClick = {
+                        val wordCheck = gameInfo.checkWord(text, foundWords)
+                        when (wordCheck) {
+                            CHECK_WORD_ALREADY_FOUND -> customToast(
+                                context,
+                                R.string.toast_already_found,
+                                errorContainerColor,
+                                onErrorContainerColor,
+                            )
+                            CHECK_WORD_CENTER_MISSING -> customToast(
+                                context,
+                                R.string.toast_missing_center,
+                                errorContainerColor,
+                                onErrorContainerColor,
+                            )
+                            CHECK_WORD_INCORRECT -> customToast(
+                                context, text.lowercase(),
+                                errorContainerColor,
+                                onErrorContainerColor,
+                            )
+                            CHECK_WORD_SHORT -> customToast(
+                                context, R.string.toast_short,
+                                errorContainerColor,
+                                onErrorContainerColor,
+                            )
+                            CHECK_WORD_CORRECT -> customToast(
+                                context, R.string.toast_correct,
+                                primaryContainerColor,
+                                onPrimaryContainerColor,
+                            )
+                        }
+
+                        if (wordCheck == CHECK_WORD_CORRECT) {
+                            if (oldLevel != level) {
+                                Timber.i("Playing sound (level=$level,oldLevel=$oldLevel)...")
+                                val mp = MediaPlayer.create(
+                                    context,
+                                    when (level) {
+                                        0 -> R.raw.pollet
+                                        1 -> R.raw.colom
+                                        2 -> R.raw.anec
+                                        3 -> R.raw.cigne
+                                        4 -> R.raw.oliba
+                                        5 -> R.raw.aguila
+                                        else -> R.raw.pao
+                                    }
+                                )
+                                mp.start()
+                                oldLevel = level
+                            } else
+                                Timber.d("Won't play sound. Old level: $oldLevel, level: $level")
+                        }
+
+                        viewModel.introduceWord(
+                            gameInfo,
+                            text,
+                            wordCheck == CHECK_WORD_CORRECT,
+                        )
+                        text = ""
+                    },
+                    colors = ButtonDefaults.outlinedButtonColors()
+                ) {
+                    Text(stringResource(R.string.action_enter))
+                }
             }
         }
 
-        Column (
+        Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
