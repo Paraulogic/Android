@@ -1,15 +1,19 @@
 package com.arnyminerz.paraulogic.play.games
 
-import android.content.Context
+import android.app.Activity
+import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.WorkerThread
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.game.GameInfo
 import com.arnyminerz.paraulogic.game.getPoints
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.SynchronizedWord
+import com.arnyminerz.paraulogic.ui.toast
 import com.arnyminerz.paraulogic.utils.getMaxDifferenceBetweenDates
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.games.Games
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.games.PlayGames
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
@@ -26,22 +30,18 @@ import java.util.Date
  */
 @WorkerThread
 suspend fun startSynchronization(
-    context: Context,
+    activity: Activity,
     gameInfo: GameInfo,
     history: List<GameInfo>
 ) {
-    val databaseSingleton = DatabaseSingleton.getInstance(context)
+    val databaseSingleton = DatabaseSingleton.getInstance(activity)
     val dao = databaseSingleton.db.wordsDao()
 
     val dbCorrectWords = dao.getAll()
     val dbSynchronizedWords = dao.getAllSynchronized()
 
     dbCorrectWords.collect { introducedWords ->
-        val account = GoogleSignIn.getLastSignedInAccount(context) ?: run {
-            Timber.i("Won't synchronize since not logged in.")
-            return@collect
-        }
-        val achievementsClient = Games.getAchievementsClient(context, account)
+        val achievementsClient = PlayGames.getAchievementsClient(activity)
 
         var toIncrement = 0
         var foundTutis = 0
@@ -137,44 +137,67 @@ suspend fun startSynchronization(
 
         // Find your first word
         if (toIncrement > 0)
-            achievementsClient.unlock(context.getString(R.string.achievement_a_la_punta_de_la_llengua))
+            achievementsClient.unlock(activity.getString(R.string.achievement_a_la_punta_de_la_llengua))
 
         if (foundTutis > 0)
-            achievementsClient.unlock(context.getString(R.string.achievement_quin_embarbussament))
+            achievementsClient.unlock(activity.getString(R.string.achievement_quin_embarbussament))
 
         // Find 50 words
-        achievementsClient.increment(context.getString(R.string.achievement_a_ja_va), toIncrement)
+        achievementsClient.increment(activity.getString(R.string.achievement_a_ja_va), toIncrement)
         // Find 69 words
         achievementsClient.increment(
-            context.getString(R.string.achievement_tinc_la_figa_calenta),
+            activity.getString(R.string.achievement_tinc_la_figa_calenta),
             toIncrement
         )
         // Find 100 words
         achievementsClient.increment(
-            context.getString(R.string.achievement_a_fer_punyetes),
+            activity.getString(R.string.achievement_a_fer_punyetes),
             toIncrement
         )
         // Find 200 words
         achievementsClient.increment(
-            context.getString(R.string.achievement_com_cagall_per_squia),
+            activity.getString(R.string.achievement_com_cagall_per_squia),
             toIncrement
         )
         // Find 300 words
         achievementsClient.increment(
-            context.getString(R.string.achievement_sem_cau_la_cara_de_vergonya),
+            activity.getString(R.string.achievement_sem_cau_la_cara_de_vergonya),
             toIncrement
         )
         // Find 500 words
         achievementsClient.increment(
-            context.getString(R.string.achievement_mest_fent_la_guitza),
+            activity.getString(R.string.achievement_mest_fent_la_guitza),
             toIncrement
         )
 
         // Play for 7 straight days
         if (playedForMaxDays >= 7)
-            achievementsClient.unlock(context.getString(R.string.achievement_fent_i_desfent_sensenya_la_gent))
+            achievementsClient.unlock(activity.getString(R.string.achievement_fent_i_desfent_sensenya_la_gent))
         // Find all tutis for 7 straight days
         if (allTutisForMaxDays >= 7)
-            achievementsClient.unlock(context.getString(R.string.achievement_quin_embarbussament))
+            achievementsClient.unlock(activity.getString(R.string.achievement_quin_embarbussament))
     }
 }
+
+/**
+ * Shows the achievements screen.
+ * @author Arnau Mora
+ * @since 20220824
+ * @param activity The activity from which the window is launching.
+ * @param launcher An [ActivityResultLauncher] with [Intent] source.
+ * [ActivityResultContracts.StartActivityForResult] is a good option.
+ */
+fun showAchievements(activity: Activity, launcher: ActivityResultLauncher<Intent>) =
+    PlayGames.getAchievementsClient(activity)
+        .achievementsIntent
+        .addOnSuccessListener {
+            launcher.launch(it)
+        }
+        .addOnFailureListener { e ->
+            Timber.e(e, "Could not display achievements")
+            val statusCode = (e as? ApiException)?.statusCode
+            if (statusCode == 4)
+                activity.toast(R.string.toast_error_not_logged_in)
+            else
+                activity.toast(R.string.toast_error_achievements)
+        }

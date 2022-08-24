@@ -5,6 +5,7 @@ import android.content.IntentFilter
 import com.arnyminerz.paraulogic.broadcast.ACTION_UPDATE_CLOCK
 import com.arnyminerz.paraulogic.broadcast.UpdateGameDataReceiver
 import com.arnyminerz.paraulogic.log.CrashReportingTree
+import com.google.android.gms.games.PlayGamesSdk
 import timber.log.Timber
 import timber.log.Timber.Forest.plant
 
@@ -18,6 +19,8 @@ class App : Application() {
             plant(Timber.DebugTree())
         else
             plant(CrashReportingTree())
+
+        PlayGamesSdk.initialize(this)
 
         val filter = IntentFilter(ACTION_UPDATE_CLOCK)
         registerReceiver(br, filter)

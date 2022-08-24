@@ -18,6 +18,12 @@ fun <V, T> JSONArray.map(constructor: (item: V) -> T): List<T> =
             add(constructor(this@map.get(i) as V))
     }
 
+fun <O> JSONArray.genericMap(constructor: (item: Any) -> O): List<O> =
+    arrayListOf<O>().apply {
+        for (i in 0 until length())
+            add(constructor(this@genericMap.get(i)))
+    }
+
 fun JSONObject.toMap(): Map<String, Any> =
     keys()
         .asSequence()
