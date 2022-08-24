@@ -1,10 +1,6 @@
 package com.arnyminerz.paraulogic.activity
 
-import android.Manifest
-import android.app.AlarmManager
-import android.content.Intent
 import android.content.IntentFilter
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,7 +16,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.broadcast.ACTION_UPDATE_GAME_DATA
-import com.arnyminerz.paraulogic.broadcast.AlarmPermissionGrantedReceiver
 import com.arnyminerz.paraulogic.play.games.createSignInClient
 import com.arnyminerz.paraulogic.play.games.loadSnapshot
 import com.arnyminerz.paraulogic.play.games.signInSilently
@@ -128,13 +123,6 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { }
 
-    private val alarmPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == PermissionActivity.RESULT_PERMISSION_GRANTED)
-            AlarmPermissionGrantedReceiver.scheduleAlarm(this)
-    }
-
     private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,25 +130,6 @@ class MainActivity : AppCompatActivity() {
 
         Timber.d("Creating sign in client...")
         signInClient = createSignInClient()
-
-        // Permission just required for SDK >= S
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val alarmManager = getSystemService(AlarmManager::class.java)
-            if (!alarmManager.canScheduleExactAlarms()) {
-                alarmPermissionLauncher.launch(
-                    Intent(this, PermissionActivity::class.java).apply {
-                        putExtra(
-                            PermissionActivity.EXTRA_MESSAGE,
-                            getString(R.string.permission_alarm_message),
-                        )
-                        putExtra(
-                            PermissionActivity.EXTRA_PERMISSIONS,
-                            arrayOf(Manifest.permission.SCHEDULE_EXACT_ALARM),
-                        )
-                    }
-                )
-            } else AlarmPermissionGrantedReceiver.scheduleAlarm(this)
-        } else AlarmPermissionGrantedReceiver.scheduleAlarm(this)
 
         Timber.d("Initializing main view model...")
         viewModel = ViewModelProvider(
