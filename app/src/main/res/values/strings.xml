@@ -27,6 +27,7 @@
     <string name="image_desc_grant_permission">Grant permission</string>
     <string name="image_desc_skip_permission">Skip permission</string>
     <string name="image_desc_continue">Continue</string>
+    <string name="image_desc_loading">Loading…</string>
 
     <string name="action_delete">Delete</string>
     <string name="action_shuffle">Shuffle</string>
@@ -55,6 +56,8 @@
     <string name="toast_signed_in">Signed in!</string>
     <string name="toast_payment_cancelled">Payment cancelled</string>
     <string name="toast_payment_error">An unknown error happened during the purchase.</string>
+    <string name="toast_error_achievements">Could not display achievements</string>
+    <string name="toast_error_not_logged_in">Not logged in</string>
 
     <string name="state_found_n_words">You have found %1$d of %2$d words: %3$s.</string>
     <string name="state_found_no_words">You have still not found any words today.</string>
