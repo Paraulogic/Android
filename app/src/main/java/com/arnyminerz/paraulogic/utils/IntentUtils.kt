@@ -1,8 +1,10 @@
 package com.arnyminerz.paraulogic.utils
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import timber.log.Timber
 
 /**
  * Starts the [activity] with the set [parameters].
@@ -38,4 +40,8 @@ fun Context.launch(action: String, uri: Uri, parameters: Intent.() -> Unit = {})
  * @since 20220307
  * @param url The url to launch
  */
-fun Context.launchUrl(url: String) = launch(Intent.ACTION_VIEW, Uri.parse(url))
+fun Context.launchUrl(url: String) = try {
+    launch(Intent.ACTION_VIEW, Uri.parse(url))
+} catch (e: ActivityNotFoundException) {
+    Timber.w(e, "Could not launch URL: $url.")
+}
