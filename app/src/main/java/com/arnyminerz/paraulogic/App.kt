@@ -1,13 +1,16 @@
 package com.arnyminerz.paraulogic
 
 import android.app.Application
+import android.content.IntentFilter
+import com.arnyminerz.paraulogic.broadcast.ACTION_UPDATE_CLOCK
+import com.arnyminerz.paraulogic.broadcast.UpdateGameDataReceiver
 import com.arnyminerz.paraulogic.log.CrashReportingTree
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.ktx.messaging
 import timber.log.Timber
 import timber.log.Timber.Forest.plant
 
 class App : Application() {
+    private val br = UpdateGameDataReceiver()
+
     override fun onCreate() {
         super.onCreate()
 
@@ -16,11 +19,7 @@ class App : Application() {
         else
             plant(CrashReportingTree())
 
-        Timber.i("Subscribing to \"gameInfo\" messaging topic.")
-        Firebase.messaging.subscribeToTopic("gameInfo")
-            .addOnSuccessListener {
-                Timber.i("Subscribed to \"gameInfo\".")
-            }
-            .addOnFailureListener { Timber.e(it, "Could not subscribe to \"gameInfo\".") }
+        val filter = IntentFilter(ACTION_UPDATE_CLOCK)
+        registerReceiver(br, filter)
     }
 }

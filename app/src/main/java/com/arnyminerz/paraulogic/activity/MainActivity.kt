@@ -1,5 +1,12 @@
 package com.arnyminerz.paraulogic.activity
 
+import android.Manifest
+import android.app.AlarmManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,6 +21,8 @@ import androidx.compose.runtime.setValue
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
+import com.arnyminerz.paraulogic.broadcast.ACTION_UPDATE_GAME_DATA
+import com.arnyminerz.paraulogic.broadcast.AlarmPermissionGrantedReceiver
 import com.arnyminerz.paraulogic.play.games.createSignInClient
 import com.arnyminerz.paraulogic.play.games.loadSnapshot
 import com.arnyminerz.paraulogic.play.games.signInSilently
@@ -34,6 +43,7 @@ import com.arnyminerz.paraulogic.utils.mapJsonObject
 import com.arnyminerz.paraulogic.utils.toJsonArray
 import com.arnyminerz.paraulogic.utils.uiContext
 import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
@@ -44,7 +54,14 @@ import kotlinx.coroutines.flow.first
 import org.json.JSONException
 import timber.log.Timber
 import java.io.IOException
+import java.util.Calendar
 
+@OptIn(
+    ExperimentalPagerApi::class,
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalPermissionsApi::class,
+)
 class MainActivity : AppCompatActivity() {
     /**
      * The client for performing sign in operations with Google.
@@ -114,22 +131,72 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { }
 
-    @OptIn(
-        ExperimentalPagerApi::class,
-        ExperimentalMaterialApi::class,
-        ExperimentalMaterial3Api::class,
-    )
+    private val alarmPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == PermissionActivity.RESULT_PERMISSION_GRANTED)
+            AlarmPermissionGrantedReceiver.scheduleAlarm(this)
+    }
+
+    private lateinit var viewModel: MainViewModel
+
+    private val timeTickReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent?) {
+            val action = intent?.action
+
+            if (action.equals(Intent.ACTION_TIME_CHANGED) ||
+                action.equals(Intent.ACTION_TIMEZONE_CHANGED) ||
+                action.equals(Intent.ACTION_TIME_TICK)
+            ) {
+                // Note that tick gets only called once a minute, so it's not necessary to check seconds.
+                val now = Calendar.getInstance()
+                if (now.get(Calendar.HOUR_OF_DAY) == 0 && now.get(Calendar.MINUTE) == 0 && this@MainActivity::viewModel.isInitialized)
+                    doAsync {
+                        viewModel.attemptGameInfoUpdate(context)
+                    }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         Timber.d("Creating sign in client...")
         signInClient = createSignInClient()
 
+        // Permission just required for SDK >= S
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = getSystemService(AlarmManager::class.java)
+            if (!alarmManager.canScheduleExactAlarms()) {
+                alarmPermissionLauncher.launch(
+                    Intent(this, PermissionActivity::class.java).apply {
+                        putExtra(
+                            PermissionActivity.EXTRA_MESSAGE,
+                            getString(R.string.permission_alarm_message),
+                        )
+                        putExtra(
+                            PermissionActivity.EXTRA_PERMISSIONS,
+                            arrayOf(Manifest.permission.SCHEDULE_EXACT_ALARM),
+                        )
+                    }
+                )
+            } else AlarmPermissionGrantedReceiver.scheduleAlarm(this)
+        } else AlarmPermissionGrantedReceiver.scheduleAlarm(this)
+
         Timber.d("Initializing main view model...")
-        val viewModel: MainViewModel = ViewModelProvider(
+        viewModel = ViewModelProvider(
             this,
             MainViewModel.Factory(application)
         )[MainViewModel::class.java]
+
+        val filter = IntentFilter(ACTION_UPDATE_GAME_DATA)
+        registerReceiver(viewModel.broadcastReceiver, filter)
+
+        registerReceiver(timeTickReceiver, IntentFilter().apply {
+            addAction(Intent.ACTION_TIME_TICK)
+            addAction(Intent.ACTION_TIMEZONE_CHANGED)
+            addAction(Intent.ACTION_TIME_CHANGED)
+        })
 
         doAsync {
             // Increase number of launches
@@ -202,5 +269,13 @@ class MainActivity : AppCompatActivity() {
             Timber.i("Trying to add missing points...")
             tryToAddPoints(this@MainActivity)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        if (this::viewModel.isInitialized)
+            unregisterReceiver(viewModel.broadcastReceiver)
+        unregisterReceiver(timeTickReceiver)
     }
 }

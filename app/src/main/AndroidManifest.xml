@@ -5,12 +5,15 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
     <application
         android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:localeConfig="@xml/locales_config"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -56,6 +59,11 @@
             android:exported="false"
             android:theme="@style/AppTheme" />
 
+        <activity
+            android:name=".activity.PermissionActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme" />
+
         <!-- Support language selection for versions <13 -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
@@ -66,13 +74,23 @@
                 android:value="true" />
         </service>
 
-        <!-- Allow receiving messages from Firebase -->
-        <service
-            android:name=".service.MessagingService"
-            android:exported="false">
+        <!-- Listens for the alarm permission updates, so the alarms can be scheduled asynchronously -->
+        <receiver
+            android:name=".broadcast.AlarmPermissionGrantedReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
             </intent-filter>
-        </service>
+        </receiver>
+
+        <!-- Listens for updates on new data available -->
+        <receiver
+            android:name=".broadcast.UpdateGameDataReceiver"
+            android:exported="true"
+            android:permission="android.permission.INTERNET">
+            <intent-filter>
+                <action android:name="com.arnyminerz.paraulogic.action.CLOCK" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

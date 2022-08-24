@@ -8,6 +8,8 @@
     <string name="donations_action_purchase">Comprar</string>
     <string name="donations_appreciation_title">¡Gracias por tu donación!</string>
     <string name="donations_appreciation_message">¡La aplicación seguirá funcionando más tiempo gracias a ti! ¡Eres una persona increíble! ¡Muchas gracias! Aquí tienes una galleta para darle las gracias por su donación.</string>
+    <string name="permission_title">Permiso requerido</string>
+    <string name="permission_alarm_message">La aplicación planea alarmas, para que cuando los datos se actualicen a las 00:00 lo hagan sin tener que reiniciar la aplicación, o simplemente abrirla para cargar el nuevo juego.</string>
     <string name="image_desc_vilaweb">Página web de Vilaweb</string>
     <string name="image_desc_paraulogic">Paraulògic</string>
     <string name="image_desc_help">Ayuda</string>
@@ -18,6 +20,9 @@
     <string name="image_desc_product_information">Información del producto</string>
     <string name="image_desc_purchase">Comprar</string>
     <string name="image_desc_donation_appreciation">Apreciación de donación</string>
+    <string name="image_desc_grant_permission">Conceder permiso</string>
+    <string name="image_desc_skip_permission">Omitir permiso</string>
+    <string name="image_desc_continue">Continuar</string>
     <string name="action_delete">Eliminar</string>
     <string name="action_shuffle">Mezclar letras</string>
     <string name="action_enter">Introducir</string>
@@ -69,6 +74,7 @@
     <string name="settings_error_reporting_summary">Si está habilitado, cuando la app se cierre de manera espontánea un reporte de error será enviado a los desarrolladores, para que puedan tenerlo en cuenta, y solucionarlo lo más pronto posible. Requiere un reinicio de la app.</string>
     <string name="settings_analytics_title">Analíticas</string>
     <string name="settings_analytics_summary">Si está marcada, la aplicación recopilará datos anónimos para detectar patrones de usuario comunes y mejorar la aplicación.</string>
+    <string name="settings_footer">Nombre de Versión: %s. Código de Versión: %d</string>
     <string name="feedback_title">Enviar Mensaje</string>
     <string name="feedback_field_name">Nombre</string>
     <string name="feedback_field_name_hint">Puedes dejarlo en blanco, sólo será usado para referirse a usted si fuese necesario.</string>
