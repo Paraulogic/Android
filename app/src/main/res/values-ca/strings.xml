@@ -23,6 +23,7 @@
     <string name="image_desc_grant_permission">Concedir permís</string>
     <string name="image_desc_skip_permission">Saltar</string>
     <string name="image_desc_continue">Continuar</string>
+    <string name="image_desc_loading">Carregant…</string>
     <string name="action_delete">Suprimeix</string>
     <string name="action_shuffle">Mesclar lletres</string>
     <string name="action_enter">Introdueix</string>
@@ -47,6 +48,8 @@
     <string name="toast_signed_in">Sessió iniciada!</string>
     <string name="toast_payment_cancelled">Pagament cancel·lat</string>
     <string name="toast_payment_error">Ha hagut un error inesperat durant la compra.</string>
+    <string name="toast_error_achievements">No s\'han pogut mostrar els assoliments</string>
+    <string name="toast_error_not_logged_in">Sessió no iniciada</string>
     <string name="state_found_n_words">Has trobat %1$d de %2$d paraules: %3$s.</string>
     <string name="state_found_no_words">Encara no has trobat cap paraula avui.</string>
     <string name="state_found_no_tuti">Encara no has trobat el tuti d\'avui.</string>
