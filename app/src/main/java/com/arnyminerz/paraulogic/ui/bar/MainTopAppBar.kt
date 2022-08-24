@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Person
@@ -15,17 +16,22 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.play.games.showAchievements
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
 import com.arnyminerz.paraulogic.utils.launchUrl
+import com.google.android.gms.common.images.ImageManager
 import com.google.android.gms.games.PlayGames
 import timber.log.Timber
 
@@ -101,19 +107,25 @@ fun AppCompatActivity.MainTopAppBar(
                         )
                     }
                 } else {
-                    Timber.d("User icon image: ${player.iconImageUri}")
+                    var src: Any by remember { mutableStateOf(R.drawable.round_account_circle_24) }
+
+                    if (src is Int)
+                        ImageManager.create(this@MainTopAppBar)
+                            .loadImage({ uri, drawable, isRequestedDrawable ->
+                                src = if (isRequestedDrawable)
+                                    drawable!!
+                                else
+                                    uri
+                            }, player.iconImageUri!!, R.drawable.round_account_circle_24)
+
                     AsyncImage(
-                        model = ImageRequest.Builder(this@MainTopAppBar)
-                            .data(player.iconImageUri)
-                            .error(R.drawable.round_account_circle_24)
-                            .fallback(R.drawable.round_account_circle_24)
-                            .placeholder(R.drawable.round_account_circle_24)
-                            .build(),
+                        src,
                         contentDescription = stringResource(R.string.image_desc_profile),
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .size(48.dp)
                             .clickable(onClick = showAchievements)
+                            .clip(CircleShape),
                     )
                 }
             }
