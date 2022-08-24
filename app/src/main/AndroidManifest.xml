@@ -82,15 +82,5 @@
                 <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
             </intent-filter>
         </receiver>
-
-        <!-- Listens for updates on new data available -->
-        <receiver
-            android:name=".broadcast.UpdateGameDataReceiver"
-            android:exported="true"
-            android:permission="android.permission.INTERNET">
-            <intent-filter>
-                <action android:name="com.arnyminerz.paraulogic.action.CLOCK" />
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>
