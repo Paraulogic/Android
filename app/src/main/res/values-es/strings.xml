@@ -23,6 +23,7 @@
     <string name="image_desc_grant_permission">Conceder permiso</string>
     <string name="image_desc_skip_permission">Omitir permiso</string>
     <string name="image_desc_continue">Continuar</string>
+    <string name="image_desc_loading">Cargando…</string>
     <string name="action_delete">Eliminar</string>
     <string name="action_shuffle">Mezclar letras</string>
     <string name="action_enter">Introducir</string>
@@ -47,6 +48,8 @@
     <string name="toast_signed_in">Sesión iniciada!</string>
     <string name="toast_payment_cancelled">Pago cancelado</string>
     <string name="toast_payment_error">Se ha producido un error desconocido durante la compra.</string>
+    <string name="toast_error_achievements">No se pudieron mostrar los logros</string>
+    <string name="toast_error_not_logged_in">Sesión no iniciada</string>
     <string name="state_found_n_words">Has encontrado %1$d de %2$d palabras: %3$s.</string>
     <string name="state_found_no_words">Aún no has encontrado ninguna palabra hoy.</string>
     <string name="state_found_no_tuti">Aún no has encontrado el tuti de hoy.</string>
