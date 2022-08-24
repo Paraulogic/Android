@@ -20,6 +20,7 @@ import com.arnyminerz.paraulogic.App
 import com.arnyminerz.paraulogic.annotation.LoadError
 import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_NO_SUCH_ELEMENT
 import com.arnyminerz.paraulogic.annotation.LoadError.Companion.RESULT_OK
+import com.arnyminerz.paraulogic.broadcast.ACTION_UPDATE_GAME_DATA
 import com.arnyminerz.paraulogic.game.GameInfo
 import com.arnyminerz.paraulogic.game.calculatePoints
 import com.arnyminerz.paraulogic.game.fetchAndStoreGameInfo
@@ -89,9 +90,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var dayWrongWords by mutableStateOf<Map<String, Int>>(emptyMap())
         private set
 
+    /**
+     * Should be registered for receiving broadcasts of [ACTION_UPDATE_GAME_DATA].
+     * @author Arnau Mora
+     * @since 20220824
+     */
     val broadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent?) =
+        override fun onReceive(context: Context, intent: Intent?) {
+            Timber.i("Got notified of new data. Attempting update...")
             doAsync { attemptGameInfoUpdate(context) }
+        }
     }
 
     /**
@@ -109,7 +117,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (gameInfo != null && gameInfo.hash != this.gameInfo?.hash) {
             Timber.i("Game info got updated. Refreshing UI...")
             uiContext { this@MainViewModel.gameInfo = gameInfo }
-        }
+        } else
+            Timber.d("There's no new game data available.")
     }
 
     fun loadGameInfo(

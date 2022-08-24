@@ -5,8 +5,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -73,24 +71,5 @@
                 android:name="autoStoreLocales"
                 android:value="true" />
         </service>
-
-        <!-- Listens for the alarm permission updates, so the alarms can be scheduled asynchronously -->
-        <receiver
-            android:name=".broadcast.AlarmPermissionGrantedReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
-            </intent-filter>
-        </receiver>
-
-        <!-- Listens for updates on new data available -->
-        <receiver
-            android:name=".broadcast.UpdateGameDataReceiver"
-            android:exported="true"
-            android:permission="android.permission.INTERNET">
-            <intent-filter>
-                <action android:name="com.arnyminerz.paraulogic.action.CLOCK" />
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>
