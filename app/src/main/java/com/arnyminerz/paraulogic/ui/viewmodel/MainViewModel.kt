@@ -88,6 +88,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var dayWrongWords by mutableStateOf<Map<String, Int>>(emptyMap())
         private set
 
+    var isLoading by mutableStateOf(false)
+        private set
+
     var isAuthenticated by mutableStateOf(false)
         private set
     var player by mutableStateOf<Player?>(null)
@@ -187,6 +190,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             Timber.v("Resetting error flag...")
             error = RESULT_OK
+            isLoading = true
 
             Timber.v("Checking if tried to sign in ever...")
             val databaseSingleton = DatabaseSingleton.getInstance(activity)
@@ -232,6 +236,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 )
                 Timber.d("Got ${serverIntroducedWordsList.size} words from server.")
 
+                uiContext {
+                    Timber.d("Finished loading")
+                    isLoading = false
+                }
+
                 loadCorrectWords(gameInfo, serverIntroducedWordsList)
             }
         }
@@ -276,10 +285,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         gameInfo: GameInfo,
         serverIntroducedWordsList: List<IntroducedWord>,
     ) {
-        val databaseSingleton = DatabaseSingleton.getInstance(getApplication())
         val hash = gameInfo.hash
-        val dao = databaseSingleton.db.wordsDao()
-        ioContext { dao.getAll() }
+        DatabaseSingleton
+            .getInstance(getApplication())
+            .db
+            .wordsDao()
+            .getAll()
             .collect { list ->
                 correctWords.clear()
                 correctWords.addAll(
