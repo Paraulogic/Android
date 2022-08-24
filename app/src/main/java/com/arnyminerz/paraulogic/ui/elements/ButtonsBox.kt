@@ -26,6 +26,7 @@ private const val TOP_BOTT_PADDING = 2 * BUTTON_SIDE - 0.4 * BUTTON_SIDE
  * @param letter The letter that should be shown in the button's text.
  * @param isCentral If the color should be accent or primary.
  * @param modifier Modifiers to apply to the button.
+ * @param enabled Whether the button is enabled or not.
  * @param onClick Will be called when the button is tapped.
  */
 @Composable
@@ -33,11 +34,12 @@ private fun LetterButton(
     letter: Char,
     isCentral: Boolean,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     Button(
         onClick = onClick,
-        enabled = letter != '\u0000',
+        enabled = enabled && letter != '\u0000',
         shape = HexagonalShape,
         modifier = modifier.size(BUTTON_SIDE.dp),
         colors = ButtonDefaults.filledTonalButtonColors(
@@ -66,12 +68,14 @@ private fun LetterButton(
  * @param letters Must be a 6 character string. Each letter of the String matches the letter to
  * display on the button at that index.
  * @param onClick Will get called when any button is tapped.
+ * @param enabled Whether to enable the buttons or not.
  */
 @Composable
 fun ButtonsBox(
     letters: String,
     onClick: (index: Int, letter: Char) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -86,7 +90,8 @@ fun ButtonsBox(
                 .padding(
                     end = TOP_SIDE_PADDING.dp,
                     bottom = TOP_BOTT_PADDING.dp,
-                )
+                ),
+            enabled,
         ) { onClick(0, letters[0]) }
         LetterButton(
             letters[1],
@@ -96,7 +101,8 @@ fun ButtonsBox(
                 .padding(
                     start = TOP_SIDE_PADDING.dp,
                     bottom = TOP_BOTT_PADDING.dp,
-                )
+                ),
+            enabled,
         ) { onClick(1, letters[1]) }
 
         // Middle row
@@ -105,19 +111,22 @@ fun ButtonsBox(
             false,
             Modifier
                 .align(Alignment.Center)
-                .padding(end = MID_SIDE_PADDING.dp)
+                .padding(end = MID_SIDE_PADDING.dp),
+            enabled,
         ) { onClick(2, letters[2]) }
         LetterButton(
             letters[3],
             true,
-            Modifier.align(Alignment.Center)
+            Modifier.align(Alignment.Center),
+            enabled,
         ) { onClick(3, letters[3]) }
         LetterButton(
             letters[4],
             false,
             Modifier
                 .align(Alignment.Center)
-                .padding(start = MID_SIDE_PADDING.dp)
+                .padding(start = MID_SIDE_PADDING.dp),
+            enabled,
         ) { onClick(4, letters[4]) }
 
         // Bottom row
@@ -129,7 +138,8 @@ fun ButtonsBox(
                 .padding(
                     end = TOP_SIDE_PADDING.dp,
                     top = TOP_BOTT_PADDING.dp,
-                )
+                ),
+            enabled,
         ) { onClick(5, letters[5]) }
         LetterButton(
             letters[6],
@@ -139,7 +149,8 @@ fun ButtonsBox(
                 .padding(
                     start = TOP_SIDE_PADDING.dp,
                     top = TOP_BOTT_PADDING.dp,
-                )
+                ),
+            enabled,
         ) { onClick(6, letters[6]) }
     }
 }
