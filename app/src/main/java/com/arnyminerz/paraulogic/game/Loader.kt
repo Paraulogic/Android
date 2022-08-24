@@ -165,7 +165,7 @@ suspend fun gameInfoForToday(context: Context): GameInfo? =
         // loads the data from the server.
         .takeIf { it.isNotEmpty() }
         // Log all the Games
-        ?.also { l -> Timber.d("Game infos: ${l.map { "[ ${it.gameInfo.letters} ]" }}") }
+        // ?.also { l -> Timber.d("Game infos: ${l.map { "[ ${it.gameInfo.letters} ]" }}") }
         // Take the greatest date, this is the most recent stored game
         ?.maxByOrNull { it.date }
         // Take only if the game is in the correct date
