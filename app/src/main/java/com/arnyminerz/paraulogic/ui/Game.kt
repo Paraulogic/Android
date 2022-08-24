@@ -2,6 +2,7 @@ package com.arnyminerz.paraulogic.ui
 
 import android.media.MediaPlayer
 import androidx.annotation.UiThread
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -41,6 +43,7 @@ import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_CORRECT
 import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_INCORRECT
 import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_SHORT
 import com.arnyminerz.paraulogic.game.lettersString
+import com.arnyminerz.paraulogic.ui.elements.ActionsButton
 import com.arnyminerz.paraulogic.ui.elements.ButtonsBox
 import com.arnyminerz.paraulogic.ui.elements.PointsText
 import com.arnyminerz.paraulogic.ui.elements.TutisText
@@ -49,6 +52,8 @@ import timber.log.Timber
 
 @UiThread
 @Composable
+@ExperimentalMaterial3Api
+@ExperimentalFoundationApi
 fun Game(
     gameInfo: GameInfo,
     viewModel: MainViewModel,
@@ -99,11 +104,13 @@ fun Game(
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Button(
+            ActionsButton(
                 onClick = { if (text.isNotEmpty()) text = text.substring(0, text.length - 1) },
-                colors = ButtonDefaults.outlinedButtonColors()
+                onLongClick = { text = "" },
+                colors = ButtonDefaults.outlinedButtonColors(),
             ) {
                 Text(stringResource(R.string.action_delete))
             }
