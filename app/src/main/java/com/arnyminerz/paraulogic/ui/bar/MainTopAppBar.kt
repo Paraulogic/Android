@@ -2,10 +2,12 @@ package com.arnyminerz.paraulogic.ui.bar
 
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Person
@@ -14,17 +16,23 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.arnyminerz.paraulogic.R
+import com.arnyminerz.paraulogic.play.games.showAchievements
+import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
 import com.arnyminerz.paraulogic.utils.launchUrl
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.games.Games
+import com.google.android.gms.common.images.ImageManager
+import com.google.android.gms.games.PlayGames
 import timber.log.Timber
 
 /**
@@ -32,18 +40,13 @@ import timber.log.Timber
  * logo, and the login button, which also serves as the achievements viewer.
  * @author Arnau Mora
  * @since 20220323
- * @param achievementsLauncher Should request the Google Api to show the achievements for the
- * currently logged in user.
- * @param signInRequest When login is required, this will get called.
  */
 @ExperimentalMaterial3Api
 @Composable
-fun MainTopAppBar(
-    achievementsLauncher: ActivityResultLauncher<Intent>,
-    signInRequest: () -> Unit,
+fun AppCompatActivity.MainTopAppBar(
+    viewModel: MainViewModel,
+    popupLauncher: ActivityResultLauncher<Intent>,
 ) {
-    val context = LocalContext.current
-
     CenterAlignedTopAppBar(
         navigationIcon = {
             Image(
@@ -52,7 +55,7 @@ fun MainTopAppBar(
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .size(48.dp)
-                    .clickable { context.launchUrl("https://vilaweb.cat") }
+                    .clickable { launchUrl("https://vilaweb.cat") }
             )
         },
         title = {
@@ -65,10 +68,18 @@ fun MainTopAppBar(
             )
         },
         actions = {
-            val account = GoogleSignIn.getLastSignedInAccount(context)
-            if (account == null)
+            if (!viewModel.isAuthenticated) {
                 IconButton(
-                    onClick = signInRequest,
+                    onClick = {
+                        PlayGames.getGamesSignInClient(this@MainTopAppBar)
+                            .signIn()
+                            .addOnSuccessListener {
+                                viewModel.loadAuthenticatedState(this@MainTopAppBar)
+                            }
+                            .addOnFailureListener {
+                                Timber.e(it, "Could not sign in.")
+                            }
+                    },
                     modifier = Modifier
                         .size(48.dp)
                 ) {
@@ -77,22 +88,14 @@ fun MainTopAppBar(
                         contentDescription = stringResource(R.string.image_desc_login)
                     )
                 }
-            else {
+            } else {
                 val showAchievements: () -> Unit = {
-                    Games.getAchievementsClient(context, account)
-                        .achievementsIntent
-                        .addOnSuccessListener { achievementsLauncher.launch(it) }
-                        .addOnFailureListener {
-                            Timber.e(
-                                it,
-                                "Could not launch achievements popup."
-                            )
-                        }
+                    showAchievements(this@MainTopAppBar, popupLauncher)
                 }
 
-                val photoUrl = account.photoUrl
-                if (photoUrl == null) {
-                    Timber.w("User does not have a photo or permission is denied")
+                val player = viewModel.player
+                if (player == null || !player.hasIconImage()) {
+                    Timber.w("User data still not available or null. Has icon image: ${player?.hasIconImage()}")
                     IconButton(
                         onClick = showAchievements,
                         modifier = Modifier
@@ -100,18 +103,31 @@ fun MainTopAppBar(
                     ) {
                         Icon(
                             Icons.Outlined.AccountCircle,
-                            contentDescription = stringResource(R.string.image_desc_login)
+                            contentDescription = stringResource(R.string.image_desc_loading)
                         )
                     }
-                } else
+                } else {
+                    var src: Any by remember { mutableStateOf(R.drawable.round_account_circle_24) }
+
+                    if (src is Int)
+                        ImageManager.create(this@MainTopAppBar)
+                            .loadImage({ uri, drawable, isRequestedDrawable ->
+                                src = if (isRequestedDrawable)
+                                    drawable!!
+                                else
+                                    uri
+                            }, player.iconImageUri!!, R.drawable.round_account_circle_24)
+
                     AsyncImage(
-                        model = account.photoUrl,
+                        src,
                         contentDescription = stringResource(R.string.image_desc_profile),
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .size(48.dp)
                             .clickable(onClick = showAchievements)
+                            .clip(CircleShape),
                     )
+                }
             }
         },
     )

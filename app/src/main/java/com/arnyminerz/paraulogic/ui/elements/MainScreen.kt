@@ -2,6 +2,8 @@ package com.arnyminerz.paraulogic.ui.elements
 
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,14 +36,12 @@ import timber.log.Timber
 @ExperimentalPagerApi
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
-fun MainScreen(
+@ExperimentalFoundationApi
+fun AppCompatActivity.MainScreen(
     snackbarHostState: SnackbarHostState,
     viewModel: MainViewModel,
     popupLauncher: ActivityResultLauncher<Intent>,
-    signInRequest: () -> Unit,
 ) {
-    val context = LocalContext.current
-
     val error = viewModel.error
     val gameInfo = viewModel.gameInfo
     val gameHistory = viewModel.gameHistory
@@ -51,7 +50,7 @@ fun MainScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { MainTopAppBar(popupLauncher, signInRequest) },
+        topBar = { MainTopAppBar(viewModel, popupLauncher) },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
             val points = viewModel.points
@@ -109,6 +108,6 @@ fun MainScreen(
         }
 
         if (gameInfo != null && gameHistory.isNotEmpty())
-            viewModel.synchronize(context, gameInfo, gameHistory)
+            viewModel.synchronize(this, gameInfo, gameHistory)
     }
 }

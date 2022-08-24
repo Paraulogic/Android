@@ -1,17 +1,15 @@
 package com.arnyminerz.paraulogic.ui.viewmodel
 
+import android.app.Activity
 import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.activity.result.ActivityResultLauncher
-import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -29,10 +27,9 @@ import com.arnyminerz.paraulogic.game.getLevelFromPoints
 import com.arnyminerz.paraulogic.game.getServerIntroducedWordsList
 import com.arnyminerz.paraulogic.game.getTutis
 import com.arnyminerz.paraulogic.game.loadGameHistoryFromServer
-import com.arnyminerz.paraulogic.play.games.loadSnapshot
-import com.arnyminerz.paraulogic.play.games.startSignInIntent
+import com.arnyminerz.paraulogic.play.games.loadGameProgress
 import com.arnyminerz.paraulogic.play.games.startSynchronization
-import com.arnyminerz.paraulogic.play.games.writeSnapshot
+import com.arnyminerz.paraulogic.play.games.storeGameProgress
 import com.arnyminerz.paraulogic.pref.PreferencesModule
 import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
@@ -40,9 +37,10 @@ import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 import com.arnyminerz.paraulogic.utils.doAsync
 import com.arnyminerz.paraulogic.utils.ioContext
 import com.arnyminerz.paraulogic.utils.uiContext
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.tasks.RuntimeExecutionException
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.games.GamesSignInClient
+import com.google.android.gms.games.PlayGames
+import com.google.android.gms.games.Player
 import com.google.firebase.FirebaseException
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -51,9 +49,9 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.perf.metrics.AddTrace
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
@@ -90,6 +88,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var dayWrongWords by mutableStateOf<Map<String, Int>>(emptyMap())
         private set
 
+    var isAuthenticated by mutableStateOf(false)
+        private set
+    var player by mutableStateOf<Player?>(null)
+        private set
+
+    val prefNumberOfLaunches = getApplication<App>()
+        .dataStore
+        .data
+        .map { it[PreferencesModule.NumberOfLaunches] ?: 0 }
+
+    val prefDisableDonationDialog = getApplication<App>()
+        .dataStore
+        .data
+        .map { it[PreferencesModule.DisableDonationDialog] ?: false }
+
+    /**
+     * Used for fetching the authentication state of the player.
+     * @author Arnau Mora
+     * @since 20220824
+     */
+    lateinit var signInClient: GamesSignInClient
+
     /**
      * Should be registered for receiving broadcasts of [ACTION_UPDATE_GAME_DATA].
      * @author Arnau Mora
@@ -121,31 +141,55 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             Timber.d("There's no new game data available.")
     }
 
+    private fun loadPlayer(activity: Activity) {
+        Timber.d("Loading player data...")
+        PlayGames.getPlayersClient(activity)
+            .currentPlayer
+            .addOnSuccessListener {
+                Timber.d("Loaded player data.")
+                player = it
+            }
+            .addOnFailureListener { Timber.e(it, "Could not load player data.") }
+    }
+
+    /**
+     * Loads the current authentication state, and the player's data.
+     *
+     * Updates [isAuthenticated] and [player] accordingly.
+     * @author Arnau Mora
+     * @since 20220824
+     * @param activity The [Activity] that is requesting the load.
+     */
+    fun loadAuthenticatedState(activity: Activity) {
+        Timber.d("Checking if client is authenticated...")
+        signInClient
+            .isAuthenticated
+            .addOnSuccessListener { result ->
+                isAuthenticated = result.isAuthenticated
+                Timber.i("Is user authenticated: $isAuthenticated")
+                if (isAuthenticated)
+                    viewModelScope.launch {
+                        ioContext {
+                            loadPlayer(activity)
+                            loadGameProgress(activity)
+                        }
+                    }
+            }
+            .addOnFailureListener {
+                Timber.e(it, "Could not get authenticated state.")
+            }
+    }
+
     fun loadGameInfo(
-        signInClient: GoogleSignInClient,
-        signInLauncher: ActivityResultLauncher<Intent>,
-        @WorkerThread loadingGameProgressCallback: (finished: Boolean) -> Unit,
+        activity: Activity,
+        @WorkerThread loadingGameProgressCallback: suspend (finished: Boolean) -> Unit,
     ) {
         viewModelScope.launch {
-            /*if (correctWords.isNotEmpty()) {
-                Timber.i("Tried to load GameInfo when already loaded.")
-                return@launch
-            }*/
-
             Timber.v("Resetting error flag...")
             error = RESULT_OK
 
             Timber.v("Checking if tried to sign in ever...")
-            val context = getApplication<App>()
-            val dataStore = context.dataStore
-            if (dataStore.data.first()[PreferencesModule.TriedToSignIn] != true) {
-                Timber.i("Never shown sign in intent. Showing...")
-                startSignInIntent(signInClient, signInLauncher)
-                Timber.i("Updating tried to sign in to true...")
-                dataStore.edit { it[PreferencesModule.TriedToSignIn] = true }
-            }
-
-            val databaseSingleton = DatabaseSingleton.getInstance(context)
+            val databaseSingleton = DatabaseSingleton.getInstance(activity)
 
             doAsync {
                 Timber.v("Adding collector for words...")
@@ -154,43 +198,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     .wordsDao()
                     .getAll()
                     .collect { wordsList ->
-                        Timber.i("Introduced new word.")
-                        GoogleSignIn
-                            .getLastSignedInAccount(context)
-                            ?.let { account ->
-                                Timber.i("Saving game progress...")
-                                Timber.d("Decoding words list...")
-                                val array = JSONArray()
-                                wordsList.forEachIndexed { i, t -> array.put(i, t.jsonObject()) }
-                                val serializedString = array.toString()
-                                // Timber.v("Progress json: $serializedString")
-                                try {
-                                    Timber.d("Loading snapshot for account...")
-                                    val snapshot = context.loadSnapshot(account)
-                                    if (snapshot != null) {
-                                        Timber.d("Writing snapshot...")
-                                        val snapshotMetadata = context.writeSnapshot(
-                                            account,
-                                            snapshot,
-                                            serializedString.toByteArray(Charsets.UTF_8),
-                                            null,
-                                            "Paraulogic game save",
-                                        )
-                                        Timber.i("Saved game for ${snapshotMetadata.title}")
-                                    } else
-                                        Timber.w("Could not write snapshot since not available on server.")
-                                } catch (e: IllegalStateException) {
-                                    Timber.e(e, "Could not load snapshot.")
-                                    startSignInIntent(signInClient, signInLauncher)
-                                } catch (e: RuntimeExecutionException) {
-                                    Timber.e(e, "There's no stored snapshot.")
-                                }
-                            } ?: run { Timber.w("User not logged in") }
+                        Timber.i("Introduced new word. Storing progress...")
+                        try {
+                            storeGameProgress(activity, wordsList)
+                        } catch (e: ApiException) {
+                            if (e.statusCode == 4)
+                                Timber.e(e, "Could not store progress since user is not logged in.")
+                            else
+                                Timber.e(e, "Could not store progress.")
+                        }
                     }
             }
 
-            val gameInfo =
-                gameInfoForToday(getApplication())
+            ioContext {
+                val gameInfo = gameInfoForToday(getApplication())
                     ?:
                     // If the data could not be loaded, fetch from server.
                     try {
@@ -198,20 +219,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     } catch (e: NoSuchElementException) {
                         Timber.e(e, "Could not get game info from server.")
                         error = RESULT_NO_SUCH_ELEMENT
-                        return@launch
+                        return@ioContext
                     }
 
-            this@MainViewModel.gameInfo = gameInfo
+                this@MainViewModel.gameInfo = gameInfo
 
-            Timber.d("Loading words from server...")
-            val serverIntroducedWordsList = getServerIntroducedWordsList(
-                getApplication(),
-                gameInfo,
-                loadingGameProgressCallback,
-            )
-            Timber.d("Got ${serverIntroducedWordsList.size} words from server.")
+                Timber.d("Loading words from server...")
+                val serverIntroducedWordsList = getServerIntroducedWordsList(
+                    activity,
+                    gameInfo,
+                    loadingGameProgressCallback,
+                )
+                Timber.d("Got ${serverIntroducedWordsList.size} words from server.")
 
-            loadCorrectWords(gameInfo, serverIntroducedWordsList)
+                loadCorrectWords(gameInfo, serverIntroducedWordsList)
+            }
         }
     }
 
@@ -234,21 +256,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Runs [startSynchronization] in the view model scope.
      * @author Arnau Mora
      * @since 20220323
-     * @param context The context to launch the synchronization from.
+     * @param activity The Activity to launch the synchronization from.
      * @param gameInfo The [GameInfo] instance of the currently playing game.
      * @param history The history of all the games.
      */
     fun synchronize(
-        context: Context,
+        activity: Activity,
         gameInfo: GameInfo,
         history: List<GameInfo>,
     ) {
         viewModelScope.launch(context = Dispatchers.IO) {
-            startSynchronization(context, gameInfo, history)
+            startSynchronization(activity, gameInfo, history)
         }
     }
 
-    @UiThread
+    @WorkerThread
     @AddTrace(name = "CorrectWordsLoad")
     private suspend fun loadCorrectWords(
         gameInfo: GameInfo,
@@ -257,7 +279,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val databaseSingleton = DatabaseSingleton.getInstance(getApplication())
         val hash = gameInfo.hash
         val dao = databaseSingleton.db.wordsDao()
-        withContext(Dispatchers.IO) { dao.getAll() }
+        ioContext { dao.getAll() }
             .collect { list ->
                 correctWords.clear()
                 correctWords.addAll(
@@ -269,11 +291,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         .filter { it.isCorrect && it.hash == hash }
                 )
 
-                points = correctWords.calculatePoints(gameInfo)
-                level = getLevelFromPoints(points, gameInfo.pointsPerLevel)
+                uiContext {
+                    points = correctWords.calculatePoints(gameInfo)
+                    level = getLevelFromPoints(points, gameInfo.pointsPerLevel)
 
-                introducedTutis.clear()
-                introducedTutis.addAll(correctWords.getTutis(gameInfo))
+                    introducedTutis.clear()
+                    introducedTutis.addAll(correctWords.getTutis(gameInfo))
+                }
             }
     }
 

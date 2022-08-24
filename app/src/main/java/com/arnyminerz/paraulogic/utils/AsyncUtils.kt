@@ -7,9 +7,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-fun doAsync(@WorkerThread call: suspend CoroutineScope.() -> Unit) {
+fun doAsync(@WorkerThread call: suspend CoroutineScope.() -> Unit) =
     CoroutineScope(Dispatchers.IO).launch { call(this) }
-}
 
 /**
  * Runs the code on [call] asynchronously in the UI thread.

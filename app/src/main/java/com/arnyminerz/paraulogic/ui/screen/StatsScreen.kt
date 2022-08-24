@@ -1,5 +1,6 @@
 package com.arnyminerz.paraulogic.ui.screen
 
+import android.app.Activity
 import android.content.Intent
 import android.text.format.DateFormat
 import androidx.activity.result.ActivityResultLauncher
@@ -36,15 +37,14 @@ import com.arnyminerz.paraulogic.game.maxDate
 import com.arnyminerz.paraulogic.game.minDate
 import com.arnyminerz.paraulogic.ui.elements.DatePicker
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.games.Games
+import com.google.android.gms.games.PlayGames
 import timber.log.Timber
 import java.util.Calendar
 
 @Composable
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
-fun StatsScreen(
+fun Activity.StatsScreen(
     viewModel: MainViewModel,
     popupLauncher: ActivityResultLauncher<Intent>,
     gameHistory: SnapshotStateList<GameInfo>
@@ -117,18 +117,17 @@ fun StatsScreen(
         ) {
             Text(text = buttonText)
         }
-        Button(
-            onClick = {
-                GoogleSignIn.getLastSignedInAccount(context)?.let { account ->
-                    Games.getLeaderboardsClient(context, account)
+        if (viewModel.isAuthenticated)
+            Button(
+                onClick = {
+                    PlayGames.getLeaderboardsClient(this@StatsScreen)
                         .getLeaderboardIntent(context.getString(R.string.leaderboard_world_ranking))
                         .addOnSuccessListener { popupLauncher.launch(it) }
-                }
-            },
-            colors = ButtonDefaults.textButtonColors()
-        ) {
-            Text(text = stringResource(R.string.action_leaderboard))
-        }
+                },
+                colors = ButtonDefaults.textButtonColors()
+            ) {
+                Text(text = stringResource(R.string.action_leaderboard))
+            }
     }
     if (historyItem != null && dayFoundWords.isNotEmpty())
         Row {
