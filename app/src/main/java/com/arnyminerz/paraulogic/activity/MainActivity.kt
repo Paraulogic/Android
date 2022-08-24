@@ -2,8 +2,6 @@ package com.arnyminerz.paraulogic.activity
 
 import android.Manifest
 import android.app.AlarmManager
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
@@ -54,7 +52,6 @@ import kotlinx.coroutines.flow.first
 import org.json.JSONException
 import timber.log.Timber
 import java.io.IOException
-import java.util.Calendar
 
 @OptIn(
     ExperimentalPagerApi::class,
@@ -140,24 +137,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: MainViewModel
 
-    private val timeTickReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent?) {
-            val action = intent?.action
-
-            if (action.equals(Intent.ACTION_TIME_CHANGED) ||
-                action.equals(Intent.ACTION_TIMEZONE_CHANGED) ||
-                action.equals(Intent.ACTION_TIME_TICK)
-            ) {
-                // Note that tick gets only called once a minute, so it's not necessary to check seconds.
-                val now = Calendar.getInstance()
-                if (now.get(Calendar.HOUR_OF_DAY) == 0 && now.get(Calendar.MINUTE) == 0 && this@MainActivity::viewModel.isInitialized)
-                    doAsync {
-                        viewModel.attemptGameInfoUpdate(context)
-                    }
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -191,12 +170,6 @@ class MainActivity : AppCompatActivity() {
 
         val filter = IntentFilter(ACTION_UPDATE_GAME_DATA)
         registerReceiver(viewModel.broadcastReceiver, filter)
-
-        registerReceiver(timeTickReceiver, IntentFilter().apply {
-            addAction(Intent.ACTION_TIME_TICK)
-            addAction(Intent.ACTION_TIMEZONE_CHANGED)
-            addAction(Intent.ACTION_TIME_CHANGED)
-        })
 
         doAsync {
             // Increase number of launches
@@ -276,6 +249,5 @@ class MainActivity : AppCompatActivity() {
 
         if (this::viewModel.isInitialized)
             unregisterReceiver(viewModel.broadcastReceiver)
-        unregisterReceiver(timeTickReceiver)
     }
 }
