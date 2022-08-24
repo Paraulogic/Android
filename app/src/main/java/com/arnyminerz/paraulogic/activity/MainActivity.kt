@@ -1,6 +1,7 @@
 package com.arnyminerz.paraulogic.activity
 
 import android.content.IntentFilter
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,6 +11,9 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +29,7 @@ import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.ui.dialog.BuyCoffeeDialog
 import com.arnyminerz.paraulogic.ui.elements.MainScreen
 import com.arnyminerz.paraulogic.ui.theme.AppTheme
+import com.arnyminerz.paraulogic.ui.utils.LockScreenOrientation
 import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
 import com.arnyminerz.paraulogic.utils.doAsync
 import com.arnyminerz.paraulogic.utils.doOnUi
@@ -38,6 +43,7 @@ import timber.log.Timber
     ExperimentalMaterialApi::class,
     ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class,
+    ExperimentalMaterial3WindowSizeClassApi::class,
 )
 class MainActivity : AppCompatActivity() {
     private val popupLauncher = registerForActivityResult(
@@ -69,7 +75,15 @@ class MainActivity : AppCompatActivity() {
         increaseLaunches()
 
         setContent {
+            val windowSizeClass = calculateWindowSizeClass(this)
             val snackbarHostState = remember { SnackbarHostState() }
+
+            LockScreenOrientation(
+                when (windowSizeClass.widthSizeClass) {
+                    WindowWidthSizeClass.Compact -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    else -> ActivityInfo.SCREEN_ORIENTATION_SENSOR
+                }
+            )
 
             AppTheme {
                 MainScreen(snackbarHostState, viewModel, popupLauncher)
