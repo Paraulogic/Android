@@ -1,15 +1,16 @@
 # Paraulògic Android App
 
-![GitHub contributors](https://img.shields.io/github/contributors/ArnyminerZ/Paraulogic-Android?style=for-the-badge)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/ArnyminerZ/Paraulogic-Android?style=for-the-badge)
-![GitHub issues](https://img.shields.io/github/issues/ArnyminerZ/Paraulogic-Android?style=for-the-badge)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/ArnyminerZ/Paraulogic-Android?style=for-the-badge)
+![GitHub contributors](https://img.shields.io/github/contributors/Paraulogic/Android?style=for-the-badge)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/Paraulogic/Android?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues/Paraulogic/Android?style=for-the-badge)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/Paraulogic/Android?style=for-the-badge)
 
 <a href='https://play.google.com/store/apps/details?id=com.arnyminerz.paraulogic&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img width="200px" alt='Disponible a Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/ca_badge_web_generic.png'/></a>
 
 [![Crowdin](https://badges.crowdin.net/badge/dark/crowdin-on-light.png)](https://crowdin.com/project/paraulgic-android)
 
-**Pròxima versió:**  [![GitHub milestone](https://img.shields.io/github/milestones/progress/ArnyminerZ/Paraulogic-Android/2?style=for-the-badge)](https://github.com/ArnyminerZ/Paraulogic-Android/milestone/2)
+**Pròxima
+versió:**  [![GitHub milestone](https://img.shields.io/github/milestones/progress/Paraulogic/Android/2?style=for-the-badge)](https://github.com/Paraulogic/Android/milestone/2)
 
 Aquesta aplicació ha sigut creada totalment per a la comunitat, veient què demana la gent, i el que
 pròpiament he notat, observat, i m'han dit que estaria bé que fos afegit com a funcionalitat.
