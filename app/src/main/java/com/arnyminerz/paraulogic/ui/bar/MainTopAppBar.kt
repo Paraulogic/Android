@@ -72,7 +72,7 @@ fun AppCompatActivity.MainTopAppBar(
             )
         },
         actions = {
-            if (!viewModel.isAuthenticated)
+            if (viewModel.isAuthenticated == false)
                 IconButton(
                     onClick = {
                         PlayGames.getGamesSignInClient(this@MainTopAppBar)

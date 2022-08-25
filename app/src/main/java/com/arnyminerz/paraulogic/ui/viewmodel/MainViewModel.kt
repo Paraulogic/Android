@@ -117,7 +117,7 @@ class MainViewModel(activity: Activity) : AndroidViewModel(activity.application)
      * @since 20220825
      * @see loadAuthenticatedState
      */
-    var isAuthenticated by mutableStateOf(false)
+    var isAuthenticated by mutableStateOf<Boolean?>(null)
         @UiThread
         private set
 
@@ -224,7 +224,7 @@ class MainViewModel(activity: Activity) : AndroidViewModel(activity.application)
 
                     Timber.i("Is user authenticated: $isAuthenticated")
 
-                    if (isAuthenticated)
+                    if (isAuthenticated == true)
                         loadPlayer(activity)
                 } catch (e: ApiException) {
                     Timber.e(e, "Could not get authenticated state.")
@@ -338,11 +338,13 @@ class MainViewModel(activity: Activity) : AndroidViewModel(activity.application)
 
                 // Load all the words the player has introduced
                 Timber.d("Loading words from server...")
-                val serverIntroducedWordsList = getServerIntroducedWordsList(
-                    activity,
-                    gameInfo,
-                    loadingGameProgressCallback,
-                )
+                val serverIntroducedWordsList = if (waitForIsAuthenticatedResolution(10000, 10))
+                    getServerIntroducedWordsList(
+                        activity,
+                        gameInfo,
+                        loadingGameProgressCallback,
+                    )
+                else emptyList()
                 Timber.d("Got ${serverIntroducedWordsList.size} words from server.")
 
                 uiContext {
@@ -365,6 +367,24 @@ class MainViewModel(activity: Activity) : AndroidViewModel(activity.application)
         if (gameInfo != null) return true
         delay(checkPeriod)
         return waitForGameInfo(maxDelay - checkPeriod, checkPeriod)
+    }
+
+    /**
+     * Waits until [isAuthenticated] has a valid value, and returns it. If timed out, this is,
+     * after [maxDelay], `false` will be returned by default.
+     * @author Arnau Mora
+     * @since 20220825
+     * @param maxDelay The maximum time to wait for a resolution.
+     * @param checkPeriod How often to check the value.
+     */
+    private tailrec suspend fun waitForIsAuthenticatedResolution(
+        maxDelay: Long,
+        checkPeriod: Long
+    ): Boolean {
+        if (maxDelay < 0) return false
+        isAuthenticated?.let { return it }
+        delay(checkPeriod)
+        return waitForIsAuthenticatedResolution(maxDelay - checkPeriod, checkPeriod)
     }
 
     /**
