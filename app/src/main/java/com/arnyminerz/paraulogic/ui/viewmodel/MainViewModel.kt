@@ -1,7 +1,6 @@
 package com.arnyminerz.paraulogic.ui.viewmodel
 
 import android.app.Activity
-import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -59,7 +58,7 @@ import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel(activity: Activity) : AndroidViewModel(activity.application) {
     var gameInfo by mutableStateOf<GameInfo?>(null)
         @UiThread
         private set
@@ -112,9 +111,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         @UiThread
         private set
 
+    /**
+     * Stores whether the user is logged in or not.
+     * @author Arnau Mora
+     * @since 20220825
+     * @see loadAuthenticatedState
+     */
     var isAuthenticated by mutableStateOf(false)
         @UiThread
         private set
+
+    /**
+     * Stores the [Player] information. May be null if not logged in.
+     * @author Arnau Mora
+     * @since 20220825
+     * @see loadAuthenticatedState
+     */
     var player by mutableStateOf<Player?>(null)
         @UiThread
         private set
@@ -134,7 +146,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * @author Arnau Mora
      * @since 20220824
      */
-    lateinit var signInClient: GamesSignInClient
+    private val signInClient: GamesSignInClient = PlayGames.getGamesSignInClient(activity)
 
     /**
      * Should be registered for receiving broadcasts of [ACTION_UPDATE_GAME_DATA].
@@ -192,13 +204,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * @author Arnau Mora
      * @since 20220824
      * @param activity The [Activity] that is requesting the load.
+     * @see isAuthenticated
      */
     fun loadAuthenticatedState(activity: Activity) {
         Timber.d("Checking if client is authenticated...")
         viewModelScope.launch {
             ioContext {
                 try {
-                    val isAuthenticated = signInClient
+                    isAuthenticated = signInClient
                         .isAuthenticated
                         .await()
                         .isAuthenticated
@@ -477,10 +490,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    class Factory(private val application: Application) : ViewModelProvider.NewInstanceFactory() {
+    class Factory(private val activity: Activity) : ViewModelProvider.NewInstanceFactory() {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return MainViewModel(application) as T
+            return MainViewModel(activity) as T
         }
     }
 }

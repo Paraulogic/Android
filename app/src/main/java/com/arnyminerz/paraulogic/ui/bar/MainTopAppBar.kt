@@ -72,16 +72,16 @@ fun AppCompatActivity.MainTopAppBar(
             )
         },
         actions = {
-            if (!viewModel.isAuthenticated) {
+            if (!viewModel.isAuthenticated)
                 IconButton(
                     onClick = {
                         PlayGames.getGamesSignInClient(this@MainTopAppBar)
                             .signIn()
-                            .addOnSuccessListener {
-                                viewModel.loadAuthenticatedState(this@MainTopAppBar)
-                            }
                             .addOnFailureListener {
                                 Timber.e(it, "Could not sign in.")
+                            }
+                            .addOnCompleteListener {
+                                viewModel.loadAuthenticatedState(this@MainTopAppBar)
                             }
                     },
                     modifier = Modifier
@@ -92,7 +92,7 @@ fun AppCompatActivity.MainTopAppBar(
                         contentDescription = stringResource(R.string.image_desc_login)
                     )
                 }
-            } else {
+            else {
                 val showAchievements: () -> Unit = {
                     showAchievements(this@MainTopAppBar, popupLauncher)
                 }
