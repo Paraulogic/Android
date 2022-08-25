@@ -7,176 +7,116 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.WorkerThread
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.game.GameInfo
-import com.arnyminerz.paraulogic.game.getPoints
-import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
-import com.arnyminerz.paraulogic.storage.entity.SynchronizedWord
+import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
+import com.arnyminerz.paraulogic.storage.entity.associate
 import com.arnyminerz.paraulogic.ui.toast
-import com.arnyminerz.paraulogic.utils.getMaxDifferenceBetweenDates
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.games.PlayGames
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.analytics.ktx.logEvent
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.flow.first
 import timber.log.Timber
-import java.util.Calendar
-import java.util.Date
 
 /**
- * Synchronizes all data from device to Google Play Games
+ * Synchronizes and grants all the achievements that correspond to the user.
  * @author Arnau Mora
- * @since 20220309
+ * @since 20220825
+ * @param activity The activity that is requesting the synchronization.
+ * @param wordsList The registry of all the words the player has ever introduced.
  */
 @WorkerThread
-suspend fun startSynchronization(
+fun synchronizeAchievements(
     activity: Activity,
-    gameInfo: GameInfo,
-    history: List<GameInfo>
+    history: List<GameInfo>,
+    wordsList: List<IntroducedWord>,
 ) {
-    val databaseSingleton = DatabaseSingleton.getInstance(activity)
-    val dao = databaseSingleton.db.wordsDao()
+    val achievementsClient = PlayGames.getAchievementsClient(activity)
 
-    val dbCorrectWords = dao.getAll()
-    val dbSynchronizedWords = dao.getAllSynchronized()
+    val playedStrike = arrayListOf(0)
+    val tutisStrike = arrayListOf(0)
 
-    dbCorrectWords.collect { introducedWords ->
-        val achievementsClient = PlayGames.getAchievementsClient(activity)
+    (history to wordsList)
+        .associate()
+        .entries
+        .forEach { (_, entry) ->
+            val (gi, words) = entry
+            if (words.isEmpty() || words.find { it.isCorrect } == null)
+            // If there's a non-played day, add a new strike registry
+                playedStrike.add(0)
+            else {
+                // Increase the played strike last item by 1
+                playedStrike[playedStrike.size - 1] = playedStrike.last() + 1
 
-        var toIncrement = 0
-        var foundTutis = 0
+                // Iterate all tutis for GameInfo
+                for (tuti in gi.tutis) {
+                    // Try to find the tuti in the introduced words list
+                    val w = words.find { it.hash == gi.hash && it.word.equals(tuti, true) }
 
-        val daysPlayedHashes = hashMapOf<String, Date>()
-        val hashTutisCount = hashMapOf<String, Int>()
-        val hashTutisFound = hashMapOf<String, Int>()
-
-        Timber.i("Iterating introduced words...")
-        introducedWords.forEach { introducedWord ->
-            if (dbSynchronizedWords.first().map { it.wordId }.contains(introducedWord.uid))
-                return@forEach
-
-            Timber.d("Introduced word ${introducedWord.uid} is not synchronized.")
-
-            // Increment one point of score if word was correct.
-            if (introducedWord.isCorrect)
-                toIncrement += introducedWord.word.getPoints(gameInfo)
-
-            // Increment found tutis by 1 if word is correct and is a tuti
-            if (introducedWord.isCorrect && gameInfo.isTuti(introducedWord.word)) {
-                foundTutis += 1
-
-                if (hashTutisFound.contains(introducedWord.hash))
-                    hashTutisFound[introducedWord.hash] =
-                        hashTutisFound.getValue(introducedWord.hash) + 1
-                else
-                    hashTutisFound[introducedWord.hash] = 1
-            }
-
-            // Store at daysPlayedHashes the date for each hash
-            if (!daysPlayedHashes.contains(introducedWord.hash))
-                daysPlayedHashes[introducedWord.hash] = introducedWord.timestamp.let { timestamp ->
-                    val wordDate = Calendar.getInstance().apply { time = Date(timestamp) }
-                    Calendar.getInstance()
-                        .apply {
-                            set(Calendar.YEAR, wordDate.get(Calendar.YEAR))
-                            set(Calendar.MONTH, wordDate.get(Calendar.MONTH))
-                            set(Calendar.DAY_OF_MONTH, wordDate.get(Calendar.DAY_OF_MONTH))
-                        }
-                        .time
-                }
-
-            // If hashTutisCount doesn't contain the count for the current hash, introduce
-            if (!hashTutisCount.contains(introducedWord.hash)) {
-                val wordCalendar = Calendar
-                    .getInstance()
-                    .apply { time = Date(introducedWord.timestamp) }
-                for (item in history) {
-                    val itemCalendar = Calendar.getInstance().apply { time = item.timestamp }
-                    val isCorrectDay =
-                        itemCalendar.get(Calendar.YEAR) == wordCalendar.get(Calendar.YEAR) &&
-                                itemCalendar.get(Calendar.MONTH) == wordCalendar.get(Calendar.MONTH) &&
-                                itemCalendar.get(Calendar.DAY_OF_MONTH) == wordCalendar.get(Calendar.DAY_OF_MONTH)
-                    if (!isCorrectDay) continue
-
-                    hashTutisCount[introducedWord.hash] = item.tutisCount
+                    // If not null, it means that the tuti was introduced. Then, increase strike
+                    if (w != null)
+                        tutisStrike[tutisStrike.size - 1] = tutisStrike.last() + 1
+                    // If it's null, it means that not all tutis were found for the current gi. Then,
+                    // add a new strike registry for tutis, and stop iterating current gi
+                    else {
+                        tutisStrike.add(0)
+                        break
+                    }
                 }
             }
-
-            dao.synchronize(
-                SynchronizedWord(0, introducedWord.uid)
-            )
         }
-        Timber.i("Has to increment $toIncrement points.")
 
-        Firebase.analytics
-            .logEvent(FirebaseAnalytics.Event.POST_SCORE) {
-                param(FirebaseAnalytics.Param.SCORE, toIncrement.toLong())
-            }
+    val playedForMaxDays = playedStrike.max()
+    val allTutisForMaxDays = tutisStrike.max()
 
-        val allTutisDays = arrayListOf<Date>()
+    Timber.i("You have played at most for $playedForMaxDays consecutive days.")
+    Timber.i("You have found all tutis for at most $allTutisForMaxDays consecutive days.")
 
-        // Analyze daysPlayedHashes, hashTutisFound and hashTutisCount to find out playedForMaxDays
-        // and allTutisForMaxDays
-        for ((hash, tutisCount) in hashTutisCount)
-            try {
-                val hashDate = daysPlayedHashes.getValue(hash)
-                val tutisFound = hashTutisFound[hash]
+    // Check that the user has found at least one correct word
+    if (wordsList.find { it.isCorrect } != null)
+        achievementsClient.unlock(activity.getString(R.string.achievement_a_la_punta_de_la_llengua))
 
-                if (tutisFound == tutisCount)
-                    allTutisDays.add(hashDate)
-            } catch (e: NoSuchElementException) {
-                continue
-            }
+    // If strike is greater than 0 it means that at least 1 tuti was found
+    if (allTutisForMaxDays > 0)
+        achievementsClient.unlock(activity.getString(R.string.achievement_quin_embarbussament))
 
-        // Analyze allTutisDays to find out how many days straight
-        val allTutisForMaxDays = getMaxDifferenceBetweenDates(allTutisDays)
-        val playedForMaxDays = getMaxDifferenceBetweenDates(daysPlayedHashes.values.toList())
+    // Play for 7 straight days
+    if (playedForMaxDays >= 7)
+        achievementsClient.unlock(activity.getString(R.string.achievement_fent_i_desfent_sensenya_la_gent))
+    // Find all tutis for 7 straight days
+    if (allTutisForMaxDays >= 7)
+        achievementsClient.unlock(activity.getString(R.string.achievement_quin_embarbussament))
+}
 
-        Timber.i("You have played at most for $playedForMaxDays consecutive days.")
-        Timber.i("You have found all tutis for at most $allTutisDays consecutive days.")
+/**
+ * Increments all word-related achievements.
+ * @author Arnau Mora
+ * @since 20220825
+ * @param activity The activity that is requesting the update.
+ * @param word The word that has been introduced.
+ */
+@WorkerThread
+fun incrementAchievements(activity: Activity, word: IntroducedWord) {
+    if (!word.isCorrect)
+        return
 
-        // Find your first word
-        if (toIncrement > 0)
-            achievementsClient.unlock(activity.getString(R.string.achievement_a_la_punta_de_la_llengua))
+    val achievementsClient = PlayGames.getAchievementsClient(activity)
 
-        if (foundTutis > 0)
-            achievementsClient.unlock(activity.getString(R.string.achievement_quin_embarbussament))
+    val ach50 = activity.getString(R.string.achievement_a_ja_va)
+    val ach69 = activity.getString(R.string.achievement_tinc_la_figa_calenta)
+    val ach100 = activity.getString(R.string.achievement_a_fer_punyetes)
+    val ach200 = activity.getString(R.string.achievement_com_cagall_per_squia)
+    val ach300 = activity.getString(R.string.achievement_sem_cau_la_cara_de_vergonya)
+    val ach500 = activity.getString(R.string.achievement_mest_fent_la_guitza)
 
-        // Find 50 words
-        achievementsClient.increment(activity.getString(R.string.achievement_a_ja_va), toIncrement)
-        // Find 69 words
-        achievementsClient.increment(
-            activity.getString(R.string.achievement_tinc_la_figa_calenta),
-            toIncrement
-        )
-        // Find 100 words
-        achievementsClient.increment(
-            activity.getString(R.string.achievement_a_fer_punyetes),
-            toIncrement
-        )
-        // Find 200 words
-        achievementsClient.increment(
-            activity.getString(R.string.achievement_com_cagall_per_squia),
-            toIncrement
-        )
-        // Find 300 words
-        achievementsClient.increment(
-            activity.getString(R.string.achievement_sem_cau_la_cara_de_vergonya),
-            toIncrement
-        )
-        // Find 500 words
-        achievementsClient.increment(
-            activity.getString(R.string.achievement_mest_fent_la_guitza),
-            toIncrement
-        )
-
-        // Play for 7 straight days
-        if (playedForMaxDays >= 7)
-            achievementsClient.unlock(activity.getString(R.string.achievement_fent_i_desfent_sensenya_la_gent))
-        // Find all tutis for 7 straight days
-        if (allTutisForMaxDays >= 7)
-            achievementsClient.unlock(activity.getString(R.string.achievement_quin_embarbussament))
-    }
+    // Find 50 words
+    achievementsClient.increment(ach50, 1)
+    // Find 69 words
+    achievementsClient.increment(ach69, 1)
+    // Find 100 words
+    achievementsClient.increment(ach100, 1)
+    // Find 200 words
+    achievementsClient.increment(ach200, 1)
+    // Find 300 words
+    achievementsClient.increment(ach300, 1)
+    // Find 500 words
+    achievementsClient.increment(ach500, 1)
 }
 
 /**

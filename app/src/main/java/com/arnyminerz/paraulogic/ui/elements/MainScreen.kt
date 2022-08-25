@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.arnyminerz.paraulogic.R
+import com.arnyminerz.paraulogic.annotation.LoadError
 import com.arnyminerz.paraulogic.ui.Game
 import com.arnyminerz.paraulogic.ui.bar.MainBottomAppBar
 import com.arnyminerz.paraulogic.ui.bar.MainTopAppBar
@@ -30,7 +31,6 @@ import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
-import timber.log.Timber
 
 @Composable
 @ExperimentalPagerApi
@@ -42,10 +42,6 @@ fun AppCompatActivity.MainScreen(
     viewModel: MainViewModel,
     popupLauncher: ActivityResultLauncher<Intent>,
 ) {
-    val error = viewModel.error
-    val gameInfo = viewModel.gameInfo
-    val gameHistory = viewModel.gameHistory
-
     val pagerState = rememberPagerState()
 
     Scaffold(
@@ -53,10 +49,7 @@ fun AppCompatActivity.MainScreen(
         topBar = { MainTopAppBar(viewModel, popupLauncher) },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
-            val points = viewModel.points
-            val level = viewModel.level
-
-            MainBottomAppBar(gameInfo, points, level, pagerState)
+            MainBottomAppBar(viewModel.gameInfo, viewModel.points, viewModel.level, pagerState)
         }
     ) { paddingValues ->
         HorizontalPager(
@@ -65,11 +58,11 @@ fun AppCompatActivity.MainScreen(
             state = pagerState,
         ) { page ->
             when (page) {
-                0 -> if (gameInfo != null && error == 0) {
-                    Timber.i("Game info: $gameInfo")
-
-                    Game(gameInfo, viewModel)
-                } else if (error > 0)
+                0 -> if (viewModel.error == LoadError.RESULT_OK) {
+                    viewModel.gameInfo?.let {
+                        Game(it, viewModel)
+                    } ?: LoadingBox()
+                } else
                     Box(
                         modifier = Modifier
                             .padding(start = 48.dp, end = 48.dp)
@@ -79,7 +72,7 @@ fun AppCompatActivity.MainScreen(
                         Column {
                             Text(
                                 text = stringResource(
-                                    if (error == 1)
+                                    if (viewModel.error == 1)
                                         R.string.error_gameinfo_no_such_element
                                     else
                                         R.string.error_gameinfo_firebase
@@ -94,20 +87,19 @@ fun AppCompatActivity.MainScreen(
                             )
                         }
                     }
-                else
-                    LoadingBox()
-                1 -> if (gameHistory.isNotEmpty())
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        StatsScreen(viewModel, popupLauncher, gameHistory)
+                1 -> viewModel
+                    .gameHistory
+                    .takeIf { it.isNotEmpty() }
+                    ?.let { history ->
+                        if (viewModel.gameHistory.isNotEmpty())
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                            ) {
+                                StatsScreen(viewModel, popupLauncher, history)
+                            }
                     }
-                else
-                    LoadingBox()
+                    ?: LoadingBox()
             }
         }
-
-        if (gameInfo != null && gameHistory.isNotEmpty())
-            viewModel.synchronize(this, gameInfo, gameHistory)
     }
 }

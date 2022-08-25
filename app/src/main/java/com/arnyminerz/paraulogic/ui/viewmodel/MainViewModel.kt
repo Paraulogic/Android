@@ -5,9 +5,9 @@ import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
@@ -27,10 +27,11 @@ import com.arnyminerz.paraulogic.game.getLevelFromPoints
 import com.arnyminerz.paraulogic.game.getServerIntroducedWordsList
 import com.arnyminerz.paraulogic.game.getTutis
 import com.arnyminerz.paraulogic.game.loadGameHistoryFromServer
-import com.arnyminerz.paraulogic.play.games.loadGameProgress
-import com.arnyminerz.paraulogic.play.games.startSynchronization
+import com.arnyminerz.paraulogic.play.games.incrementAchievements
 import com.arnyminerz.paraulogic.play.games.storeGameProgress
-import com.arnyminerz.paraulogic.pref.PreferencesModule
+import com.arnyminerz.paraulogic.play.games.synchronizeAchievements
+import com.arnyminerz.paraulogic.pref.PrefDisableDonationDialog
+import com.arnyminerz.paraulogic.pref.PrefNumberOfLaunches
 import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
@@ -41,16 +42,18 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.games.GamesSignInClient
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.Player
-import com.google.firebase.FirebaseException
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.perf.metrics.AddTrace
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Calendar
@@ -58,53 +61,73 @@ import java.util.Date
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     var gameInfo by mutableStateOf<GameInfo?>(null)
+        @UiThread
         private set
 
-    val correctWords = mutableStateListOf<IntroducedWord>()
+    /**
+     * Stores all the words the user has introduced and were correct for the current [GameInfo].
+     * @author Arnau Mora
+     * @since 20220825
+     */
+    var correctWords by mutableStateOf(emptyList<IntroducedWord>())
+        @UiThread
+        private set
 
     /**
      * Specifies if an error has happened.
      * List:
-     * * <pre>0</pre>: No error
-     * * <pre>1</pre>: [NoSuchElementException]
-     * * <pre>2</pre>: [FirebaseException]
+     * * [RESULT_OK]: No error
+     * * [RESULT_NO_SUCH_ELEMENT]: [NoSuchElementException]
      * @author Arnau Mora
      * @since 20220320
      */
     var error by mutableStateOf<@LoadError Int>(0)
+        @UiThread
         private set
 
     var points by mutableStateOf(0)
+        @UiThread
         private set
     var level by mutableStateOf(0)
+        @UiThread
         private set
-    val introducedTutis = mutableStateListOf<IntroducedWord>()
+    var introducedTutis by mutableStateOf(emptyList<IntroducedWord>())
+        @UiThread
+        private set
 
-    val gameHistory = mutableStateListOf<GameInfo>()
-    var dayFoundWords by mutableStateOf<List<IntroducedWord>>(emptyList())
+    var gameHistory by mutableStateOf(emptyList<GameInfo>())
+        @UiThread
         private set
-    var dayFoundTutis by mutableStateOf<List<IntroducedWord>>(emptyList())
+    var dayFoundWords by mutableStateOf(emptyList<IntroducedWord>())
+        @UiThread
         private set
-    var dayWrongWords by mutableStateOf<Map<String, Int>>(emptyMap())
+    var dayFoundTutis by mutableStateOf(emptyList<IntroducedWord>())
+        @UiThread
+        private set
+    var dayWrongWords by mutableStateOf(emptyMap<String, Int>())
+        @UiThread
         private set
 
     var isLoading by mutableStateOf(false)
+        @UiThread
         private set
 
     var isAuthenticated by mutableStateOf(false)
+        @UiThread
         private set
     var player by mutableStateOf<Player?>(null)
+        @UiThread
         private set
 
     val prefNumberOfLaunches = getApplication<App>()
         .dataStore
         .data
-        .map { it[PreferencesModule.NumberOfLaunches] ?: 0 }
+        .map { it[PrefNumberOfLaunches] ?: 0 }
 
     val prefDisableDonationDialog = getApplication<App>()
         .dataStore
         .data
-        .map { it[PreferencesModule.DisableDonationDialog] ?: false }
+        .map { it[PrefDisableDonationDialog] ?: false }
 
     /**
      * Used for fetching the authentication state of the player.
@@ -144,15 +167,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             Timber.d("There's no new game data available.")
     }
 
-    private fun loadPlayer(activity: Activity) {
-        Timber.d("Loading player data...")
-        PlayGames.getPlayersClient(activity)
-            .currentPlayer
-            .addOnSuccessListener {
-                Timber.d("Loaded player data.")
-                player = it
-            }
-            .addOnFailureListener { Timber.e(it, "Could not load player data.") }
+    /**
+     * Loads the data of the logged in player, and updates [player] accordingly if no errors occur.
+     * @author Arnau Mora
+     * @since 20220825
+     */
+    @WorkerThread
+    private suspend fun loadPlayer(activity: Activity) {
+        try {
+            Timber.d("Loading player data...")
+            val playerData = PlayGames.getPlayersClient(activity)
+                .currentPlayer
+                .await()
+            uiContext { player = playerData }
+        } catch (e: ApiException) {
+            Timber.e(e, "Could not load player data.")
+        }
     }
 
     /**
@@ -165,24 +195,38 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun loadAuthenticatedState(activity: Activity) {
         Timber.d("Checking if client is authenticated...")
-        signInClient
-            .isAuthenticated
-            .addOnSuccessListener { result ->
-                isAuthenticated = result.isAuthenticated
-                Timber.i("Is user authenticated: $isAuthenticated")
-                if (isAuthenticated)
-                    viewModelScope.launch {
-                        ioContext {
-                            loadPlayer(activity)
-                            loadGameProgress(activity)
-                        }
-                    }
+        viewModelScope.launch {
+            ioContext {
+                try {
+                    val isAuthenticated = signInClient
+                        .isAuthenticated
+                        .await()
+                        .isAuthenticated
+
+                    Timber.i("Is user authenticated: $isAuthenticated")
+
+                    if (isAuthenticated)
+                        loadPlayer(activity)
+                } catch (e: ApiException) {
+                    Timber.e(e, "Could not get authenticated state.")
+                }
             }
-            .addOnFailureListener {
-                Timber.e(it, "Could not get authenticated state.")
-            }
+        }
     }
 
+    /**
+     * Loads all the game information for the day. This includes fetching the [GameInfo] from the
+     * local storage, or the server if not stored locally (updates [gameInfo]). Also adds a collector
+     * to the words dao, which updates [correctWords], [points], [level] and [introducedTutis].
+     *
+     * Progress can be observed with [isLoading], and errors can be handled with [error].
+     * @author Arnau Mora
+     * @since 20220825
+     * @param activity The activity that is requesting the load.
+     * @param loadingGameProgressCallback Will get called asynchronously when loading the player's
+     * progress from the server. If `finished` is `false`, it means that the load has been started,
+     * and a value of `true` indicates that the load has been finished.
+     */
     fun loadGameInfo(
         activity: Activity,
         @WorkerThread loadingGameProgressCallback: suspend (finished: Boolean) -> Unit,
@@ -196,13 +240,54 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val databaseSingleton = DatabaseSingleton.getInstance(activity)
 
             doAsync {
+                loadGameHistory()
+            }
+
+            // This starts a new thread asynchronously which will keep track of introduced words.
+            doAsync {
                 Timber.v("Adding collector for words...")
                 databaseSingleton
-                    .db
+                    .appDatabase
                     .wordsDao()
                     .getAll()
-                    .collect { wordsList ->
-                        Timber.i("Introduced new word. Storing progress...")
+                    // This will get called whenever a new word is introduced
+                    // Note that it will also get called once when initializing the app.
+                    .collectLatest { wordsList ->
+                        Timber.i("Updated words dao.")
+
+                        // Wait until GameInfo is available, or 10 seconds have passed
+                        waitForGameInfo(10000, 10)
+
+                        // Declare a new GameInfo for being immutable
+                        val gameInfo = gameInfo
+                        if (gameInfo == null) {
+                            Timber.e("Could not compute new words list. GameInfo is null.")
+                            return@collectLatest
+                        }
+
+                        // Compute the correct words list asynchronously.
+                        val correctWords = ioContext {
+                            wordsList
+                                // Will store at correctWords all the words that match the current
+                                // gameInfo, and are correct.
+                                .filter { it.hash == gameInfo.hash && it.isCorrect }
+                        }
+                        val points = correctWords.calculatePoints(gameInfo)
+                        val level = getLevelFromPoints(points, gameInfo.pointsPerLevel)
+                        val tutis = correctWords.getTutis(gameInfo)
+
+                        uiContext {
+                            // Update correct words
+                            this@MainViewModel.correctWords = correctWords
+                            this@MainViewModel.points = points
+                            this@MainViewModel.level = level
+                            this@MainViewModel.introducedTutis = tutis
+                        }
+
+                        // Give achievements if any
+                        synchronizeAchievements(activity, gameHistory, wordsList)
+
+                        Timber.d("Storing progress...")
                         try {
                             storeGameProgress(activity, wordsList)
                         } catch (e: ApiException) {
@@ -226,8 +311,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         return@ioContext
                     }
 
+                // Update the state of gameInfo with the obtained data
+                uiContext {
+
+                }
                 this@MainViewModel.gameInfo = gameInfo
 
+                // Load all the words the player has introduced
                 Timber.d("Loading words from server...")
                 val serverIntroducedWordsList = getServerIntroducedWordsList(
                     activity,
@@ -241,75 +331,78 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     isLoading = false
                 }
 
-                loadCorrectWords(gameInfo, serverIntroducedWordsList)
-            }
-        }
-    }
-
-    @AddTrace(name = "GameHistoryLoad")
-    fun loadGameHistory() {
-        viewModelScope.launch {
-            Timber.d("Loading game history...")
-            try {
-                gameHistory.clear()
-                loadGameHistoryFromServer(getApplication()) { gameHistory.add(it) }
-            } catch (e: NoSuchElementException) {
-                Timber.e(e, "Data from server is not valid.")
-            } catch (e: FirebaseException) {
-                Timber.e(e, "Could not load data from server.")
+                loadCorrectWords(serverIntroducedWordsList)
             }
         }
     }
 
     /**
-     * Runs [startSynchronization] in the view model scope.
+     * Waits until [gameInfo] is ready and returns true when it is. Otherwise returns false.
      * @author Arnau Mora
-     * @since 20220323
-     * @param activity The Activity to launch the synchronization from.
-     * @param gameInfo The [GameInfo] instance of the currently playing game.
-     * @param history The history of all the games.
+     * @since 20220825
      */
-    fun synchronize(
-        activity: Activity,
-        gameInfo: GameInfo,
-        history: List<GameInfo>,
-    ) {
-        viewModelScope.launch(context = Dispatchers.IO) {
-            startSynchronization(activity, gameInfo, history)
+    private tailrec suspend fun waitForGameInfo(maxDelay: Long, checkPeriod: Long): Boolean {
+        if (maxDelay < 0) return false
+        if (gameInfo != null) return true
+        delay(checkPeriod)
+        return waitForGameInfo(maxDelay - checkPeriod, checkPeriod)
+    }
+
+    /**
+     * Loads all the games registered in the server, and updates [gameHistory] with the list.
+     * @author Arnau Mora
+     * @since 20220825
+     */
+    @WorkerThread
+    @AddTrace(name = "GameHistoryLoad")
+    private suspend fun loadGameHistory() {
+        Timber.d("Loading game history...")
+        val gameHistory = try {
+            loadGameHistoryFromServer(getApplication())
+        } catch (e: NoSuchElementException) {
+            Timber.e(e, "Data from server is not valid.")
+            return
+        }
+
+        uiContext {
+            Timber.d("Game history ready. Updating state...")
+            this@MainViewModel.gameHistory = gameHistory
         }
     }
 
+    /**
+     * Gets all the words stored in the database, and compares them with the ones at
+     * [serverIntroducedWordsList]. If there are some missing, they get added to the local database.
+     * Those added words will get synchronized with the server automatically with the collector
+     * added in [loadGameInfo].
+     * @author Arnau Mora
+     * @since 20220825
+     * @param serverIntroducedWordsList The words the player has stored in the server.
+     */
     @WorkerThread
     @AddTrace(name = "CorrectWordsLoad")
     private suspend fun loadCorrectWords(
-        gameInfo: GameInfo,
         serverIntroducedWordsList: List<IntroducedWord>,
     ) {
-        val hash = gameInfo.hash
-        DatabaseSingleton
+        val wordsDao = DatabaseSingleton
             .getInstance(getApplication())
-            .db
+            .appDatabase
             .wordsDao()
+        val databaseWords = wordsDao
             .getAll()
-            .collect { list ->
-                correctWords.clear()
-                correctWords.addAll(
-                    listOf(
-                        serverIntroducedWordsList,
-                        list.filter { !serverIntroducedWordsList.contains(it) }
-                    )
-                        .flatten()
-                        .filter { it.isCorrect && it.hash == hash }
-                )
+            .first()
+        val newWords = arrayListOf<IntroducedWord>()
 
-                uiContext {
-                    points = correctWords.calculatePoints(gameInfo)
-                    level = getLevelFromPoints(points, gameInfo.pointsPerLevel)
+        // Iterate all the words in serverIntroducedWordsList and add them to newWords if not
+        // present in databaseWords.
+        serverIntroducedWordsList.forEach { word ->
+            if (!databaseWords.contains(word))
+                newWords.add(word)
+        }
 
-                    introducedTutis.clear()
-                    introducedTutis.addAll(correctWords.getTutis(gameInfo))
-                }
-            }
+        // Add all the new words to the words dao if any. This will call the collector at loadGameInfo.
+        if (newWords.isNotEmpty())
+            wordsDao.put(*newWords.toTypedArray())
     }
 
     @AddTrace(name = "DailyWordsLoad")
@@ -319,7 +412,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             dateCalendar.time = date
 
             val databaseSingleton = DatabaseSingleton.getInstance(getApplication())
-            val dao = databaseSingleton.db.wordsDao()
+            val dao = databaseSingleton.appDatabase.wordsDao()
             val dbWords = ioContext { dao.getAll() }
             val tempDayFoundWords = dbWords
                 .first()
@@ -354,19 +447,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun introduceWord(
+        activity: Activity,
         gameInfo: GameInfo,
         word: String,
         isCorrect: Boolean,
     ) {
         val databaseSingleton = DatabaseSingleton.getInstance(getApplication())
         viewModelScope.launch {
-            val dao = databaseSingleton.db.wordsDao()
+            val dao = databaseSingleton.appDatabase.wordsDao()
             val now = Calendar.getInstance().timeInMillis
             val hash = gameInfo.hash
             withContext(Dispatchers.IO) {
-                dao.put(
-                    IntroducedWord(0, now, hash, word, isCorrect)
-                )
+                val introducedWord = IntroducedWord(0, now, hash, word, isCorrect)
+                incrementAchievements(activity, introducedWord)
+                dao.put(introducedWord)
             }
             Firebase.analytics
                 .logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {

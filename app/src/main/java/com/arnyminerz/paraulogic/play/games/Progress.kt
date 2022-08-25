@@ -5,7 +5,6 @@ import androidx.annotation.WorkerThread
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.arnyminerz.paraulogic.R
-import com.arnyminerz.paraulogic.singleton.DatabaseSingleton
 import com.arnyminerz.paraulogic.storage.entity.IntroducedWord
 import com.arnyminerz.paraulogic.utils.genericMap
 import com.arnyminerz.paraulogic.utils.toJsonArray
@@ -14,7 +13,7 @@ import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.SnapshotsClient
 import com.google.android.gms.games.snapshot.SnapshotMetadataChange
 import com.google.android.gms.tasks.RuntimeExecutionException
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.tasks.await
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -32,7 +31,7 @@ import kotlin.coroutines.suspendCoroutine
 const val SNAPSHOT_SAVE_NAME = "Paraulogic"
 
 @WorkerThread
-suspend fun loadGameSnapshot(
+private suspend fun loadGameSnapshot(
     activity: Activity,
     conflictResolutionPolicy: Int = SnapshotsClient.RESOLUTION_POLICY_MOST_RECENTLY_MODIFIED,
 ) = suspendCoroutine { cont ->
@@ -49,7 +48,17 @@ suspend fun loadGameSnapshot(
         }
 }
 
+/**
+ * Gets all the words the user has ever introduced. This is, the progress stored in the server.
+ * @author Arnau Mora
+ * @since 20220825
+ * @param activity The activity that is requesting the data.
+ * @return A list of [IntroducedWord] with all the data the user has ever introduced into the server.
+ * @throws IllegalStateException When an element from the server doesn't have a valid type
+ * ([JSONObject], [JSONArray]).
+ */
 @WorkerThread
+@Throws(IllegalStateException::class)
 suspend fun loadIntroducedWords(activity: Activity) =
     try {
         loadGameSnapshot(activity)
@@ -57,7 +66,7 @@ suspend fun loadIntroducedWords(activity: Activity) =
             .readFully()
             .let { String(it) }
             .takeIf { it.isNotBlank() }
-            ?.also { Timber.i("Server JSON: $it") }
+            // ?.also { Timber.i("Server JSON: $it") }
             ?.toJsonArray()
             ?.genericMap { item ->
                 when (item) {
@@ -86,27 +95,6 @@ suspend fun loadIntroducedWords(activity: Activity) =
         null
     } ?: emptyList()
 
-@WorkerThread
-suspend fun loadGameProgress(activity: Activity) {
-    Timber.i("Loading game progress...")
-    try {
-        val words = loadIntroducedWords(activity)
-
-        DatabaseSingleton.getInstance(activity)
-            .db
-            .wordsDao()
-            .let { wordsDao ->
-                val wordsList = wordsDao.getAll().first()
-                if (wordsList.isEmpty()) {
-                    Timber.i("Adding ${words.size} words to local db")
-                    wordsDao.put(*words.toTypedArray())
-                }
-            }
-    } catch (e: ApiException) {
-        Timber.e(e, "Could not load game progress.")
-    }
-}
-
 suspend fun storeGameProgress(activity: Activity, wordsList: List<IntroducedWord>) {
     Timber.i("Saving game progress...")
     Timber.d("Decoding words list...")
@@ -129,4 +117,5 @@ suspend fun storeGameProgress(activity: Activity, wordsList: List<IntroducedWord
 
     PlayGames.getSnapshotsClient(activity)
         .commitAndClose(snapshot, metadataChange)
+        .await()
 }

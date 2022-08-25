@@ -15,6 +15,7 @@ import com.google.firebase.perf.metrics.AddTrace
 import kotlinx.coroutines.flow.first
 import org.json.JSONObject
 import timber.log.Timber
+import java.io.IOException
 import java.util.Calendar
 import java.util.Date
 import kotlin.coroutines.resume
@@ -27,10 +28,8 @@ import kotlin.coroutines.suspendCoroutine
  * @since 20220312
  * @param context The context to initialize Firebase Firestore from.
  * @param limit How many items to load at most.
- * @throws FirebaseException If there happens to be an error while loading data from server.
  */
 @AddTrace(name = "ServerLoad")
-@Throws(FirebaseException::class)
 private suspend fun serverData(
     context: Context,
     limit: Long = 1,
@@ -81,17 +80,16 @@ private suspend fun loadGameInfoFromServer(context: Context): GameInfo {
  * Loads all the games there has ever been from the server.
  * @author Arnau Mora
  * @since 20220312
- * @param context The context to initialize the Firestore instance from.
+ * @param context The context that is requesting the data.
  * @param itemLoaded Will get called once each item of the history gets loaded.
- * @return A list of the found [GameHistoryItem].
- * @throws FirebaseException If there happens to be an error while loading data from server.
+ * @return A list of the found [GameInfo].
  * @throws NoSuchElementException Could not get the game data from server.
+ * @throws IOException When there's an error with the data loading.
  */
 @AddTrace(name = "HistoryLoad")
-@Throws(NoSuchElementException::class, FirebaseException::class)
+@Throws(NoSuchElementException::class, IOException::class)
 suspend fun loadGameHistoryFromServer(
     context: Context,
-    itemLoaded: ((item: GameInfo) -> Unit)? = null
 ): List<GameInfo> {
     val result = serverData(context, limit = 10000)
 
@@ -100,18 +98,11 @@ suspend fun loadGameHistoryFromServer(
         throw NoSuchElementException("Could not get data from server")
 
     Timber.d("Got documents, decoding GameHistoryItem...")
-    val history = arrayListOf<GameInfo>()
-    val historyData = result
+    return result
+        // Get the data array
         .getJSONArray("data")
-        .mapJsonObject { it }
-    for (data in historyData) {
-        val gameInfo = GameInfo.fromJson(data)
-        history.add(gameInfo)
-        itemLoaded?.invoke(gameInfo)
-
-        Timber.i("Added game from ${gameInfo.timestamp}.")
-    }
-    return history
+        // Convert each field to GameInfo
+        .mapJsonObject { GameInfo.fromJson(it) }
 }
 
 /**
@@ -134,7 +125,7 @@ suspend fun fetchAndStoreGameInfo(context: Context): GameInfo {
                 Timber.d("Storing GameInfo in db...")
                 ioContext {
                     databaseSingleton
-                        .db
+                        .appDatabase
                         .gameInfoDao()
                         .put(GameInfoEntity.fromGameInfo(gameInfo))
                 }
@@ -154,7 +145,7 @@ suspend fun fetchAndStoreGameInfo(context: Context): GameInfo {
 suspend fun gameInfoForToday(context: Context): GameInfo? =
     DatabaseSingleton.getInstance(context)
         // Get the database
-        .db
+        .appDatabase
         // Access the GameInfo Dao
         .gameInfoDao()
         // Call the getAll method to fetch all the stored games

@@ -3,38 +3,19 @@ package com.arnyminerz.paraulogic.play.games
 import android.app.Activity
 import androidx.annotation.WorkerThread
 import com.arnyminerz.paraulogic.R
-import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.games.AnnotatedData
 import com.google.android.gms.games.LeaderboardsClient
+import com.google.android.gms.games.LeaderboardsClient.LeaderboardScores
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.leaderboard.LeaderboardVariant
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import timber.log.Timber
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
-
-private var missingAddedPoints = arrayListOf<Long>()
-
-/**
- * Tries to add all the points that have not been able to be added.
- * @author Arnau Mora
- * @since 20220309
- */
-@WorkerThread
-suspend fun tryToAddPoints(activity: Activity) {
-    val points = missingAddedPoints.sum()
-    if (points > 0)
-        addPlayerPoints(
-            activity,
-            points,
-            { error ->
-                Timber.e(error, "Could still not add points.")
-            },
-            { missingAddedPoints.clear() },
-        )
-    else
-        Timber.d("No points to get added.")
-}
 
 @WorkerThread
 private suspend fun LeaderboardsClient.getLeaderboardAnnotatedData(
@@ -51,50 +32,35 @@ private suspend fun LeaderboardsClient.getLeaderboardAnnotatedData(
         .addOnFailureListener { cont.resumeWithException(it) }
 }
 
-/**
- * Adds [points] to the player's leaderboard.
- * @author Arnau Mora
- * @since 20220309
- */
-@WorkerThread
-private suspend fun addPlayerPoints(
+suspend fun getPlayerPoints(
     activity: Activity,
-    points: Long,
-    errorListener: (e: ApiException) -> Unit,
-    onAdded: () -> Unit
-) {
+    leaderboardsClient: LeaderboardsClient = PlayGames.getLeaderboardsClient(activity),
+): Long {
     Timber.d("Getting leaderboard id...")
     val leaderboardId = activity.getString(R.string.leaderboard_world_ranking)
 
-    val leaderboardsClient = PlayGames.getLeaderboardsClient(activity)
+    var leaderboardScore: LeaderboardScores? = null
+    return try {
+        Timber.v("Getting current player leaderboard...")
+        val lsad = leaderboardsClient.getLeaderboardAnnotatedData(leaderboardId, 1)
+        leaderboardScore = lsad.get() ?: run {
+            Timber.e("Could not fetch user score. Leaderboard score is null.")
+            return 0
+        }
 
-    Timber.v("Getting current player leaderboard...")
-    val lsad = leaderboardsClient.getLeaderboardAnnotatedData(leaderboardId, 1)
-    val leaderboardScore = lsad.get() ?: run {
-        Timber.e("Could not fetch user score. Leaderboard score is null.")
-        return
-    }
-
-    try {
         val scores = leaderboardScore.scores
         Timber.d("Scores (${scores.count}): $scores")
 
-        val score = if (scores.count <= 0)
-            0
-        else
-            scores
-                .get(0)
-                .rawScore
-        Timber.d("Current player score: $score")
-
-        val newScore = score + points
-        Timber.v("Submitting new score: $newScore")
-        leaderboardsClient.submitScore(leaderboardId, newScore)
-        onAdded()
+        scores
+            .takeIf { it.count > 0 }
+            ?.get(0)
+            ?.rawScore
+            ?: 0
     } catch (e: IllegalStateException) {
         Timber.e(e, "Could not get score.")
+        0
     } finally {
-        leaderboardScore.release()
+        leaderboardScore?.release()
     }
 }
 
@@ -102,6 +68,27 @@ private suspend fun addPlayerPoints(
  * Adds [points] to the player's leaderboard.
  * @author Arnau Mora
  * @since 20220309
+ * @param activity The activity that is requesting the update.
+ * @param points The amount of points to add.
  */
-suspend fun addPlayerPoints(activity: Activity, points: Long) =
-    addPlayerPoints(activity, points, { }, { })
+@WorkerThread
+suspend fun addPlayerPoints(
+    activity: Activity,
+    points: Long,
+) {
+    Timber.d("Getting leaderboard id...")
+    val leaderboardId = activity.getString(R.string.leaderboard_world_ranking)
+
+    val leaderboardsClient = PlayGames.getLeaderboardsClient(activity)
+
+    Firebase.analytics
+        .logEvent(FirebaseAnalytics.Event.POST_SCORE) {
+            param(FirebaseAnalytics.Param.SCORE, points)
+        }
+
+    val score = getPlayerPoints(activity, leaderboardsClient)
+    val newScore = score + points
+
+    Timber.v("Submitting new score: $newScore")
+    leaderboardsClient.submitScore(leaderboardId, newScore)
+}
