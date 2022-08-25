@@ -33,7 +33,6 @@ import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
 import com.arnyminerz.paraulogic.utils.doAsync
 import com.arnyminerz.paraulogic.utils.doOnUi
 import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.android.gms.games.PlayGames
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
 
@@ -130,6 +129,13 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (this::viewModel.isInitialized)
+            viewModel.loadAuthenticatedState(this)
     }
 
     override fun onDestroy() {
