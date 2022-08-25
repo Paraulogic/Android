@@ -100,7 +100,6 @@ fun AppCompatActivity.Game(
             letters.lettersString(gameInfo.centerLetter),
             { _, letter -> text += letter },
             modifier = Modifier.padding(top = 16.dp),
-            enabled = !viewModel.isLoading,
         )
 
         Row(
@@ -117,12 +116,10 @@ fun AppCompatActivity.Game(
                     onClick = { if (text.isNotEmpty()) text = text.substring(0, text.length - 1) },
                     onLongClick = { text = "" },
                     colors = ButtonDefaults.outlinedButtonColors(),
-                    enabled = !viewModel.isLoading,
                 ) { Text(stringResource(R.string.action_delete)) }
             }
             IconButton(
                 onClick = { gameInfo.shuffle() },
-                enabled = !viewModel.isLoading,
             ) {
                 Icon(
                     Icons.Rounded.Refresh,
