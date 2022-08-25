@@ -1,7 +1,6 @@
 package com.arnyminerz.paraulogic.ui.viewmodel
 
 import android.app.Activity
-import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -212,7 +211,7 @@ class MainViewModel(activity: Activity) : AndroidViewModel(activity.application)
         viewModelScope.launch {
             ioContext {
                 try {
-                    val isAuthenticated = signInClient
+                    isAuthenticated = signInClient
                         .isAuthenticated
                         .await()
                         .isAuthenticated
