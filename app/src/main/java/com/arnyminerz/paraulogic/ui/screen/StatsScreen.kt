@@ -116,7 +116,7 @@ fun Activity.StatsScreen(
         ) {
             Text(text = buttonText)
         }
-        if (viewModel.isAuthenticated)
+        if (viewModel.isAuthenticated == true)
             Button(
                 onClick = {
                     PlayGames.getLeaderboardsClient(this@StatsScreen)
