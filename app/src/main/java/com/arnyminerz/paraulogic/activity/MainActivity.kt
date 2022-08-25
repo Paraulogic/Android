@@ -70,11 +70,8 @@ class MainActivity : AppCompatActivity() {
         Timber.d("Initializing main view model...")
         viewModel = ViewModelProvider(
             this,
-            MainViewModel.Factory(application)
+            MainViewModel.Factory(this)
         )[MainViewModel::class.java]
-
-        Timber.d("Creating sign in client...")
-        viewModel.signInClient = PlayGames.getGamesSignInClient(this)
 
         viewModel.loadAuthenticatedState(this)
 

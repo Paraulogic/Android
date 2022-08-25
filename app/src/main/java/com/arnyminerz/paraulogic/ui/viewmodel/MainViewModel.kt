@@ -59,7 +59,7 @@ import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel(activity: Activity) : AndroidViewModel(activity.application) {
     var gameInfo by mutableStateOf<GameInfo?>(null)
         @UiThread
         private set
@@ -134,7 +134,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * @author Arnau Mora
      * @since 20220824
      */
-    lateinit var signInClient: GamesSignInClient
+    private val signInClient: GamesSignInClient = PlayGames.getGamesSignInClient(activity)
 
     /**
      * Should be registered for receiving broadcasts of [ACTION_UPDATE_GAME_DATA].
@@ -477,10 +477,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    class Factory(private val application: Application) : ViewModelProvider.NewInstanceFactory() {
+    class Factory(private val activity: Activity) : ViewModelProvider.NewInstanceFactory() {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return MainViewModel(application) as T
+            return MainViewModel(activity) as T
         }
     }
 }
