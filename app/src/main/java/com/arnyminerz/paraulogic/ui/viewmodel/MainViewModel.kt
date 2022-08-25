@@ -112,9 +112,22 @@ class MainViewModel(activity: Activity) : AndroidViewModel(activity.application)
         @UiThread
         private set
 
+    /**
+     * Stores whether the user is logged in or not.
+     * @author Arnau Mora
+     * @since 20220825
+     * @see loadAuthenticatedState
+     */
     var isAuthenticated by mutableStateOf(false)
         @UiThread
         private set
+
+    /**
+     * Stores the [Player] information. May be null if not logged in.
+     * @author Arnau Mora
+     * @since 20220825
+     * @see loadAuthenticatedState
+     */
     var player by mutableStateOf<Player?>(null)
         @UiThread
         private set
@@ -192,6 +205,7 @@ class MainViewModel(activity: Activity) : AndroidViewModel(activity.application)
      * @author Arnau Mora
      * @since 20220824
      * @param activity The [Activity] that is requesting the load.
+     * @see isAuthenticated
      */
     fun loadAuthenticatedState(activity: Activity) {
         Timber.d("Checking if client is authenticated...")
