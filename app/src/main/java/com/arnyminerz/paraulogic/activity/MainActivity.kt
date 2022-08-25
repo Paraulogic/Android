@@ -23,8 +23,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModelProvider
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.broadcast.ACTION_UPDATE_GAME_DATA
-import com.arnyminerz.paraulogic.play.games.tryToAddPoints
-import com.arnyminerz.paraulogic.pref.PreferencesModule
+import com.arnyminerz.paraulogic.pref.PrefNumberOfLaunches
 import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.ui.dialog.BuyCoffeeDialog
 import com.arnyminerz.paraulogic.ui.elements.MainScreen
@@ -46,6 +45,11 @@ import timber.log.Timber
     ExperimentalMaterial3WindowSizeClassApi::class,
 )
 class MainActivity : AppCompatActivity() {
+    /**
+     * Used for displaying popups to the user, such as the achievements screen, or the leaderboard.
+     * @author Arnau Mora
+     * @since 20220825
+     */
     private val popupLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -53,6 +57,11 @@ class MainActivity : AppCompatActivity() {
         Timber.i("Closed popup. Result code: ${result.resultCode}. Data: ${data?.data}")
     }
 
+    /**
+     * The view model used for doing all the hard work.
+     * @author Arnau Mora
+     * @since 20220825
+     */
     private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,40 +115,23 @@ class MainActivity : AppCompatActivity() {
                     showingDialog = true
             }
 
-            viewModel.loadGameInfo(this) { finished ->
-                doOnUi {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    if (finished)
-                        snackbarHostState.showSnackbar(
-                            message = getString(R.string.status_loaded_server),
-                            duration = SnackbarDuration.Short,
-                        )
-                    else
-                        snackbarHostState.showSnackbar(
-                            message = getString(R.string.status_loading_server),
-                            duration = SnackbarDuration.Indefinite,
-                        )
+            // This makes sure data only gets loaded once, and not every redraw
+            if (!viewModel.isLoading && viewModel.gameInfo == null)
+                viewModel.loadGameInfo(this) { finished ->
+                    doOnUi {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        if (finished)
+                            snackbarHostState.showSnackbar(
+                                message = getString(R.string.status_loaded_server),
+                                duration = SnackbarDuration.Short,
+                            )
+                        else
+                            snackbarHostState.showSnackbar(
+                                message = getString(R.string.status_loading_server),
+                                duration = SnackbarDuration.Indefinite,
+                            )
+                    }
                 }
-            }
-            viewModel.loadGameHistory()
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        doAsync {
-            Timber.i("Trying to add missing points...")
-            tryToAddPoints(this@MainActivity)
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        doAsync {
-            Timber.i("Trying to add missing points...")
-            tryToAddPoints(this@MainActivity)
         }
     }
 
@@ -150,13 +142,21 @@ class MainActivity : AppCompatActivity() {
             unregisterReceiver(viewModel.broadcastReceiver)
     }
 
+    /**
+     * Increase the launches counter by 1.
+     * @author Arnau Mora
+     * @since 20220825
+     * @see dataStore
+     * @see PrefNumberOfLaunches
+     */
     private fun increaseLaunches() =
         doAsync {
             // Increase number of launches
             dataStore.edit {
-                val dataStoreData = dataStore.data.first()
-                it[PreferencesModule.NumberOfLaunches] =
-                    dataStoreData[PreferencesModule.NumberOfLaunches]?.plus(1) ?: 0
+                val numberOfLaunches = dataStore
+                    .data
+                    .first()[PrefNumberOfLaunches]
+                it[PrefNumberOfLaunches] = numberOfLaunches?.plus(1) ?: 1
             }
         }
 }

@@ -21,7 +21,7 @@ class DatabaseSingleton constructor(context: Context) {
             }
     }
 
-    val db: AppDatabase by lazy {
+    val appDatabase: AppDatabase by lazy {
         Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, DATABASE_NAME)
             .addMigrations(
                 object : Migration(1, 2) {

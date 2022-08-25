@@ -2,6 +2,7 @@ package com.arnyminerz.paraulogic.ui
 
 import android.media.MediaPlayer
 import androidx.annotation.UiThread
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -54,7 +55,7 @@ import timber.log.Timber
 @Composable
 @ExperimentalMaterial3Api
 @ExperimentalFoundationApi
-fun Game(
+fun AppCompatActivity.Game(
     gameInfo: GameInfo,
     viewModel: MainViewModel,
 ) {
@@ -187,6 +188,7 @@ fun Game(
                         }
 
                         viewModel.introduceWord(
+                            this@Game,
                             gameInfo,
                             text,
                             wordCheck == CHECK_WORD_CORRECT,

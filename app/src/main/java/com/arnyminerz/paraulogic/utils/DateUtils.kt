@@ -37,3 +37,18 @@ fun Date.format(pattern: String, locale: Locale = Locale.getDefault()): String =
 
 fun Calendar.format(pattern: String, locale: Locale = Locale.getDefault()): String =
     time.format(pattern, locale)
+
+/**
+ * Gets the start of `this` day.
+ * @author Arnau Mora
+ * @since 20220825
+ */
+fun Date.startOfDay(): Date {
+    val calendar = Calendar.getInstance()
+    calendar.time = this
+    calendar[Calendar.HOUR_OF_DAY] = 0
+    calendar[Calendar.MINUTE] = 0
+    calendar[Calendar.SECOND] = 0
+    calendar[Calendar.MILLISECOND] = 0
+    return calendar.time
+}

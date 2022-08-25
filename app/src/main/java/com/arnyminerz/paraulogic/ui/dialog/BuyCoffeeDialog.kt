@@ -10,7 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.datastore.preferences.core.edit
 import com.arnyminerz.paraulogic.R
 import com.arnyminerz.paraulogic.activity.DonationsActivity
-import com.arnyminerz.paraulogic.pref.PreferencesModule
+import com.arnyminerz.paraulogic.pref.PrefDisableDonationDialog
 import com.arnyminerz.paraulogic.pref.dataStore
 import com.arnyminerz.paraulogic.utils.doAsync
 import com.arnyminerz.paraulogic.utils.launch
@@ -53,7 +53,7 @@ fun BuyCoffeeDialog(showingDialog: Boolean, onDismissRequest: () -> Unit) {
                             .logEvent("disable_donations_dialog", Bundle())
                         doAsync {
                             context.dataStore.edit {
-                                it[PreferencesModule.DisableDonationDialog] = true
+                                it[PrefDisableDonationDialog] = true
                             }
                             uiContext { onDismissRequest() }
                         }
