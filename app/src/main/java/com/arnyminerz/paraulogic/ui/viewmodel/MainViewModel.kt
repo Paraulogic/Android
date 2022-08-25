@@ -174,7 +174,13 @@ class MainViewModel(activity: Activity) : AndroidViewModel(activity.application)
         val gameInfo = gameInfoForToday(context)
         if (gameInfo != null && gameInfo.hash != this.gameInfo?.hash) {
             Timber.i("Game info got updated. Refreshing UI...")
-            uiContext { this@MainViewModel.gameInfo = gameInfo }
+            uiContext {
+                this@MainViewModel.gameInfo = gameInfo
+                this@MainViewModel.correctWords = emptyList()
+                this@MainViewModel.points = 0
+                this@MainViewModel.level = 0
+                this@MainViewModel.introducedTutis = emptyList()
+            }
         } else
             Timber.d("There's no new game data available.")
     }
