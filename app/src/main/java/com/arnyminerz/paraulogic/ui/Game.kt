@@ -1,6 +1,5 @@
 package com.arnyminerz.paraulogic.ui
 
-import android.media.MediaPlayer
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -44,6 +43,7 @@ import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_CORRECT
 import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_INCORRECT
 import com.arnyminerz.paraulogic.game.annotation.CHECK_WORD_SHORT
 import com.arnyminerz.paraulogic.game.lettersString
+import com.arnyminerz.paraulogic.sound.SoundManager
 import com.arnyminerz.paraulogic.ui.elements.ActionsButton
 import com.arnyminerz.paraulogic.ui.elements.ButtonsBox
 import com.arnyminerz.paraulogic.ui.elements.PointsText
@@ -163,10 +163,14 @@ fun AppCompatActivity.Game(
                             )
                         }
 
+                        val soundManager = SoundManager.getInstance()
+
+                        if (gameInfo.isTuti(text))
+                            soundManager.playSound(context, R.raw.gong)
                         if (wordCheck == CHECK_WORD_CORRECT) {
                             if (oldLevel != level) {
                                 Timber.i("Playing sound (level=$level,oldLevel=$oldLevel)...")
-                                val mp = MediaPlayer.create(
+                                soundManager.playSound(
                                     context,
                                     when (level) {
                                         0 -> R.raw.pollet
@@ -178,7 +182,6 @@ fun AppCompatActivity.Game(
                                         else -> R.raw.pao
                                     }
                                 )
-                                mp.start()
                                 oldLevel = level
                             } else
                                 Timber.d("Won't play sound. Old level: $oldLevel, level: $level")
