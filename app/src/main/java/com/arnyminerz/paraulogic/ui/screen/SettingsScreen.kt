@@ -105,7 +105,7 @@ fun SettingsScreen() {
                 SettingsItem(
                     title = stringResource(R.string.settings_info_github_title),
                     subtitle = stringResource(R.string.settings_info_github_summary),
-                    onClick = { context.launchUrl("https://github.com/ArnyminerZ/Paraulogic-Android") }
+                    onClick = { context.launchUrl("https://github.com/Paraulogic/Android.git") }
                 )
                 SettingsItem(
                     title = stringResource(R.string.settings_info_feedback_title),
