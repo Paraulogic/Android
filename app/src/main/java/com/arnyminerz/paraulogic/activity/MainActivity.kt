@@ -1,165 +1,91 @@
 package com.arnyminerz.paraulogic.activity
 
-import android.content.IntentFilter
-import android.content.pm.ActivityInfo
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.datastore.preferences.core.edit
-import androidx.lifecycle.ViewModelProvider
-import com.arnyminerz.paraulogic.R
-import com.arnyminerz.paraulogic.broadcast.ACTION_UPDATE_GAME_DATA
-import com.arnyminerz.paraulogic.pref.PrefNumberOfLaunches
-import com.arnyminerz.paraulogic.pref.dataStore
-import com.arnyminerz.paraulogic.ui.dialog.BuyCoffeeDialog
-import com.arnyminerz.paraulogic.ui.elements.MainScreen
-import com.arnyminerz.paraulogic.ui.theme.AppTheme
-import com.arnyminerz.paraulogic.ui.utils.LockScreenOrientation
-import com.arnyminerz.paraulogic.ui.viewmodel.MainViewModel
-import com.arnyminerz.paraulogic.utils.doAsync
-import com.arnyminerz.paraulogic.utils.doOnUi
-import com.google.accompanist.pager.ExperimentalPagerApi
-import kotlinx.coroutines.flow.first
-import timber.log.Timber
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 
-@OptIn(
-    ExperimentalPagerApi::class,
-    ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class,
-    ExperimentalMaterial3WindowSizeClassApi::class,
-)
+@OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : AppCompatActivity() {
-    /**
-     * Used for displaying popups to the user, such as the achievements screen, or the leaderboard.
-     * @author Arnau Mora
-     * @since 20220825
-     */
-    private val popupLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val data = result.data
-        Timber.i("Closed popup. Result code: ${result.resultCode}. Data: ${data?.data}")
-    }
-
-    /**
-     * The view model used for doing all the hard work.
-     * @author Arnau Mora
-     * @since 20220825
-     */
-    private lateinit var viewModel: MainViewModel
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Timber.d("Initializing main view model...")
-        viewModel = ViewModelProvider(
-            this,
-            MainViewModel.Factory(this)
-        )[MainViewModel::class.java]
-
-        viewModel.loadAuthenticatedState(this)
-
-        val filter = IntentFilter(ACTION_UPDATE_GAME_DATA)
-        registerReceiver(viewModel.broadcastReceiver, filter)
-
-        increaseLaunches()
-
         setContent {
-            val windowSizeClass = calculateWindowSizeClass(this)
-            val snackbarHostState = remember { SnackbarHostState() }
-
-            LockScreenOrientation(
-                when (windowSizeClass.widthSizeClass) {
-                    WindowWidthSizeClass.Compact -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                    else -> ActivityInfo.SCREEN_ORIENTATION_SENSOR
-                }
-            )
-
-            AppTheme {
-                MainScreen(snackbarHostState, viewModel, popupLauncher)
-
-                var showingDialog by remember { mutableStateOf(false) }
-                BuyCoffeeDialog(showingDialog) {
-                    increaseLaunches().invokeOnCompletion {
-                        showingDialog = false
+            Scaffold { paddingValues ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(paddingValues)
+                        .padding(8.dp),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Text(
+                            "Aplicació clausurada",
+                            style = MaterialTheme.typography.headlineLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 4.dp),
+                            textAlign = TextAlign.Center,
+                        )
+                        Text(
+                            "Hola, em dic Arnau, i sóc un estudiant d'enginyeria de telecomunicacions que ja fa 6 mesos que he estat treballant en aquesta aplicació. Sabent-me molt malament, ha d'arribar a la seua fi.\nVaig iniciar aquest projecte amb tota la passió del món, perquè m'agradava el Paraulògic, a mi, i a la meua família, i volia poder tindre funcions extra de les quals no disposava al lloc web. Amb aquesta idea en ment, vaig decidir desenvolupar una nova aplicació que extendira la web, mantenint aquesta essència que fa tant especial al Paraulògic.\nHe treballat durant molts mesos desenfrenadament, fins a altes hores de la matinada, solucionant problemes, incorporant noves funcions, i intentant dur el Paraulògic encara més enllà.\nAvui ha arribat el dia que sabia que havia de passar; des de RodaMots m'han sol·licitat que retire l'aplicació, i sent conscient que la marca no n'és de la meua propietat, no tinc altra opció que obeïr.\nLamento moltíssim les molèsties, i retirar així de cop una aplicació, ja que sé que sou molts els que la feu servir, però no està en la meua mà aquesta decisió.\nSense res més a dir, i sense alternativa viable actualment, clausuro l'aplicació. Podeu seguir jugant a la web oficial, i el codi font seguirà estant present a GitHub. Gràcies per jugar, i fins la pròxima. Salut.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                    ) {
+                        FilledTonalButton(
+                            onClick = {
+                                Intent(Intent.ACTION_VIEW)
+                                    .setData(Uri.parse("https://paraulogic.cat"))
+                                    .also { startActivity(it) }
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 4.dp),
+                        ) {
+                            Text("Paraulògic")
+                        }
+                        FilledTonalButton(
+                            onClick = {
+                                Intent(Intent.ACTION_VIEW)
+                                    .setData(Uri.parse("https://github.com/Paraulogic/Android"))
+                                    .also { startActivity(it) }
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 4.dp),
+                        ) {
+                            Text("GitHub")
+                        }
                     }
                 }
-
-                val disabledDonationDialog by viewModel.prefDisableDonationDialog
-                    .collectAsState(initial = false)
-                val numberOfLaunches: Int? by viewModel.prefNumberOfLaunches
-                    .collectAsState(initial = null)
-
-                // Show dialog every 15 launches
-                val numberOfLaunchesRem = numberOfLaunches?.rem(15) ?: Int.MAX_VALUE
-                if (numberOfLaunchesRem == 0 && !disabledDonationDialog)
-                    showingDialog = true
-            }
-
-            // This makes sure data only gets loaded once, and not every redraw
-            if (!viewModel.isLoading && viewModel.gameInfo == null)
-                viewModel.loadGameInfo(this) { finished ->
-                    doOnUi {
-                        snackbarHostState.currentSnackbarData?.dismiss()
-                        if (finished)
-                            snackbarHostState.showSnackbar(
-                                message = getString(R.string.status_loaded_server),
-                                duration = SnackbarDuration.Short,
-                            )
-                        else
-                            snackbarHostState.showSnackbar(
-                                message = getString(R.string.status_loading_server),
-                                duration = SnackbarDuration.Indefinite,
-                            )
-                    }
-                }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        if (this::viewModel.isInitialized)
-            viewModel.loadAuthenticatedState(this)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        if (this::viewModel.isInitialized)
-            unregisterReceiver(viewModel.broadcastReceiver)
-    }
-
-    /**
-     * Increase the launches counter by 1.
-     * @author Arnau Mora
-     * @since 20220825
-     * @see dataStore
-     * @see PrefNumberOfLaunches
-     */
-    private fun increaseLaunches() =
-        doAsync {
-            // Increase number of launches
-            dataStore.edit {
-                val numberOfLaunches = dataStore
-                    .data
-                    .first()[PrefNumberOfLaunches]
-                it[PrefNumberOfLaunches] = numberOfLaunches?.plus(1) ?: 1
             }
         }
+    }
 }
